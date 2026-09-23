@@ -116,11 +116,6 @@ Development proceeds incrementally throughout the semester:
 
 ---
 
-## 👥 Contributors
-
-- **Developers:** [@ceydasenemyigit](https://github.com/ceydasenemyigit) & [@bseyma](https://github.com/bseyma)
-
----
 
 ## 📄 License
 

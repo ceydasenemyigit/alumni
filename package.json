@@ -1,0 +1,22 @@
+{
+  "name": "alumni",
+  "version": "1.0.0",
+  "description": "Alumni Tracking System - Express Backend Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "alumni",
+    "express",
+    "nodejs",
+    "docker"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,490 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Alumni Tracking System API",
+    "version": "1.0.0",
+    "description": "RESTful API documentation for the Alumni Tracking System developed for the Web Programming course at Istanbul University."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System",
+      "description": "Health check and system diagnostics"
+    },
+    {
+      "name": "Users",
+      "description": "In-memory user management CRUD operations"
+    },
+    {
+      "name": "Lab 1 Routes",
+      "description": "Basic Express introductory routes"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Check system health",
+        "description": "Returns current health status, uptime, and timestamp in JSON format.",
+        "responses": {
+          "200": {
+            "description": "System health information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "OK",
+                  "uptime": 14.52,
+                  "timestamp": "2026-09-30T21:00:00.000Z",
+                  "message": "System is healthy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List all users",
+        "description": "Retrieves the list of all registered users from the in-memory data store.",
+        "responses": {
+          "200": {
+            "description": "Array of user objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a new user",
+        "description": "Adds a new user to the in-memory store. Supports both JSON and Form URL-encoded data formats.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (missing required fields)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user by ID",
+        "description": "Retrieves the details of a single user by their unique identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique integer identifier of the user",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Replace/Update user by ID",
+        "description": "Full update or replacement of user information by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique integer identifier of the user",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Partially update user by ID",
+        "description": "Update specific fields of an existing user by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique integer identifier of the user",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchInput"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully patched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete user by ID",
+        "description": "Removes a user from the in-memory store by ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique integer identifier of the user",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Root status route",
+        "description": "Returns 'ok' text response (or main page if queried with ?home).",
+        "responses": {
+          "200": {
+            "description": "OK text response",
+            "content": {
+              "text/plain": {
+                "example": "ok"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hello": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Hello World",
+        "description": "Returns 'Hello, World!' greeting.",
+        "responses": {
+          "200": {
+            "description": "Greeting text",
+            "content": {
+              "text/plain": {
+                "example": "Hello, World!"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hello/{name}": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Personalized Greeting",
+        "description": "Returns a personalized greeting for the given name.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "emre"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Personalized greeting message",
+            "content": {
+              "text/plain": {
+                "example": "Hello, Emre!"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sum/{number1}/{number2}": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Sum of Two Numbers",
+        "description": "Calculates and returns the sum of two numbers provided as route parameters.",
+        "parameters": [
+          {
+            "name": "number1",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "example": 5
+          },
+          {
+            "name": "number2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            },
+            "example": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calculated sum",
+            "content": {
+              "text/plain": {
+                "example": "8"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/home": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Temporary Main Page",
+        "description": "Returns 'temporary one main page'.",
+        "responses": {
+          "200": {
+            "description": "Main page text",
+            "content": {
+              "text/plain": {
+                "example": "temporary one main page"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/about": {
+      "get": {
+        "tags": ["Lab 1 Routes"],
+        "summary": "Temporary About Page",
+        "description": "Returns 'temp. about page'.",
+        "responses": {
+          "200": {
+            "description": "About page text",
+            "content": {
+              "text/plain": {
+                "example": "temp. about page"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "OK" },
+          "uptime": { "type": "number", "example": 25.12 },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "message": { "type": "string", "example": "System is healthy" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Emre Yılmaz" },
+          "email": { "type": "string", "format": "email", "example": "emre@example.com" },
+          "department": { "type": "string", "example": "Computer Engineering" },
+          "graduationYear": { "type": "integer", "example": 2024 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "required": ["name", "email"],
+        "properties": {
+          "name": { "type": "string", "example": "Emre Yılmaz" },
+          "email": { "type": "string", "format": "email", "example": "emre@example.com" },
+          "department": { "type": "string", "example": "Computer Engineering" },
+          "graduationYear": { "type": "integer", "example": 2024 }
+        }
+      },
+      "UserPatchInput": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Emre Yılmaz Updated" },
+          "email": { "type": "string", "format": "email", "example": "emre.updated@example.com" },
+          "department": { "type": "string", "example": "Software Engineering" },
+          "graduationYear": { "type": "integer", "example": 2024 }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "example": "Resource not found" }
+        }
+      }
+    }
+  }
+}

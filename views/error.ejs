@@ -1,0 +1,14 @@
+<%- include('partials/header') %>
+
+<div style="max-width: 540px; margin: 60px auto; text-align: center;">
+  <div class="card" style="padding: 48px 32px;">
+    <div style="font-size: 3rem; margin-bottom: 16px;">⚠️</div>
+    <h1 style="font-size: 1.75rem; color: white; margin-bottom: 12px;"><%= typeof title !== 'undefined' ? title : 'Error Occurred' %></h1>
+    <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 28px;">
+      <%= typeof message !== 'undefined' ? message : 'The requested resource could not be found or an unexpected error occurred.' %>
+    </p>
+    <a href="/users" class="btn btn-primary">&larr; Return to Users Directory</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

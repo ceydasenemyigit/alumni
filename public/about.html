@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Alumni Tracking System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #0ea5e9;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0b0f19 0%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px;
+    }
+    .container {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--surface-border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1.2;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    p {
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #38bdf8;
+      margin: 28px 0 14px;
+    }
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 16px 0 28px;
+    }
+    .tech-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .tech-card h4 {
+      font-size: 0.95rem;
+      color: #f1f5f9;
+      margin-bottom: 6px;
+    }
+    .tech-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+    .nav-bar {
+      display: flex;
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--surface-border);
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { border: 1px solid var(--surface-border); color: var(--text-muted); }
+    .btn-outline:hover { border-color: #94a3b8; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="badge">Course Project</span>
+    <h1>About This Project</h1>
+    <p>
+      The <strong>Alumni Tracking System</strong> is an academic web application developed for the Web Programming course at Istanbul University. It provides comprehensive alumni management, career tracking, and university networking services through RESTful API endpoints.
+    </p>
+
+    <h3 class="section-title">Tech Stack</h3>
+    <div class="tech-grid">
+      <div class="tech-card">
+        <h4>Runtime & Server</h4>
+        <p>Node.js & Express.js with REST API architecture</p>
+      </div>
+      <div class="tech-card">
+        <h4>API Documentation</h4>
+        <p>Interactive Swagger UI & OpenAPI 3.0 specification</p>
+      </div>
+      <div class="tech-card">
+        <h4>Data Persistence</h4>
+        <p>In-Memory Store (transitioning to PostgreSQL database)</p>
+      </div>
+      <div class="tech-card">
+        <h4>DevOps & Tooling</h4>
+        <p>Docker, Docker Compose & automated test suite</p>
+      </div>
+    </div>
+
+    <h3 class="section-title">Key Capabilities</h3>
+    <p>
+      The platform supports user registration via Form URL-Encoded, JSON, and multipart formats, complete CRUD operations, granular field patching, and system diagnostics with real-time health checks.
+    </p>
+
+    <div class="nav-bar">
+      <a href="/" class="btn btn-primary">&larr; Back to Home</a>
+      <a href="/api/swagger" class="btn btn-outline">Explore Swagger API</a>
+    </div>
+  </div>
+</body>
+</html>

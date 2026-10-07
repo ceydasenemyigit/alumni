@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Alumni Tracking System API",
-    "version": "1.0.0",
-    "description": "RESTful API documentation for the Alumni Tracking System developed for the Web Programming course at Istanbul University."
+    "title": "Alumni Tracking System API & Web Directory",
+    "version": "1.1.0",
+    "description": "Complete documentation for the Alumni Tracking System featuring both MVC Web Views (/users) and RESTful JSON APIs (/api/users), developed for the Web Programming course at Istanbul University."
   },
   "servers": [
     {
@@ -13,58 +13,139 @@
   ],
   "tags": [
     {
+      "name": "Users (MVC Web Views)",
+      "description": "Server-side rendered HTML views under /users"
+    },
+    {
+      "name": "Users (REST API)",
+      "description": "JSON API endpoints under /api/users"
+    },
+    {
       "name": "System",
-      "description": "Health check and system diagnostics"
+      "description": "Health checks and system diagnostics"
     },
     {
-      "name": "Users",
-      "description": "In-memory user management CRUD operations"
-    },
-    {
-      "name": "Lab 1 Routes",
+      "name": "Introductory Routes",
       "description": "Basic Express introductory routes"
     }
   ],
   "paths": {
-    "/api/health": {
+    "/users": {
       "get": {
-        "tags": ["System"],
-        "summary": "Check system health",
-        "description": "Returns current health status, uptime, and timestamp in JSON format.",
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "User Listing View (HTML)",
+        "description": "Renders the HTML table view listing all registered alumni and students. Supports search and role filtering.",
+        "parameters": [
+          { "name": "search", "in": "query", "description": "Search keyword", "schema": { "type": "string" } },
+          { "name": "role", "in": "query", "description": "Filter by role", "schema": { "type": "string", "enum": ["STUDENT", "ALUMNI", "ADMIN"] } }
+        ],
         "responses": {
-          "200": {
-            "description": "System health information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                },
-                "example": {
-                  "status": "OK",
-                  "uptime": 14.52,
-                  "timestamp": "2026-09-30T21:00:00.000Z",
-                  "message": "System is healthy"
-                }
-              }
+          "200": { "description": "HTML web page with user list", "content": { "text/html": {} } }
+        }
+      },
+      "post": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Create User via Web Form",
+        "description": "Receives user creation form data, creates the user in-memory, and redirects to the user's profile view.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/UserInput" }
             }
           }
+        },
+        "responses": {
+          "302": { "description": "Redirects to /users/{id} on success" },
+          "400": { "description": "Re-renders form with validation error", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/users/new": {
+      "get": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Render User Creation Form (HTML)",
+        "description": "Renders the HTML form page to create a new user.",
+        "responses": {
+          "200": { "description": "HTML user creation form", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "User Details View (HTML)",
+        "description": "Renders the detailed profile view of a specific user.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "HTML user profile page", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (User not found)", "content": { "text/html": {} } }
+        }
+      },
+      "put": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Update User via Web Form",
+        "description": "Handles full update from the edit form (supports _method=PUT or direct POST).",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/UserInput" }
+            }
+          }
+        },
+        "responses": {
+          "302": { "description": "Redirects to /users/{id} on success" },
+          "400": { "description": "Re-renders edit form with validation error", "content": { "text/html": {} } }
+        }
+      },
+      "delete": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Delete User via Web Form",
+        "description": "Removes a user and redirects to the user directory /users.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to /users" }
+        }
+      }
+    },
+    "/users/{id}/edit": {
+      "get": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Render User Edit Form (HTML)",
+        "description": "Renders prefilled form to edit existing user details.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "HTML edit form", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page", "content": { "text/html": {} } }
         }
       }
     },
     "/api/users": {
       "get": {
-        "tags": ["Users"],
-        "summary": "List all users",
-        "description": "Retrieves the list of all registered users from the in-memory data store.",
+        "tags": ["Users (REST API)"],
+        "summary": "List all users (JSON)",
+        "description": "Returns array of all users in the in-memory store in JSON format.",
         "responses": {
           "200": {
             "description": "Array of user objects",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "count": { "type": "integer", "example": 2 },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/User" } }
                   }
                 }
               }
@@ -73,416 +154,224 @@
         }
       },
       "post": {
-        "tags": ["Users"],
-        "summary": "Create a new user",
-        "description": "Adds a new user to the in-memory store. Supports both JSON and Form URL-encoded data formats.",
+        "tags": ["Users (REST API)"],
+        "summary": "Create user (JSON / Form)",
+        "description": "Creates a new user. Supports JSON, URL-Encoded, and Multipart formats.",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/UserInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/UserInput" } }
           }
         },
         "responses": {
           "201": {
-            "description": "User successfully created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error (missing required fields)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/{id}": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get user by ID",
-        "description": "Retrieves the details of a single user by their unique identifier.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Unique integer identifier of the user",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": ["Users"],
-        "summary": "Replace/Update user by ID",
-        "description": "Full update or replacement of user information by ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Unique integer identifier of the user",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User successfully updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": ["Users"],
-        "summary": "Partially update user by ID",
-        "description": "Update specific fields of an existing user by ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Unique integer identifier of the user",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserPatchInput"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UserPatchInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User successfully patched",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Users"],
-        "summary": "Delete user by ID",
-        "description": "Removes a user from the in-memory store by ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Unique integer identifier of the user",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User deleted successfully",
+            "description": "User created",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "success": { "type": "boolean", "example": true },
                     "message": { "type": "string" },
-                    "user": { "$ref": "#/components/schemas/User" }
+                    "data": { "$ref": "#/components/schemas/User" }
                   }
                 }
               }
             }
           },
-          "404": {
-            "description": "User not found",
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "409": { "description": "Email conflict", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": ["Users (REST API)"],
+        "summary": "Get user by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "User found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+          "404": { "description": "User not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Users (REST API)"],
+        "summary": "Full update user by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UserInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/UserInput" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+          "404": { "description": "User not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Users (REST API)"],
+        "summary": "Partial update user by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UserPatchInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/UserPatchInput" } }
+          }
+        },
+        "responses": {
+          "200": { "description": "User patched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+          "404": { "description": "User not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Users (REST API)"],
+        "summary": "Delete user by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/User" }
+                  }
                 }
               }
             }
-          }
+          },
+          "404": { "description": "User not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Check system health",
+        "description": "Returns system health, uptime, and system diagnostics in JSON format.",
+        "responses": {
+          "200": { "description": "Health status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HealthResponse" } } } }
         }
       }
     },
     "/": {
       "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Root status route",
-        "description": "Returns 'ok' text response (or main page if queried with ?home).",
+        "tags": ["Introductory Routes"],
+        "summary": "Root home page",
+        "description": "Returns HTML home page for browsers or JSON for API clients.",
         "responses": {
-          "200": {
-            "description": "OK text response",
-            "content": {
-              "text/plain": {
-                "example": "ok"
-              }
-            }
-          }
+          "200": { "description": "Home page response" }
         }
       }
     },
     "/hello": {
       "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Hello World",
-        "description": "Returns 'Hello, World!' greeting.",
-        "responses": {
-          "200": {
-            "description": "Greeting text",
-            "content": {
-              "text/plain": {
-                "example": "Hello, World!"
-              }
-            }
-          }
-        }
+        "tags": ["Introductory Routes"],
+        "summary": "Hello World greeting",
+        "responses": { "200": { "description": "Greeting text" } }
       }
     },
     "/hello/{name}": {
       "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Personalized Greeting",
-        "description": "Returns a personalized greeting for the given name.",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "emre"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Personalized greeting message",
-            "content": {
-              "text/plain": {
-                "example": "Hello, Emre!"
-              }
-            }
-          }
-        }
+        "tags": ["Introductory Routes"],
+        "summary": "Personalized greeting",
+        "parameters": [{ "name": "name", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Personalized greeting" } }
       }
     },
     "/sum/{number1}/{number2}": {
       "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Sum of Two Numbers",
-        "description": "Calculates and returns the sum of two numbers provided as route parameters.",
+        "tags": ["Introductory Routes"],
+        "summary": "Sum of two numbers",
         "parameters": [
-          {
-            "name": "number1",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "number"
-            },
-            "example": 5
-          },
-          {
-            "name": "number2",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "number"
-            },
-            "example": 3
-          }
+          { "name": "number1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "number2", "in": "path", "required": true, "schema": { "type": "number" } }
         ],
-        "responses": {
-          "200": {
-            "description": "Calculated sum",
-            "content": {
-              "text/plain": {
-                "example": "8"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/home": {
-      "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Temporary Main Page",
-        "description": "Returns 'temporary one main page'.",
-        "responses": {
-          "200": {
-            "description": "Main page text",
-            "content": {
-              "text/plain": {
-                "example": "temporary one main page"
-              }
-            }
-          }
-        }
+        "responses": { "200": { "description": "Calculated sum" } }
       }
     },
     "/about": {
       "get": {
-        "tags": ["Lab 1 Routes"],
-        "summary": "Temporary About Page",
-        "description": "Returns 'temp. about page'.",
-        "responses": {
-          "200": {
-            "description": "About page text",
-            "content": {
-              "text/plain": {
-                "example": "temp. about page"
-              }
-            }
-          }
-        }
+        "tags": ["Introductory Routes"],
+        "summary": "About project page",
+        "responses": { "200": { "description": "About HTML page" } }
       }
     }
   },
   "components": {
     "schemas": {
-      "HealthResponse": {
-        "type": "object",
-        "properties": {
-          "status": { "type": "string", "example": "OK" },
-          "uptime": { "type": "number", "example": 25.12 },
-          "timestamp": { "type": "string", "format": "date-time" },
-          "message": { "type": "string", "example": "System is healthy" }
-        }
-      },
       "User": {
         "type": "object",
         "properties": {
           "id": { "type": "integer", "example": 1 },
-          "name": { "type": "string", "example": "Emre Yılmaz" },
           "email": { "type": "string", "format": "email", "example": "emre@example.com" },
+          "first_name": { "type": "string", "example": "Emre" },
+          "last_name": { "type": "string", "example": "Yılmaz" },
+          "role": { "type": "string", "enum": ["STUDENT", "ALUMNI", "ADMIN"], "example": "ALUMNI" },
           "department": { "type": "string", "example": "Computer Engineering" },
-          "graduationYear": { "type": "integer", "example": 2024 },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "updatedAt": { "type": "string", "format": "date-time" }
+          "graduation_year": { "type": "integer", "example": 2024 },
+          "is_verified": { "type": "boolean", "example": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
         }
       },
       "UserInput": {
         "type": "object",
-        "required": ["name", "email"],
+        "required": ["email"],
         "properties": {
-          "name": { "type": "string", "example": "Emre Yılmaz" },
-          "email": { "type": "string", "format": "email", "example": "emre@example.com" },
+          "email": { "type": "string", "format": "email", "example": "ahmet@example.com" },
+          "first_name": { "type": "string", "example": "Ahmet" },
+          "last_name": { "type": "string", "example": "Kaya" },
+          "role": { "type": "string", "enum": ["STUDENT", "ALUMNI", "ADMIN"], "default": "ALUMNI" },
           "department": { "type": "string", "example": "Computer Engineering" },
-          "graduationYear": { "type": "integer", "example": 2024 }
+          "graduation_year": { "type": "integer", "example": 2024 }
         }
       },
       "UserPatchInput": {
         "type": "object",
         "properties": {
-          "name": { "type": "string", "example": "Emre Yılmaz Updated" },
-          "email": { "type": "string", "format": "email", "example": "emre.updated@example.com" },
+          "first_name": { "type": "string", "example": "Ahmet Can" },
           "department": { "type": "string", "example": "Software Engineering" },
-          "graduationYear": { "type": "integer", "example": 2024 }
+          "graduation_year": { "type": "integer", "example": 2025 }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "UP" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "uptime": { "type": "object" },
+          "system": { "type": "object" }
         }
       },
       "ErrorResponse": {
         "type": "object",
         "properties": {
-          "error": { "type": "string", "example": "Resource not found" }
+          "success": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Validation Error" },
+          "message": { "type": "string", "example": "E-posta (email) alanı zorunludur." }
         }
       }
     }

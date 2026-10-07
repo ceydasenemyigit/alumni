@@ -1,0 +1,83 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Alumni Users</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Browse and manage registered students and alumni in the system.</p>
+  </div>
+  <a href="/users/new" class="btn btn-primary">+ Create New User</a>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+  <form action="/users" method="GET" style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <input
+      type="text"
+      name="search"
+      value="<%= search %>"
+      placeholder="Search by name, email, department..."
+      style="flex: 1; min-width: 240px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;"
+    >
+    <select name="role" style="padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
+      <option value="">All Roles</option>
+      <option value="ALUMNI" <%= activeRole === 'ALUMNI' ? 'selected' : '' %>>Alumni</option>
+      <option value="STUDENT" <%= activeRole === 'STUDENT' ? 'selected' : '' %>>Student</option>
+      <option value="ADMIN" <%= activeRole === 'ADMIN' ? 'selected' : '' %>>Admin</option>
+    </select>
+    <button type="submit" class="btn btn-outline">Filter</button>
+    <% if (search || activeRole) { %>
+      <a href="/users" class="btn btn-outline" style="color: var(--text-muted);">Reset</a>
+    <% } %>
+  </form>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <% if (users.length === 0) { %>
+    <div style="padding: 48px 24px; text-align: center; color: var(--text-muted);">
+      <p style="font-size: 1.1rem; margin-bottom: 12px;">No users found.</p>
+      <a href="/users/new" class="btn btn-primary btn-sm">Add the first user</a>
+    </div>
+  <% } else { %>
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.4); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <th style="padding: 14px 20px;">ID</th>
+          <th style="padding: 14px 20px;">Name</th>
+          <th style="padding: 14px 20px;">Email</th>
+          <th style="padding: 14px 20px;">Role</th>
+          <th style="padding: 14px 20px;">Department</th>
+          <th style="padding: 14px 20px;">Grad Year</th>
+          <th style="padding: 14px 20px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.4); transition: background 0.15s;" onmouseover="this.style.background='rgba(51,65,85,0.2)'" onmouseout="this.style.background='transparent'">
+            <td style="padding: 16px 20px; font-family: monospace; color: var(--text-muted);">#<%= user.id %></td>
+            <td style="padding: 16px 20px; font-weight: 600; color: white;">
+              <a href="/users/<%= user.id %>" style="color: white; text-decoration: none;">
+                <%= user.first_name %> <%= user.last_name %>
+              </a>
+            </td>
+            <td style="padding: 16px 20px; color: var(--text-muted);"><%= user.email %></td>
+            <td style="padding: 16px 20px;">
+              <span class="badge badge-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+            </td>
+            <td style="padding: 16px 20px; color: var(--text-muted);"><%= user.department || '—' %></td>
+            <td style="padding: 16px 20px; color: var(--text-muted);"><%= user.graduation_year || '—' %></td>
+            <td style="padding: 16px 20px; text-align: right;">
+              <div style="display: inline-flex; gap: 8px;">
+                <a href="/users/<%= user.id %>" class="btn btn-outline btn-sm">View</a>
+                <a href="/users/<%= user.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
+                <form action="/users/<%= user.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

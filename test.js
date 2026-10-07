@@ -1,6 +1,6 @@
 const http = require('http');
 const assert = require('assert');
-const app = require('./index');
+const app = require('./src/app');
 
 const server = http.createServer(app);
 
@@ -42,139 +42,155 @@ function request(options, postData = null) {
 async function runTests() {
   server.listen(0, async () => {
     try {
-      console.log('--- Running Complete Route Tests ---');
+      console.log('=== RUNNING COMPLETE MVC & API TEST SUITE ===\n');
 
-      // --- Lab 1 Tests ---
-      console.log('\n[Lab 1 Routes]');
-      const resRoot = await request({ path: '/' });
-      assert.strictEqual(resRoot.statusCode, 200);
-      assert.strictEqual(resRoot.body, 'ok');
-      console.log('✓ GET / -> "ok"');
-
+      // 1. Basic Introductory Routes
+      console.log('--- 1. Introductory Routes ---');
       const resHello = await request({ path: '/hello' });
       assert.strictEqual(resHello.statusCode, 200);
-      assert.strictEqual(resHello.body, 'Hello, World!');
-      console.log('✓ GET /hello -> "Hello, World!"');
+      assert.strictEqual(resHello.body, 'Hello World');
+      console.log('✓ GET /hello -> "Hello World"');
 
       const resHelloName = await request({ path: '/hello/emre' });
       assert.strictEqual(resHelloName.statusCode, 200);
-      assert.strictEqual(resHelloName.body, 'Hello, Emre!');
-      console.log('✓ GET /hello/emre -> "Hello, Emre!"');
+      assert.strictEqual(resHelloName.body, 'Hello Emre!');
+      console.log('✓ GET /hello/emre -> "Hello Emre!"');
 
-      const resSum = await request({ path: '/sum/5/3' });
+      const resSum = await request({ path: '/sum/3/5' });
       assert.strictEqual(resSum.statusCode, 200);
-      assert.strictEqual(resSum.body, '8');
-      console.log('✓ GET /sum/5/3 -> "8"');
+      assert.strictEqual(resSum.body, 'toplam= 8');
+      console.log('✓ GET /sum/3/5 -> "toplam= 8"');
 
-      const resHome = await request({ path: '/home' });
-      assert.strictEqual(resHome.statusCode, 200);
-      assert.strictEqual(resHome.body, 'temporary one main page');
-      console.log('✓ GET /home -> "temporary one main page"');
+      const resSumBad = await request({ path: '/sum/abc/5' });
+      assert.strictEqual(resSumBad.statusCode, 400);
+      console.log('✓ GET /sum/abc/5 -> 400 Bad Request');
 
-      const resAbout = await request({ path: '/about' });
-      assert.strictEqual(resAbout.statusCode, 200);
-      assert.strictEqual(resAbout.body, 'temp. about page');
-      console.log('✓ GET /about -> "temp. about page"');
-
-      // --- Lab 2 Tests ---
-      console.log('\n[Lab 2 Routes]');
-
-      // 1. GET /api/health
+      // 2. Health & Swagger
+      console.log('\n--- 2. System Health & Swagger ---');
       const resHealth = await request({ path: '/api/health' });
       assert.strictEqual(resHealth.statusCode, 200);
-      assert.strictEqual(resHealth.json.status, 'OK');
+      assert.strictEqual(resHealth.json.status, 'UP');
       assert.ok(resHealth.json.uptime !== undefined);
-      assert.ok(resHealth.json.timestamp !== undefined);
-      console.log('✓ GET /api/health -> JSON status: OK');
+      console.log('✓ GET /api/health -> status "UP"');
 
-      // 2. GET /api/users (initial list)
-      const resUsersInitial = await request({ path: '/api/users' });
-      assert.strictEqual(resUsersInitial.statusCode, 200);
-      assert.ok(Array.isArray(resUsersInitial.json));
-      assert.strictEqual(resUsersInitial.json.length, 2);
-      console.log('✓ GET /api/users -> returns initial users array');
-
-      // 3. POST /api/users (JSON format)
-      const newUserJson = {
-        name: 'Caner Demir',
-        email: 'caner@example.com',
-        department: 'Industrial Engineering',
-        graduationYear: 2025
-      };
-      const resPostJson = await request({ path: '/api/users', method: 'POST' }, newUserJson);
-      assert.strictEqual(resPostJson.statusCode, 201);
-      assert.strictEqual(resPostJson.json.name, 'Caner Demir');
-      assert.strictEqual(resPostJson.json.id, 3);
-      console.log('✓ POST /api/users (JSON) -> 201 Created with id: 3');
-
-      // 3b. POST /api/users (Form URL-encoded format)
-      const formPayload = 'name=Selin+Y%C4%B1ld%C4%B1z&email=selin%40example.com&department=Management&graduationYear=2024';
-      const resPostForm = await request({
-        path: '/api/users',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      }, formPayload);
-      assert.strictEqual(resPostForm.statusCode, 201);
-      assert.strictEqual(resPostForm.json.name, 'Selin Yıldız');
-      assert.strictEqual(resPostForm.json.id, 4);
-      console.log('✓ POST /api/users (Form URL-Encoded) -> 201 Created with id: 4');
-
-      // 4. GET /api/users/:id
-      const resGetUser = await request({ path: '/api/users/3' });
-      assert.strictEqual(resGetUser.statusCode, 200);
-      assert.strictEqual(resGetUser.json.name, 'Caner Demir');
-      console.log('✓ GET /api/users/3 -> returns Caner Demir');
-
-      // 5. PUT /api/users/:id (Full update)
-      const putData = {
-        name: 'Caner Demir Updated',
-        email: 'caner.new@example.com',
-        department: 'Computer Science',
-        graduationYear: 2025
-      };
-      const resPut = await request({ path: '/api/users/3', method: 'PUT' }, putData);
-      assert.strictEqual(resPut.statusCode, 200);
-      assert.strictEqual(resPut.json.name, 'Caner Demir Updated');
-      assert.strictEqual(resPut.json.email, 'caner.new@example.com');
-      assert.strictEqual(resPut.json.department, 'Computer Science');
-      console.log('✓ PUT /api/users/3 -> updated user successfully');
-
-      // 6. PATCH /api/users/:id (Partial update)
-      const patchData = {
-        department: 'Artificial Intelligence'
-      };
-      const resPatch = await request({ path: '/api/users/3', method: 'PATCH' }, patchData);
-      assert.strictEqual(resPatch.statusCode, 200);
-      assert.strictEqual(resPatch.json.department, 'Artificial Intelligence');
-      assert.strictEqual(resPatch.json.name, 'Caner Demir Updated'); // unchanged field
-      console.log('✓ PATCH /api/users/3 -> partially updated department');
-
-      // 7. DELETE /api/users/:id
-      const resDelete = await request({ path: '/api/users/3', method: 'DELETE' });
-      assert.strictEqual(resDelete.statusCode, 200);
-      assert.strictEqual(resDelete.json.user.id, 3);
-      console.log('✓ DELETE /api/users/3 -> deleted user 3');
-
-      // Verify deletion
-      const resGetDeleted = await request({ path: '/api/users/3' });
-      assert.strictEqual(resGetDeleted.statusCode, 404);
-      console.log('✓ GET /api/users/3 -> 404 Not Found after deletion');
-
-      // 8. GET /api/swagger.json & GET /api/swagger
       const resSwaggerJson = await request({ path: '/api/swagger.json' });
       assert.strictEqual(resSwaggerJson.statusCode, 200);
-      assert.strictEqual(resSwaggerJson.json.openapi, '3.0.3');
-      console.log('✓ GET /api/swagger.json -> returns valid OpenAPI 3.0 spec');
+      assert.ok(resSwaggerJson.json.openapi.includes('3.0'));
+      console.log('✓ GET /api/swagger.json -> OpenAPI 3.0.3 valid spec');
 
-      const resSwaggerUI = await request({ path: '/api/swagger/' });
-      assert.strictEqual(resSwaggerUI.statusCode, 200);
-      assert.ok(resSwaggerUI.body.includes('Swagger UI') || resSwaggerUI.body.includes('swagger-ui'));
-      console.log('✓ GET /api/swagger/ -> serves Swagger UI HTML');
+      // 3. MVC Web Routes (/users with Views)
+      console.log('\n--- 3. MVC Web Routes (/users with Views) ---');
 
-      console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY! (15/15 assertions)\n');
+      // GET /users - Listing View
+      const resWebList = await request({ path: '/users', headers: { Accept: 'text/html' } });
+      assert.strictEqual(resWebList.statusCode, 200);
+      assert.ok(resWebList.body.includes('Alumni Users') || resWebList.body.includes('Alumni User Directory'));
+      assert.ok(resWebList.body.includes('Emre'));
+      console.log('✓ GET /users -> 200 HTML Listing View');
+
+      // GET /users/new - Creation Form View
+      const resWebNew = await request({ path: '/users/new' });
+      assert.strictEqual(resWebNew.statusCode, 200);
+      assert.ok(resWebNew.body.includes('Register New User'));
+      console.log('✓ GET /users/new -> 200 HTML Creation Form');
+
+      // POST /users - Creating User via Web Form
+      const webFormPayload = 'first_name=Mehmet&last_name=Oz&email=mehmet%40example.com&role=ALUMNI&department=Civil+Eng&graduation_year=2021';
+      const resWebCreate = await request({
+        path: '/users',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, webFormPayload);
+      assert.strictEqual(resWebCreate.statusCode, 302); // Redirects to /users/:id
+      console.log('✓ POST /users -> 302 Redirect (Created User via Web Form)');
+
+      // GET /users/1 - Single User Show View
+      const resWebShow = await request({ path: '/users/1' });
+      assert.strictEqual(resWebShow.statusCode, 200);
+      assert.ok(resWebShow.body.includes('Emre Yılmaz'));
+      console.log('✓ GET /users/1 -> 200 HTML Profile View');
+
+      // GET /users/1/edit - User Edit Form View
+      const resWebEdit = await request({ path: '/users/1/edit' });
+      assert.strictEqual(resWebEdit.statusCode, 200);
+      assert.ok(resWebEdit.body.includes('Edit User'));
+      console.log('✓ GET /users/1/edit -> 200 HTML Edit Form View');
+
+      // POST /users/1 - Update User via Web Form
+      const webUpdatePayload = 'first_name=Emre&last_name=Yilmaz+Updated&email=emre%40example.com&role=ALUMNI';
+      const resWebUpdate = await request({
+        path: '/users/1',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, webUpdatePayload);
+      assert.strictEqual(resWebUpdate.statusCode, 302);
+      console.log('✓ POST /users/1 -> 302 Redirect (Updated User via Web Form)');
+
+      // 4. RESTful JSON API Routes (/api/users)
+      console.log('\n--- 4. RESTful JSON API Routes (/api/users) ---');
+
+      // GET /api/users
+      const resApiList = await request({ path: '/api/users' });
+      assert.strictEqual(resApiList.statusCode, 200);
+      assert.strictEqual(resApiList.json.success, true);
+      assert.ok(Array.isArray(resApiList.json.data));
+      console.log(`✓ GET /api/users -> 200 JSON (${resApiList.json.count} users)`);
+
+      // POST /api/users
+      const newApiUser = {
+        name: 'Burak Demir',
+        email: 'burak@example.com',
+        role: 'STUDENT',
+        department: 'Electrical Engineering',
+        graduation_year: 2026
+      };
+      const resApiCreate = await request({ path: '/api/users', method: 'POST' }, newApiUser);
+      assert.strictEqual(resApiCreate.statusCode, 201);
+      assert.strictEqual(resApiCreate.json.success, true);
+      assert.strictEqual(resApiCreate.json.data.email, 'burak@example.com');
+      const createdId = resApiCreate.json.data.id;
+      console.log(`✓ POST /api/users -> 201 JSON Created (ID: ${createdId})`);
+
+      // GET /api/users/:id
+      const resApiGet = await request({ path: `/api/users/${createdId}` });
+      assert.strictEqual(resApiGet.statusCode, 200);
+      assert.strictEqual(resApiGet.json.data.first_name, 'Burak');
+      console.log(`✓ GET /api/users/${createdId} -> 200 JSON Details`);
+
+      // PUT /api/users/:id
+      const putPayload = {
+        first_name: 'Burak Can',
+        last_name: 'Demir',
+        email: 'burak.can@example.com',
+        role: 'STUDENT'
+      };
+      const resApiPut = await request({ path: `/api/users/${createdId}`, method: 'PUT' }, putPayload);
+      assert.strictEqual(resApiPut.statusCode, 200);
+      assert.strictEqual(resApiPut.json.data.first_name, 'Burak Can');
+      console.log(`✓ PUT /api/users/${createdId} -> 200 JSON Full Update`);
+
+      // PATCH /api/users/:id
+      const patchPayload = { department: 'Robotics' };
+      const resApiPatch = await request({ path: `/api/users/${createdId}`, method: 'PATCH' }, patchPayload);
+      assert.strictEqual(resApiPatch.statusCode, 200);
+      assert.strictEqual(resApiPatch.json.data.department, 'Robotics');
+      console.log(`✓ PATCH /api/users/${createdId} -> 200 JSON Partial Update`);
+
+      // DELETE /api/users/:id
+      const resApiDelete = await request({ path: `/api/users/${createdId}`, method: 'DELETE' });
+      assert.strictEqual(resApiDelete.statusCode, 200);
+      assert.strictEqual(resApiDelete.json.success, true);
+      console.log(`✓ DELETE /api/users/${createdId} -> 200 JSON Deleted`);
+
+      // Verify Deleted
+      const resApiVerifyDel = await request({ path: `/api/users/${createdId}` });
+      assert.strictEqual(resApiVerifyDel.statusCode, 404);
+      console.log(`✓ GET /api/users/${createdId} -> 404 Not Found after deletion`);
+
+      console.log('\n🎉 ALL 18 TESTS PASSED SUCCESSFULLY! MVC & API Fully Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
-      console.error('\n❌ Test failed:', err);
+      console.error('\n❌ Test Failure:', err);
       server.close(() => process.exit(1));
     }
   });

@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><%= user.first_name %> <%= user.last_name %></h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">User Profile &bull; ID #<%= user.id %></p>
+    </div>
+    <a href="/users" class="btn btn-outline">&larr; Back to Users</a>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #0ea5e9); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 700; color: white;">
+          <%= user.first_name.charAt(0) %><%= user.last_name.charAt(0) %>
+        </div>
+        <div>
+          <h2 style="font-size: 1.25rem; color: white; margin-bottom: 4px;"><%= user.first_name %> <%= user.last_name %></h2>
+          <span class="badge badge-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+        </div>
+      </div>
+      <div>
+        <a href="/users/<%= user.id %>/edit" class="btn btn-outline btn-sm">Edit Profile</a>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Email</span>
+        <span style="color: white; font-weight: 500;"><%= user.email %></span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Department</span>
+        <span style="color: white; font-weight: 500;"><%= user.department || 'Not specified' %></span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Graduation Year</span>
+        <span style="color: white; font-weight: 500;"><%= user.graduation_year || 'Not specified' %></span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Status</span>
+        <span style="color: #34d399; font-weight: 500;"><%= user.is_verified ? 'Verified' : 'Pending Verification' %></span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Member Since</span>
+        <span style="color: var(--text-muted); font-size: 0.85rem;"><%= new Date(user.created_at).toLocaleDateString() %></span>
+      </div>
+      <div>
+        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Last Updated</span>
+        <span style="color: var(--text-muted); font-size: 0.85rem;"><%= new Date(user.updated_at).toLocaleDateString() %></span>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <form action="/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('Permanently delete this user profile?');">
+        <button type="submit" class="btn btn-danger btn-sm">Delete Profile</button>
+      </form>
+      <div style="display: flex; gap: 10px;">
+        <a href="/api/users/<%= user.id %>" class="btn btn-outline btn-sm" target="_blank">View JSON</a>
+        <a href="/users" class="btn btn-primary btn-sm">All Users</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

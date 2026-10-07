@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 640px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Edit User #<%= user.id %></h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update details for <%= user.first_name %> <%= user.last_name %>.</p>
+    </div>
+    <a href="/users/<%= user.id %>" class="btn btn-outline">&larr; Back to Profile</a>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert-error">
+      <strong>Error:</strong> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <form action="/users/<%= user.id %>" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+      <input type="hidden" name="_method" value="PUT">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">First Name</label>
+          <input
+            type="text"
+            name="first_name"
+            value="<%= user.first_name || '' %>"
+            required
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Last Name</label>
+          <input
+            type="text"
+            name="last_name"
+            value="<%= user.last_name || '' %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Email Address</label>
+        <input
+          type="email"
+          name="email"
+          value="<%= user.email || '' %>"
+          required
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Role</label>
+          <select name="role" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;">
+            <option value="ALUMNI" <%= user.role === 'ALUMNI' ? 'selected' : '' %>>Alumni</option>
+            <option value="STUDENT" <%= user.role === 'STUDENT' ? 'selected' : '' %>>Student</option>
+            <option value="ADMIN" <%= user.role === 'ADMIN' ? 'selected' : '' %>>Admin</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Graduation Year</label>
+          <input
+            type="number"
+            name="graduation_year"
+            value="<%= user.graduation_year || '' %>"
+            min="1950"
+            max="2035"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Department</label>
+        <input
+          type="text"
+          name="department"
+          value="<%= user.department || '' %>"
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+        >
+      </div>
+
+      <div style="margin-top: 10px; display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="/users/<%= user.id %>" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

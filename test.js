@@ -187,7 +187,115 @@ async function runTests() {
       assert.strictEqual(resApiVerifyDel.statusCode, 404);
       console.log(`✓ GET /api/users/${createdId} -> 404 Not Found after deletion`);
 
-      console.log('\n🎉 ALL 18 TESTS PASSED SUCCESSFULLY! MVC & API Fully Verified.\n');
+      // 5. MVC Web Routes (/announcements with Views)
+      console.log('\n--- 5. MVC Web Routes (/announcements with Views) ---');
+
+      // GET /announcements - Listing View
+      const resAnnounceList = await request({ path: '/announcements', headers: { Accept: 'text/html' } });
+      assert.strictEqual(resAnnounceList.statusCode, 200);
+      assert.ok(resAnnounceList.body.includes('Announcements & Notices'));
+      assert.ok(resAnnounceList.body.includes('Alumni Homecoming'));
+      console.log('✓ GET /announcements -> 200 HTML Listing View');
+
+      // GET /announcements/new - Creation Form View
+      const resAnnounceNew = await request({ path: '/announcements/new' });
+      assert.strictEqual(resAnnounceNew.statusCode, 200);
+      assert.ok(resAnnounceNew.body.includes('Publish New Announcement'));
+      console.log('✓ GET /announcements/new -> 200 HTML Creation Form');
+
+      // POST /announcements - Creating Announcement via Web Form
+      const webAnnouncePayload = 'title=Web+Programming+Hackathon&category=Event&author=Tech+Club&content=Join+the+upcoming+hackathon+with+great+prizes!';
+      const resAnnounceCreate = await request({
+        path: '/announcements',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, webAnnouncePayload);
+      assert.strictEqual(resAnnounceCreate.statusCode, 302);
+      console.log('✓ POST /announcements -> 302 Redirect (Created Announcement via Web Form)');
+
+      // GET /announcements/1 - Single Announcement Show View
+      const resAnnounceShow = await request({ path: '/announcements/1' });
+      assert.strictEqual(resAnnounceShow.statusCode, 200);
+      assert.ok(resAnnounceShow.body.includes('Annual Alumni Homecoming 2026'));
+      console.log('✓ GET /announcements/1 -> 200 HTML Details View');
+
+      // GET /announcements/1/edit - Announcement Edit Form View
+      const resAnnounceEdit = await request({ path: '/announcements/1/edit' });
+      assert.strictEqual(resAnnounceEdit.statusCode, 200);
+      assert.ok(resAnnounceEdit.body.includes('Edit Announcement'));
+      console.log('✓ GET /announcements/1/edit -> 200 HTML Edit Form View');
+
+      // POST /announcements/1 - Update Announcement via Web Form
+      const webAnnounceUpdatePayload = 'title=Annual+Alumni+Homecoming+2026+(Updated)&category=Event&author=Alumni+Relations&content=Updated+schedule+available.';
+      const resAnnounceUpdate = await request({
+        path: '/announcements/1',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, webAnnounceUpdatePayload);
+      assert.strictEqual(resAnnounceUpdate.statusCode, 302);
+      console.log('✓ POST /announcements/1 -> 302 Redirect (Updated Announcement via Web Form)');
+
+      // 6. RESTful JSON API Routes (/api/announcements)
+      console.log('\n--- 6. RESTful JSON API Routes (/api/announcements) ---');
+
+      // GET /api/announcements
+      const resApiAnnounceList = await request({ path: '/api/announcements' });
+      assert.strictEqual(resApiAnnounceList.statusCode, 200);
+      assert.strictEqual(resApiAnnounceList.json.success, true);
+      assert.ok(Array.isArray(resApiAnnounceList.json.data));
+      console.log(`✓ GET /api/announcements -> 200 JSON (${resApiAnnounceList.json.count} announcements)`);
+
+      // POST /api/announcements
+      const newApiAnnounce = {
+        title: 'Spring Career Fair 2026',
+        category: 'Career',
+        author: 'Career Center',
+        content: 'Meet with over 50 top company recruiters at the spring fair.'
+      };
+      const resApiAnnounceCreate = await request({ path: '/api/announcements', method: 'POST' }, newApiAnnounce);
+      assert.strictEqual(resApiAnnounceCreate.statusCode, 201);
+      assert.strictEqual(resApiAnnounceCreate.json.success, true);
+      assert.strictEqual(resApiAnnounceCreate.json.data.title, 'Spring Career Fair 2026');
+      const createdAnnounceId = resApiAnnounceCreate.json.data.id;
+      console.log(`✓ POST /api/announcements -> 201 JSON Created (ID: ${createdAnnounceId})`);
+
+      // GET /api/announcements/:id
+      const resApiAnnounceGet = await request({ path: `/api/announcements/${createdAnnounceId}` });
+      assert.strictEqual(resApiAnnounceGet.statusCode, 200);
+      assert.strictEqual(resApiAnnounceGet.json.data.category, 'Career');
+      console.log(`✓ GET /api/announcements/${createdAnnounceId} -> 200 JSON Details`);
+
+      // PUT /api/announcements/:id
+      const putAnnouncePayload = {
+        title: 'Spring Career Fair 2026 - Extended',
+        category: 'Career',
+        author: 'Career Center',
+        content: 'Fair has been extended to two days!'
+      };
+      const resApiAnnouncePut = await request({ path: `/api/announcements/${createdAnnounceId}`, method: 'PUT' }, putAnnouncePayload);
+      assert.strictEqual(resApiAnnouncePut.statusCode, 200);
+      assert.strictEqual(resApiAnnouncePut.json.data.title, 'Spring Career Fair 2026 - Extended');
+      console.log(`✓ PUT /api/announcements/${createdAnnounceId} -> 200 JSON Full Update`);
+
+      // PATCH /api/announcements/:id
+      const patchAnnouncePayload = { category: 'Event' };
+      const resApiAnnouncePatch = await request({ path: `/api/announcements/${createdAnnounceId}`, method: 'PATCH' }, patchAnnouncePayload);
+      assert.strictEqual(resApiAnnouncePatch.statusCode, 200);
+      assert.strictEqual(resApiAnnouncePatch.json.data.category, 'Event');
+      console.log(`✓ PATCH /api/announcements/${createdAnnounceId} -> 200 JSON Partial Update`);
+
+      // DELETE /api/announcements/:id
+      const resApiAnnounceDelete = await request({ path: `/api/announcements/${createdAnnounceId}`, method: 'DELETE' });
+      assert.strictEqual(resApiAnnounceDelete.statusCode, 200);
+      assert.strictEqual(resApiAnnounceDelete.json.success, true);
+      console.log(`✓ DELETE /api/announcements/${createdAnnounceId} -> 200 JSON Deleted`);
+
+      // Verify Deleted
+      const resApiAnnounceVerifyDel = await request({ path: `/api/announcements/${createdAnnounceId}` });
+      assert.strictEqual(resApiAnnounceVerifyDel.statusCode, 404);
+      console.log(`✓ GET /api/announcements/${createdAnnounceId} -> 404 Not Found after deletion`);
+
+      console.log('\n🎉 ALL 30 TESTS PASSED SUCCESSFULLY! MVC & API Fully Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

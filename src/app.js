@@ -7,6 +7,8 @@ const swaggerDocument = require('../swagger.json');
 
 const userRoutes = require('./routes/userRoutes');
 const apiUserRoutes = require('./routes/apiUserRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+const apiAnnouncementRoutes = require('./routes/apiAnnouncementRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 
 const app = express();
@@ -30,9 +32,11 @@ app.get('/api/swagger.json', (req, res) => {
 
 // MVC Web Routes (HTML Views)
 app.use('/users', userRoutes);
+app.use('/announcements', announcementRoutes);
 
 // RESTful JSON API Routes
 app.use('/api/users', apiUserRoutes);
+app.use('/api/announcements', apiAnnouncementRoutes);
 app.use('/api/health', healthRoutes);
 
 // --- Basic & Introductory Routes ---
@@ -50,7 +54,9 @@ app.get('/', (req, res) => {
     healthCheck: '/api/health',
     swaggerDocs: '/api/swagger',
     webUsers: '/users',
-    apiUsers: '/api/users'
+    apiUsers: '/api/users',
+    webAnnouncements: '/announcements',
+    apiAnnouncements: '/api/announcements'
   });
 });
 

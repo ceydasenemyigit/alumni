@@ -1,0 +1,73 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Publish New Announcement</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Share university updates, alumni events, or career notices.</p>
+    </div>
+    <a href="/announcements" class="btn btn-outline">&larr; Back to Announcements</a>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert-error">
+      <strong>Error:</strong> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <form action="/announcements" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Announcement Title *</label>
+        <input
+          type="text"
+          name="title"
+          value="<%= formData.title || '' %>"
+          placeholder="e.g. Annual Alumni Gala 2026"
+          required
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Category</label>
+          <select name="category" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;">
+            <option value="Event" <%= (formData.category === 'Event' || !formData.category) ? 'selected' : '' %>>Event</option>
+            <option value="Career" <%= formData.category === 'Career' ? 'selected' : '' %>>Career</option>
+            <option value="Academic" <%= formData.category === 'Academic' ? 'selected' : '' %>>Academic</option>
+            <option value="General" <%= formData.category === 'General' ? 'selected' : '' %>>General</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Author / Organization</label>
+          <input
+            type="text"
+            name="author"
+            value="<%= formData.author || '' %>"
+            placeholder="e.g. Alumni Relations Office"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Announcement Content *</label>
+        <textarea
+          name="content"
+          rows="6"
+          placeholder="Write the full announcement description, schedule, and details..."
+          required
+          style="width: 100%; padding: 12px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; resize: vertical; font-family: inherit; line-height: 1.5;"
+        ><%= formData.content || '' %></textarea>
+      </div>
+
+      <div style="margin-top: 10px; display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="/announcements" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Publish Announcement</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

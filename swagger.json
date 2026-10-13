@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Alumni Tracking System API & Web Directory",
-    "version": "1.1.0",
-    "description": "Complete documentation for the Alumni Tracking System featuring both MVC Web Views (/users) and RESTful JSON APIs (/api/users), developed for the Web Programming course at Istanbul University."
+    "version": "1.2.0",
+    "description": "Complete documentation for the Alumni Tracking System featuring MVC Web Views (/users, /announcements) and RESTful JSON APIs (/api/users, /api/announcements), developed for the Web Programming course at Istanbul University."
   },
   "servers": [
     {
@@ -12,6 +12,14 @@
     }
   ],
   "tags": [
+    {
+      "name": "Announcements (MVC Web Views)",
+      "description": "Server-side rendered HTML views under /announcements"
+    },
+    {
+      "name": "Announcements (REST API)",
+      "description": "JSON API endpoints under /api/announcements"
+    },
     {
       "name": "Users (MVC Web Views)",
       "description": "Server-side rendered HTML views under /users"
@@ -30,6 +38,263 @@
     }
   ],
   "paths": {
+    "/announcements": {
+      "get": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Announcements Listing View (HTML)",
+        "description": "Renders the HTML table view listing all announcements. Supports search and category filtering.",
+        "parameters": [
+          { "name": "search", "in": "query", "description": "Search in title, content, or author", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "description": "Filter by category", "schema": { "type": "string", "enum": ["Event", "Career", "Academic", "General"] } }
+        ],
+        "responses": {
+          "200": { "description": "HTML web page with announcement list", "content": { "text/html": {} } }
+        }
+      },
+      "post": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Publish Announcement via Web Form",
+        "description": "Receives announcement creation form data, creates the announcement in-memory, and redirects to the detail view.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/AnnouncementInput" }
+            }
+          }
+        },
+        "responses": {
+          "302": { "description": "Redirects to /announcements/{id} on success" },
+          "400": { "description": "Re-renders form with validation error", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/announcements/new": {
+      "get": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Render Announcement Creation Form (HTML)",
+        "description": "Renders the HTML form page to publish a new announcement.",
+        "responses": {
+          "200": { "description": "HTML announcement creation form", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/announcements/{id}": {
+      "get": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Announcement Details View (HTML)",
+        "description": "Renders the detailed view of a specific announcement.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "HTML announcement details page", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (Announcement not found)", "content": { "text/html": {} } }
+        }
+      },
+      "put": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Update Announcement via Web Form",
+        "description": "Handles update from the edit form (supports _method=PUT or direct POST).",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/AnnouncementInput" }
+            }
+          }
+        },
+        "responses": {
+          "302": { "description": "Redirects to /announcements/{id} on success" },
+          "400": { "description": "Re-renders edit form with validation error", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (Announcement not found)", "content": { "text/html": {} } }
+        }
+      },
+      "delete": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Delete Announcement via Web Form",
+        "description": "Handles announcement deletion from web form.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to /announcements on success" },
+          "404": { "description": "HTML error page (Announcement not found)", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/announcements/{id}/edit": {
+      "get": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Render Announcement Edit Form (HTML)",
+        "description": "Renders the HTML form page to edit an existing announcement.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "HTML announcement edit form", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (Announcement not found)", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/announcements/{id}/delete": {
+      "post": {
+        "tags": ["Announcements (MVC Web Views)"],
+        "summary": "Delete Announcement Fallback (POST)",
+        "description": "Handles HTML button form submission to remove an announcement.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to /announcements on success" }
+        }
+      }
+    },
+    "/api/announcements": {
+      "get": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "List all announcements (JSON)",
+        "description": "Returns a list of announcements stored in memory. Supports query filters.",
+        "parameters": [
+          { "name": "category", "in": "query", "description": "Filter by category (e.g. Event, Career)", "schema": { "type": "string" } },
+          { "name": "author", "in": "query", "description": "Filter by author substring", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "description": "Search keyword across title, content, author, category", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of announcements",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AnnouncementListResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "Create announcement (JSON / Form)",
+        "description": "Creates a new announcement. Supports JSON, URL-Encoded, and Multipart formats.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Announcement created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Announcement" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (missing title or content)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
+    "/api/announcements/{id}": {
+      "get": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "Get announcement by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementResponse" } } }
+          },
+          "400": { "description": "Invalid ID format", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Announcement not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "Full update announcement by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Announcement updated",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementResponse" } } }
+          },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Announcement not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "Partial update announcement by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } },
+            "application/x-www-form-urlencoded": { "schema": { "$ref": "#/components/schemas/AnnouncementInput" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Announcement patched",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnnouncementResponse" } } }
+          },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Announcement not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Announcements (REST API)"],
+        "summary": "Delete announcement by ID (JSON)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcement deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Announcement" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid ID format", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Announcement not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
     "/users": {
       "get": {
         "tags": ["Users (MVC Web Views)"],
@@ -101,18 +366,20 @@
         },
         "responses": {
           "302": { "description": "Redirects to /users/{id} on success" },
-          "400": { "description": "Re-renders edit form with validation error", "content": { "text/html": {} } }
+          "400": { "description": "Re-renders form with validation error", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (User not found)", "content": { "text/html": {} } }
         }
       },
       "delete": {
         "tags": ["Users (MVC Web Views)"],
         "summary": "Delete User via Web Form",
-        "description": "Removes a user and redirects to the user directory /users.",
+        "description": "Handles user deletion from the web profile or table.",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
-          "302": { "description": "Redirects to /users" }
+          "302": { "description": "Redirects to /users on success" },
+          "404": { "description": "HTML error page (User not found)", "content": { "text/html": {} } }
         }
       }
     },
@@ -120,13 +387,26 @@
       "get": {
         "tags": ["Users (MVC Web Views)"],
         "summary": "Render User Edit Form (HTML)",
-        "description": "Renders prefilled form to edit existing user details.",
+        "description": "Renders the HTML form page to edit an existing user.",
         "parameters": [
           { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
         ],
         "responses": {
-          "200": { "description": "HTML edit form", "content": { "text/html": {} } },
-          "404": { "description": "HTML error page", "content": { "text/html": {} } }
+          "200": { "description": "HTML user edit form", "content": { "text/html": {} } },
+          "404": { "description": "HTML error page (User not found)", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/users/{id}/delete": {
+      "post": {
+        "tags": ["Users (MVC Web Views)"],
+        "summary": "Delete User Fallback (POST)",
+        "description": "Handles HTML button form submission to remove a user.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "302": { "description": "Redirects to /users on success" }
         }
       }
     },
@@ -134,17 +414,21 @@
       "get": {
         "tags": ["Users (REST API)"],
         "summary": "List all users (JSON)",
-        "description": "Returns array of all users in the in-memory store in JSON format.",
+        "description": "Returns a list of users stored in memory. Supports role and search filtering.",
+        "parameters": [
+          { "name": "role", "in": "query", "description": "Filter by role", "schema": { "type": "string", "enum": ["STUDENT", "ALUMNI", "ADMIN"] } },
+          { "name": "search", "in": "query", "description": "Search keyword", "schema": { "type": "string" } }
+        ],
         "responses": {
           "200": {
-            "description": "Array of user objects",
+            "description": "List of users",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "example": true },
-                    "count": { "type": "integer", "example": 2 },
+                    "count": { "type": "integer", "example": 3 },
                     "data": { "type": "array", "items": { "$ref": "#/components/schemas/User" } }
                   }
                 }
@@ -262,36 +546,32 @@
     "/api/health": {
       "get": {
         "tags": ["System"],
-        "summary": "Check system health",
-        "description": "Returns system health, uptime, and system diagnostics in JSON format.",
+        "summary": "Application health check and diagnostics",
         "responses": {
-          "200": { "description": "Health status", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HealthResponse" } } } }
-        }
-      }
-    },
-    "/": {
-      "get": {
-        "tags": ["Introductory Routes"],
-        "summary": "Root home page",
-        "description": "Returns HTML home page for browsers or JSON for API clients.",
-        "responses": {
-          "200": { "description": "Home page response" }
+          "200": {
+            "description": "Application status UP",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/HealthResponse" } }
+            }
+          }
         }
       }
     },
     "/hello": {
       "get": {
         "tags": ["Introductory Routes"],
-        "summary": "Hello World greeting",
-        "responses": { "200": { "description": "Greeting text" } }
+        "summary": "Returns Hello World greeting",
+        "responses": { "200": { "description": "Returns 'Hello World'" } }
       }
     },
     "/hello/{name}": {
       "get": {
         "tags": ["Introductory Routes"],
         "summary": "Personalized greeting",
-        "parameters": [{ "name": "name", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": { "200": { "description": "Personalized greeting" } }
+        "parameters": [
+          { "name": "name", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Returns 'Hello {Name}!'" } }
       }
     },
     "/sum/{number1}/{number2}": {
@@ -315,6 +595,46 @@
   },
   "components": {
     "schemas": {
+      "Announcement": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "Annual Alumni Homecoming 2026" },
+          "content": { "type": "string", "example": "Join us for the annual gathering on campus..." },
+          "author": { "type": "string", "example": "Alumni Relations Office" },
+          "category": { "type": "string", "example": "Event" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AnnouncementInput": {
+        "type": "object",
+        "required": ["title", "content"],
+        "properties": {
+          "title": { "type": "string", "example": "Annual Alumni Homecoming 2026" },
+          "content": { "type": "string", "example": "Join us for the annual gathering on campus..." },
+          "author": { "type": "string", "example": "Alumni Relations Office" },
+          "category": { "type": "string", "example": "Event" }
+        }
+      },
+      "AnnouncementResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": { "$ref": "#/components/schemas/Announcement" }
+        }
+      },
+      "AnnouncementListResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "count": { "type": "integer", "example": 3 },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Announcement" }
+          }
+        }
+      },
       "User": {
         "type": "object",
         "properties": {
@@ -371,7 +691,7 @@
         "properties": {
           "success": { "type": "boolean", "example": false },
           "error": { "type": "string", "example": "Validation Error" },
-          "message": { "type": "string", "example": "E-posta (email) alanı zorunludur." }
+          "message": { "type": "string", "example": "Gerekli alanlar eksik veya hatalı." }
         }
       }
     }

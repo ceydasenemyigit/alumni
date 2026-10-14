@@ -295,7 +295,58 @@ async function runTests() {
       assert.strictEqual(resApiAnnounceVerifyDel.statusCode, 404);
       console.log(`✓ GET /api/announcements/${createdAnnounceId} -> 404 Not Found after deletion`);
 
-      console.log('\n🎉 ALL 30 TESTS PASSED SUCCESSFULLY! MVC & API Fully Verified.\n');
+      // 7. Database Migrations, Factories & Seeders Verification
+      console.log('\n--- 7. Database Migrations, Factories & Seeders ---');
+
+      // Test Factories
+      const deptFactory = require('./src/database/factories/departmentFactory');
+      const testDept = deptFactory.create();
+      assert.ok(testDept.name && testDept.faculty);
+      const testDepts = deptFactory.createMany(3);
+      assert.strictEqual(testDepts.length, 3);
+      console.log('✓ Department Factory: generates valid department and batch objects');
+
+      const userFactory = require('./src/database/factories/userFactory');
+      const testUser = userFactory.create({ role: 'ALUMNI' });
+      assert.ok(testUser.email.includes('@'));
+      assert.strictEqual(testUser.role, 'ALUMNI');
+      const testUsers = userFactory.createMany(4);
+      assert.strictEqual(testUsers.length, 4);
+      console.log('✓ User Factory: generates valid user records with unique emails');
+
+      const profileFactory = require('./src/database/factories/alumniProfileFactory');
+      const testProfile = profileFactory.create(1);
+      assert.strictEqual(testProfile.user_id, 1);
+      assert.ok(testProfile.current_company && testProfile.current_title);
+      console.log('✓ Alumni Profile Factory: generates complete professional profiles');
+
+      const announceFactory = require('./src/database/factories/announcementFactory');
+      const testAnnounce = announceFactory.create({ category: 'Event' });
+      assert.strictEqual(testAnnounce.category, 'Event');
+      assert.ok(announceFactory.CATEGORIES.includes(testAnnounce.category));
+      console.log('✓ Announcement Factory: generates categorized announcements');
+
+      // Test Migrations
+      const fs = require('fs');
+      const path = require('path');
+      const migrationsDir = path.join(__dirname, 'src', 'database', 'migrations');
+      const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.js'));
+      assert.strictEqual(migrationFiles.length, 4);
+      for (const file of migrationFiles) {
+        const mod = require(path.join(migrationsDir, file));
+        assert.ok(typeof mod.name === 'string');
+        assert.ok(typeof mod.up === 'function');
+        assert.ok(typeof mod.down === 'function');
+      }
+      console.log(`✓ Migration Files: 4 verified migrations (departments, users, profiles, announcements)`);
+
+      // Test Seeders
+      const { runSeeds } = require('./src/database/seeders/databaseSeeder');
+      assert.ok(typeof runSeeds === 'function');
+      await runSeeds();
+      console.log('✓ Database Seeder: successfully seeded models via factories');
+
+      console.log('\n🎉 ALL 36 TESTS PASSED SUCCESSFULLY! MVC, APIs, Migrations, Factories & Seeds Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

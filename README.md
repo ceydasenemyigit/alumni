@@ -219,7 +219,10 @@ alumni/
 │
 ├── scripts/                          # AUTOMATION & VERIFICATION SCRIPTS
 │   ├── forgetting_test.sh            # The Forgetting Test script (Bash)
-│   └── forgetting_test.ps1           # The Forgetting Test script (PowerShell)
+│   ├── forgetting_test.ps1           # The Forgetting Test script (PowerShell)
+│   ├── migrate.js                    # Database migration CLI runner
+│   ├── seed.js                       # Database seeder CLI runner
+│   └── setup_db.js                   # One-step database creation, migration & seeding
 │
 ├── public/                           # Static client assets
 │   ├── index.html                    # Landing page / Quick API explorer
@@ -227,6 +230,27 @@ alumni/
 │
 ├── src/                              # Application source code
 │   ├── app.js                        # Express app setup, middlewares, view engine, routes
+│   │
+│   ├── config/                       # ENVIRONMENT & DATABASE CONFIGURATION
+│   │   └── db.js                     # PostgreSQL connection pool & health checker
+│   │
+│   ├── database/                     # MIGRATIONS, FACTORIES & SEEDERS
+│   │   ├── migrator.js               # Transactional migration engine & db creator
+│   │   ├── migrations/               # Versioned Up/Down migration scripts
+│   │   │   ├── 001_create_departments_table.js
+│   │   │   ├── 002_create_users_table.js
+│   │   │   ├── 003_create_alumni_profiles_table.js
+│   │   │   └── 004_create_announcements_table.js
+│   │   ├── factories/                # Mock data generators (Factory Pattern)
+│   │   │   ├── departmentFactory.js
+│   │   │   ├── userFactory.js
+│   │   │   ├── alumniProfileFactory.js
+│   │   │   └── announcementFactory.js
+│   │   └── seeders/                  # Relational database seeders
+│   │       ├── departmentSeeder.js
+│   │       ├── userSeeder.js
+│   │       ├── announcementSeeder.js
+│   │       └── databaseSeeder.js     # Master database seeder orchestrator
 │   │
 │   ├── models/                       # [M] MODEL LAYER (In-Memory Data Stores)
 │   │   ├── userModel.js              # User model with CRUD helper functions
@@ -395,6 +419,32 @@ Handled by `apiUserController.js`:
    npm test
    ```
    Executes 30 integration tests verifying all introductory routes, Swagger, Users, and Announcements MVC & API endpoints.
+
+---
+
+### 🗄️ Database Migrations, Factories & Seeding CLI
+
+Manage the PostgreSQL database schema and test data using npm scripts:
+
+```bash
+# 1. Create database if it does not exist
+npm run db:create
+
+# 2. Run all pending migrations
+npm run db:migrate
+
+# 3. Rollback the last migration batch
+npm run db:rollback
+
+# 4. Inspect current migration status
+npm run db:status
+
+# 5. Populate database using Factories & Seeders
+npm run db:seed
+
+# 6. One-step full setup (create db + migrate + seed)
+npm run db:setup
+```
 
 ---
 

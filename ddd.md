@@ -353,3 +353,74 @@ Automated scripts are available in the repository:
   ```powershell
   powershell -ExecutionPolicy Bypass -File scripts/forgetting_test.ps1
   ```
+
+---
+
+## 🔄 9. Migration Architecture & Database Lifecycle
+
+The system features an automated, transactional migration runner located in [`src/database/migrator.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrator.js) with dedicated versioned migration files in [`src/database/migrations/`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/):
+
+### 9.1. Migration Files Structure
+
+| Sequence | Migration File | Target Schema / Table | Operations (Up / Down) |
+|---|---|---|---|
+| `001` | [`001_create_departments_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/001_create_departments_table.js) | `departments` | `CREATE TABLE` / `DROP TABLE CASCADE` |
+| `002` | [`002_create_users_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/002_create_users_table.js) | `users` | `CREATE TABLE`, Constraints & Indexes / `DROP TABLE CASCADE` |
+| `003` | [`003_create_alumni_profiles_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/003_create_alumni_profiles_table.js) | `alumni_profiles` | `CREATE TABLE` (1:1 with users) / `DROP TABLE CASCADE` |
+| `004` | [`004_create_announcements_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/004_create_announcements_table.js) | `announcements` | `CREATE TABLE` & Category Indexes / `DROP TABLE CASCADE` |
+
+### 9.2. Automated Database Creation & Tracking
+
+- **Database Creation (`createDatabaseIfNotExists`)**: The runner connects to the administrative `postgres` database and automatically creates the target database (`alumni_db`) if it does not yet exist.
+- **Migration Tracking (`migrations` table)**:
+  ```sql
+  CREATE TABLE IF NOT EXISTS migrations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
+  ```
+- **Transaction Safety**: Each migration runs wrapped in a `BEGIN ... COMMIT` block. If any statement fails, the runner triggers a `ROLLBACK` ensuring the database is never left in an inconsistent partial state.
+
+---
+
+## 🏭 10. Factories & Seeders Architecture
+
+### 10.1. Factory Pattern Implementation ([`src/database/factories/`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/factories/))
+
+The Factory pattern dynamically produces valid, realistic mock records with customizable override attributes:
+
+- **`departmentFactory.js`**: Generates faculties and university departments.
+- **`userFactory.js`**: Generates realistic Turkish and international names, unique email formats, randomized valid roles (`STUDENT`, `ALUMNI`, `ADMIN`), and graduation years (1950–2035).
+- **`alumniProfileFactory.js`**: Generates career companies (Google, Microsoft, Trendyol, Aselsan), job titles, industry tags, LinkedIn/GitHub profile URLs, and bios.
+- **`announcementFactory.js`**: Generates broadcast notices with valid categories (`Event`, `Career`, `Academic`, `General`).
+
+### 10.2. Seeders Workflow ([`src/database/seeders/`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/seeders/))
+
+1. **`departmentSeeder.js`**: Populates default academic departments.
+2. **`userSeeder.js`**: Seeds core predictable users (`admin@alumni.istanbul.edu.tr`, `emre.yilmaz`, `ayse.kaya`) followed by batch factory-generated users. For alumni users, corresponding `alumni_profiles` entries are generated automatically.
+3. **`announcementSeeder.js`**: Seeds official campus announcements followed by factory-generated notices.
+4. **`databaseSeeder.js` (Master Seeder)**: Coordinates table truncation (preserving foreign key cascades) and executes all seeders sequentially. If PostgreSQL is offline, gracefully seeds in-memory models.
+
+### 10.3. Database CLI Commands
+
+```bash
+# Create database if not exists
+npm run db:create
+
+# Run all pending migrations
+npm run db:migrate
+
+# Rollback the last migration batch
+npm run db:rollback
+
+# Inspect migration execution status
+npm run db:status
+
+# Seed database with factory-generated records
+npm run db:seed
+
+# Full automated one-step setup (create + migrate + seed)
+npm run db:setup
+```
+

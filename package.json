@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "db:create": "node scripts/migrate.js create",
+    "db:migrate": "node scripts/migrate.js up",
+    "db:rollback": "node scripts/migrate.js down",
+    "db:status": "node scripts/migrate.js status",
+    "db:seed": "node scripts/seed.js",
+    "db:setup": "node scripts/setup_db.js"
   },
   "keywords": [
     "alumni",
@@ -23,6 +29,7 @@
     "express": "^5.2.1",
     "method-override": "^3.0.0",
     "multer": "^2.4.0",
+    "pg": "^8.23.1",
     "swagger-ui-express": "^5.0.1"
   }
 }

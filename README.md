@@ -2,8 +2,10 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016-blue.svg)](https://www.postgresql.org/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Ready-2496ED.svg)](#-docker-setup--the-forgetting-test)
+[![Data Design](https://img.shields.io/badge/Documentation-DDD%20Data%20Design-orange.svg)](ddd.md)
 [![Architecture](https://img.shields.io/badge/Architecture-MVC%20Pattern-blueviolet.svg)](#-mvc-architecture-overview)
-[![Template Engine](https://img.shields.io/badge/Views-EJS-orange.svg)](https://ejs.co/)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D.svg)](http://localhost:3000/api/swagger)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/ceydasenemyigit/alumni)
 
@@ -11,7 +13,7 @@
 
 ## 📌 About the Project
 
-The **Alumni Tracking System** is a web-based platform designed to maintain academic and professional records of university graduates, support networking between alumni, broadcast events and announcements, and enhance communication with university management. Developed for the Web Programming course at Istanbul University, the project strictly adheres to the **Model-View-Controller (MVC)** architectural pattern while exposing both server-rendered web views and RESTful JSON APIs.
+The **Alumni Tracking System** is a web-based platform designed to maintain academic and professional records of university graduates, support networking between alumni, broadcast events and announcements, and enhance communication with university management. Developed for the Web Programming course at Istanbul University, the project strictly adheres to the **Model-View-Controller (MVC)** architectural pattern while exposing both server-rendered web views and RESTful JSON APIs, accompanied by robust containerization and database persistence.
 
 ---
 
@@ -50,7 +52,7 @@ The application is structured following the **Model-View-Controller (MVC)** soft
 ```
 
 ### 1. Model Layer (`src/models/`)
-- Encapsulates domain data logic and operations in-memory without requiring an external database:
+- Encapsulates domain data logic and operations without external dependencies:
   - **`userModel.js`**: Stores student and alumni profiles with fields (`id`, `email`, `first_name`, `last_name`, `role`, `department`, `graduation_year`, `is_verified`, `created_at`, `updated_at`). Provides `findAll`, `findById`, `findByEmail`, `create`, `update`, `patch`, and `delete`.
   - **`announcementModel.js`**: Stores university and community notices with fields (`id`, `title`, `content`, `author`, `category`, `createdAt`, `updatedAt`). Pre-seeded with initial data and provides full CRUD helpers: `getAll(query)`, `getById(id)`, `create(data)`, `update(id, data)`, and `delete(id)`.
 
@@ -70,17 +72,154 @@ The application is structured following the **Model-View-Controller (MVC)** soft
 
 ---
 
+## 📊 Data Design Documentation (DDD)
+
+> 📘 Full detailed documentation, data dictionary, normalization proofs, and SQL scripts are located in [**`ddd.md`**](ddd.md).
+
+### Entity-Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+    DEPARTMENTS ||--o{ USERS : "belongs to"
+    USERS ||--o| ALUMNI_PROFILES : "has profile"
+    USERS ||--o{ ANNOUNCEMENTS : "authors / receives"
+
+    DEPARTMENTS {
+        int id PK
+        varchar name UK
+        varchar faculty
+        timestamp created_at
+    }
+
+    USERS {
+        int id PK
+        varchar email UK
+        varchar first_name
+        varchar last_name
+        varchar role
+        int department_id FK
+        int graduation_year
+        boolean is_verified
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ALUMNI_PROFILES {
+        int id PK
+        int user_id FK, UK
+        varchar current_company
+        varchar current_title
+        varchar industry
+        varchar city
+        varchar country
+        varchar linkedin_url
+        varchar github_url
+        text bio
+    }
+
+    ANNOUNCEMENTS {
+        int id PK
+        varchar title
+        text content
+        varchar author
+        varchar category
+        timestamp created_at
+        timestamp updated_at
+    }
+```
+
+### Database Schema Summary
+
+| Table | Primary Key | Foreign Keys | Key Constraints & Purpose |
+|---|---|---|---|
+| **`departments`** | `id` (SERIAL) | — | `name UNIQUE` (Departments & Faculties) |
+| **`users`** | `id` (SERIAL) | `department_id -> departments(id)` | `email UNIQUE`, `role IN ('STUDENT','ALUMNI','ADMIN')` |
+| **`alumni_profiles`** | `id` (SERIAL) | `user_id -> users(id) ON DELETE CASCADE` | `user_id UNIQUE` (1:1 Graduate Career Profile) |
+| **`announcements`** | `id` (SERIAL) | — | `category IN ('Event','Career','Academic','General')` |
+
+---
+
+## 🧪 Docker Setup & The Forgetting Test
+
+### 1. What is "The Forgetting Test"?
+
+In containerized architectures, container writable filesystems are **ephemeral** by default. If a container is terminated and removed via `docker compose down`, any data written to the container is permanently wiped out. The container **"forgets"** the record!
+
+To make the database **"remember"**, a persistent storage mechanism — a **Docker Named Volume** (`postgres_data`) — is mapped to `/var/lib/postgresql/data`.
+
+**"The Forgetting Test"** empirically verifies that data survives container teardown and re-creation:
+1. Start services with `docker compose up -d`.
+2. Insert a new record into the database.
+3. Bring down all containers and networks with `docker compose down`.
+4. Spin up fresh containers with `docker compose up -d`.
+5. Check whether the record still exists:
+   - **Without Named Volume**: Record is lost (system forgot).
+   - **With Named Volume**: Record is preserved (system remembered).
+
+### 2. Manual Reproduction Steps
+
+```bash
+# Step 1: Start the Docker stack
+docker compose up -d
+
+# Step 2: Insert a record into PostgreSQL
+docker exec -i alumni_postgres psql -U alumni_user -d alumni_db -c \
+  "INSERT INTO announcements (title, content, author, category) VALUES ('Homecoming 2026', 'Forgetting Test Record', 'Alumni Office', 'Event');"
+
+# Step 3: Verify the record exists
+docker exec -i alumni_postgres psql -U alumni_user -d alumni_db -c \
+  "SELECT id, title, category, created_at FROM announcements WHERE title = 'Homecoming 2026';"
+
+# Step 4: Tear down containers and networks
+docker compose down
+
+# Step 5: Re-launch fresh containers
+docker compose up -d
+
+# Step 6: Verify the record survived (The Forgetting Test Passed!)
+docker exec -i alumni_postgres psql -U alumni_user -d alumni_db -c \
+  "SELECT id, title, author, category, created_at FROM announcements WHERE title = 'Homecoming 2026';"
+```
+
+### 3. Automated Forgetting Test Scripts
+
+You can execute the automated test with a single command:
+- **Linux/macOS (Bash):**
+  ```bash
+  chmod +x scripts/forgetting_test.sh
+  ./scripts/forgetting_test.sh
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts/forgetting_test.ps1
+  ```
+
+---
+
 ## 📂 Directories, Folders & Files Structure
 
 ```text
 alumni/
+├── docker-compose.yml                # Docker Compose orchestration (App + PostgreSQL)
+├── docker_compose.yml                # Alternative naming compatibility
+├── Dockerfile                        # Multi-stage lightweight Node.js 20 container image
+├── .dockerignore                     # Excluded container build files
+├── .env.example                      # Template for all environment variables
+├── ddd.md                            # Comprehensive Data Design Document (DDD)
 ├── index.js                          # Server entrypoint (listens on PORT)
 ├── package.json                      # Project dependencies, scripts, and metadata
 ├── package-lock.json                 # Dependency tree lockfile
 ├── swagger.json                      # OpenAPI 3.0.3 specification for Swagger UI
 ├── test.js                           # Automated test suite (30 unit/integration tests)
-├── .gitignore                        # Excluded files (node_modules, .env, etc.)
-├── README.md                         # Project documentation (Architecture, API, Setup)
+├── .gitignore                        # Git exclusion configuration
+├── README.md                         # Project documentation
+│
+├── db/                               # DATABASE SCHEMAS & MIGRATIONS
+│   └── init.sql                      # DDL schema, tables, constraints, indexes & seed data
+│
+├── scripts/                          # AUTOMATION & VERIFICATION SCRIPTS
+│   ├── forgetting_test.sh            # The Forgetting Test script (Bash)
+│   └── forgetting_test.ps1           # The Forgetting Test script (PowerShell)
 │
 ├── public/                           # Static client assets
 │   ├── index.html                    # Landing page / Quick API explorer
@@ -204,32 +343,58 @@ Handled by `apiUserController.js`:
 
 ## 🛠️ Getting Started & Installation
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
-- [npm](https://www.npmjs.com/)
+### Option A: Running with Docker (Recommended)
 
-### 1. Clone & Install
-```bash
-git clone https://github.com/ceydasenemyigit/alumni.git
-cd alumni
-npm install
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/ceydasenemyigit/alumni.git
+   cd alumni
+   ```
 
-### 2. Run Application
-```bash
-# Production / Standard run
-node index.js
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   ```
 
-# Development mode (with live reload)
-npm run dev
-```
-The server will start on `http://localhost:3000`.
+3. **Start services with Docker Compose:**
+   ```bash
+   docker compose up --build -d
+   ```
 
-### 3. Run Automated Tests
-```bash
-npm test
-```
-Runs the full suite of 30 automated integration and unit tests verifying all web views and REST endpoints.
+4. **Verify container status:**
+   ```bash
+   docker compose ps
+   ```
+
+5. **Stop services:**
+   ```bash
+   docker compose down
+   ```
+
+---
+
+### Option B: Running Locally with Node.js
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Run server:**
+   ```bash
+   # Production / Standard run
+   node index.js
+
+   # Development mode (with live reload)
+   npm run dev
+   ```
+   The server will start on `http://localhost:3000`.
+
+3. **Run Automated Test Suite:**
+   ```bash
+   npm test
+   ```
+   Executes 30 integration tests verifying all introductory routes, Swagger, Users, and Announcements MVC & API endpoints.
 
 ---
 
@@ -240,3 +405,4 @@ Once the server is running, navigate to:
 - **OpenAPI JSON**: [http://localhost:3000/api/swagger.json](http://localhost:3000/api/swagger.json)
 - **Web UI Directory**: [http://localhost:3000/users](http://localhost:3000/users)
 - **Announcements Board**: [http://localhost:3000/announcements](http://localhost:3000/announcements)
+- **Data Design Documentation**: [ddd.md](ddd.md)

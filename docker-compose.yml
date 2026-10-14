@@ -1,0 +1,67 @@
+# ========================================================
+# Alumni Tracking System - Docker Compose Configuration
+# ========================================================
+# Orchestrates Node.js Express backend and PostgreSQL database
+# with named volume persistence for "The Forgetting Test"
+
+services:
+  # 1. Express Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alumni_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-alumni_db}
+      DB_USER: ${DB_USER:-alumni_user}
+      DB_PASSWORD: ${DB_PASSWORD:-alumni_secure_password_2026}
+      JWT_SECRET: ${JWT_SECRET:-supersecret_jwt_key_alumni_2026_dev}
+      SESSION_SECRET: ${SESSION_SECRET:-supersecret_session_key_alumni_2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - alumni_net
+
+  # 2. PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: alumni_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-alumni_db}
+      POSTGRES_USER: ${POSTGRES_USER:-alumni_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alumni_secure_password_2026}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # Named volume for database persistence across container lifecycles (The Forgetting Test)
+      - postgres_data:/var/lib/postgresql/data
+      # Automated schema initialization & seed data on first container boot
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-alumni_user} -d $${POSTGRES_DB:-alumni_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - alumni_net
+
+# Named Persistent Volumes
+# Essential for passing "The Forgetting Test": data survives `docker compose down` and `docker compose up`
+volumes:
+  postgres_data:
+    driver: local
+
+# Internal Bridge Network
+networks:
+  alumni_net:
+    driver: bridge

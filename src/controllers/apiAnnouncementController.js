@@ -5,17 +5,25 @@ const announcementModel = require('../models/announcementModel');
  */
 
 // GET /api/announcements - Retrieve all announcements (supports ?category=&author=&search=)
-exports.getAll = (req, res) => {
-  const announcements = announcementModel.getAll(req.query);
-  return res.status(200).json({
-    success: true,
-    count: announcements.length,
-    data: announcements
-  });
+exports.getAll = async (req, res) => {
+  try {
+    const announcements = await announcementModel.getAll(req.query);
+    return res.status(200).json({
+      success: true,
+      count: announcements.length,
+      data: announcements
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: error.type || 'Internal Server Error',
+      message: error.message
+    });
+  }
 };
 
 // GET /api/announcements/:id - Retrieve announcement by ID
-exports.getById = (req, res) => {
+exports.getById = async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     return res.status(400).json({
@@ -25,30 +33,38 @@ exports.getById = (req, res) => {
     });
   }
 
-  const announcement = announcementModel.getById(id);
-  if (!announcement) {
-    return res.status(404).json({
+  try {
+    const announcement = await announcementModel.getById(id);
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        error: 'Not Found',
+        message: `ID ${id} olan duyuru bulunamadı.`
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: announcement
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
       success: false,
-      error: 'Not Found',
-      message: `ID ${id} olan duyuru bulunamadı.`
+      error: error.type || 'Internal Server Error',
+      message: error.message
     });
   }
-
-  return res.status(200).json({
-    success: true,
-    data: announcement
-  });
 };
 
 // POST /api/announcements - Create a new announcement
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   try {
     const payload = { ...req.query, ...req.body };
-    const newAnnouncement = announcementModel.create(payload);
+    const newAnnouncement = await announcementModel.create(payload);
 
     return res.status(201).json({
       success: true,
-      message: 'Duyuru başarıyla oluşturuldu (In-Memory).',
+      message: 'Duyuru başarıyla oluşturuldu.',
       data: newAnnouncement
     });
   } catch (error) {
@@ -61,7 +77,7 @@ exports.create = (req, res) => {
 };
 
 // PUT /api/announcements/:id - Update an announcement
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -73,7 +89,7 @@ exports.update = (req, res) => {
     }
 
     const payload = { ...req.query, ...req.body };
-    const updated = announcementModel.update(id, payload);
+    const updated = await announcementModel.update(id, payload);
 
     return res.status(200).json({
       success: true,
@@ -90,7 +106,7 @@ exports.update = (req, res) => {
 };
 
 // PATCH /api/announcements/:id - Partial update of an announcement
-exports.patch = (req, res) => {
+exports.patch = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -102,7 +118,7 @@ exports.patch = (req, res) => {
     }
 
     const payload = { ...req.query, ...req.body };
-    const updated = announcementModel.update(id, payload);
+    const updated = await announcementModel.update(id, payload);
 
     return res.status(200).json({
       success: true,
@@ -119,7 +135,7 @@ exports.patch = (req, res) => {
 };
 
 // DELETE /api/announcements/:id - Remove an announcement
-exports.remove = (req, res) => {
+exports.remove = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -130,7 +146,7 @@ exports.remove = (req, res) => {
       });
     }
 
-    const deleted = announcementModel.delete(id);
+    const deleted = await announcementModel.delete(id);
     return res.status(200).json({
       success: true,
       message: `ID ${id} olan duyuru başarıyla silindi.`,

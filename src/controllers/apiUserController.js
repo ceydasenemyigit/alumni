@@ -5,17 +5,25 @@ const userModel = require('../models/userModel');
  */
 
 // GET /api/users
-exports.getUsers = (req, res) => {
-  const users = userModel.findAll(req.query);
-  return res.status(200).json({
-    success: true,
-    count: users.length,
-    data: users
-  });
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await userModel.findAll(req.query);
+    return res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: error.type || 'Internal Server Error',
+      message: error.message
+    });
+  }
 };
 
 // GET /api/users/:id
-exports.getUserById = (req, res) => {
+exports.getUserById = async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     return res.status(400).json({
@@ -25,30 +33,38 @@ exports.getUserById = (req, res) => {
     });
   }
 
-  const user = userModel.findById(id);
-  if (!user) {
-    return res.status(404).json({
+  try {
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Not Found',
+        message: `ID ${id} olan kullanıcı bulunamadı.`
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
       success: false,
-      error: 'Not Found',
-      message: `ID ${id} olan kullanıcı bulunamadı.`
+      error: error.type || 'Internal Server Error',
+      message: error.message
     });
   }
-
-  return res.status(200).json({
-    success: true,
-    data: user
-  });
 };
 
 // POST /api/users
-exports.createUser = (req, res) => {
+exports.createUser = async (req, res) => {
   try {
     const payload = { ...req.query, ...req.body };
-    const user = userModel.create(payload);
+    const user = await userModel.create(payload);
 
     return res.status(201).json({
       success: true,
-      message: 'Kullanıcı başarıyla oluşturuldu (In-Memory).',
+      message: 'Kullanıcı başarıyla oluşturuldu.',
       data: user
     });
   } catch (error) {
@@ -61,7 +77,7 @@ exports.createUser = (req, res) => {
 };
 
 // PUT /api/users/:id
-exports.updateUser = (req, res) => {
+exports.updateUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -73,7 +89,7 @@ exports.updateUser = (req, res) => {
     }
 
     const payload = { ...req.query, ...req.body };
-    const updated = userModel.update(id, payload);
+    const updated = await userModel.update(id, payload);
 
     return res.status(200).json({
       success: true,
@@ -90,7 +106,7 @@ exports.updateUser = (req, res) => {
 };
 
 // PATCH /api/users/:id
-exports.patchUser = (req, res) => {
+exports.patchUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -102,7 +118,7 @@ exports.patchUser = (req, res) => {
     }
 
     const payload = { ...req.query, ...req.body };
-    const patched = userModel.patch(id, payload);
+    const patched = await userModel.patch(id, payload);
 
     return res.status(200).json({
       success: true,
@@ -119,7 +135,7 @@ exports.patchUser = (req, res) => {
 };
 
 // DELETE /api/users/:id
-exports.deleteUser = (req, res) => {
+exports.deleteUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -130,7 +146,7 @@ exports.deleteUser = (req, res) => {
       });
     }
 
-    const deleted = userModel.delete(id);
+    const deleted = await userModel.delete(id);
     return res.status(200).json({
       success: true,
       message: `ID ${id} olan kullanıcı başarıyla silindi.`,

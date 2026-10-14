@@ -5,14 +5,21 @@ const userModel = require('../models/userModel');
  */
 
 // GET /users - Listing view
-exports.index = (req, res) => {
-  const users = userModel.findAll(req.query);
-  res.render('users/index', {
-    title: 'Alumni User Directory',
-    users,
-    search: req.query.search || '',
-    activeRole: req.query.role || ''
-  });
+exports.index = async (req, res) => {
+  try {
+    const users = await userModel.findAll(req.query);
+    res.render('users/index', {
+      title: 'Alumni User Directory',
+      users,
+      search: req.query.search || '',
+      activeRole: req.query.role || ''
+    });
+  } catch (err) {
+    res.status(500).render('error', {
+      title: 'Directory Error',
+      message: err.message
+    });
+  }
 };
 
 // GET /users/new - Render user creation form
@@ -25,9 +32,9 @@ exports.newForm = (req, res) => {
 };
 
 // POST /users - Create new user from web form
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   try {
-    const newUser = userModel.create(req.body);
+    const newUser = await userModel.create(req.body);
     res.redirect(`/users/${newUser.id}`);
   } catch (err) {
     res.status(err.status || 400).render('users/new', {
@@ -39,43 +46,57 @@ exports.create = (req, res) => {
 };
 
 // GET /users/:id - Render single user details view
-exports.show = (req, res) => {
-  const user = userModel.findById(req.params.id);
-  if (!user) {
-    return res.status(404).render('error', {
-      title: 'User Not Found',
-      message: `User with ID #${req.params.id} does not exist.`
+exports.show = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.params.id);
+    if (!user) {
+      return res.status(404).render('error', {
+        title: 'User Not Found',
+        message: `User with ID #${req.params.id} does not exist.`
+      });
+    }
+    res.render('users/show', {
+      title: `${user.first_name} ${user.last_name}`,
+      user
+    });
+  } catch (err) {
+    res.status(500).render('error', {
+      title: 'User Error',
+      message: err.message
     });
   }
-  res.render('users/show', {
-    title: `${user.first_name} ${user.last_name}`,
-    user
-  });
 };
 
 // GET /users/:id/edit - Render user edit form
-exports.editForm = (req, res) => {
-  const user = userModel.findById(req.params.id);
-  if (!user) {
-    return res.status(404).render('error', {
-      title: 'User Not Found',
-      message: `User with ID #${req.params.id} does not exist.`
+exports.editForm = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.params.id);
+    if (!user) {
+      return res.status(404).render('error', {
+        title: 'User Not Found',
+        message: `User with ID #${req.params.id} does not exist.`
+      });
+    }
+    res.render('users/edit', {
+      title: `Edit ${user.first_name} ${user.last_name}`,
+      user,
+      error: null
+    });
+  } catch (err) {
+    res.status(500).render('error', {
+      title: 'Edit Error',
+      message: err.message
     });
   }
-  res.render('users/edit', {
-    title: `Edit ${user.first_name} ${user.last_name}`,
-    user,
-    error: null
-  });
 };
 
 // POST /users/:id (or PUT) - Update user from form
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   try {
-    const updated = userModel.update(req.params.id, req.body);
+    const updated = await userModel.update(req.params.id, req.body);
     res.redirect(`/users/${updated.id}`);
   } catch (err) {
-    const user = userModel.findById(req.params.id) || { id: req.params.id, ...req.body };
+    const user = (await userModel.findById(req.params.id)) || { id: req.params.id, ...req.body };
     res.status(err.status || 400).render('users/edit', {
       title: 'Edit User',
       user,
@@ -85,9 +106,9 @@ exports.update = (req, res) => {
 };
 
 // POST /users/:id/delete (or DELETE) - Remove user
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
   try {
-    userModel.delete(req.params.id);
+    await userModel.delete(req.params.id);
     res.redirect('/users');
   } catch (err) {
     res.status(err.status || 404).render('error', {

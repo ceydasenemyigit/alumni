@@ -56,12 +56,34 @@ CREATE TABLE IF NOT EXISTS announcements (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 5. Job Postings Table
+CREATE TABLE IF NOT EXISTS job_postings (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(160) NOT NULL,
+    company VARCHAR(120) NOT NULL,
+    location VARCHAR(100) NOT NULL DEFAULT 'Remote',
+    employment_type VARCHAR(30) NOT NULL DEFAULT 'Full-Time' CHECK (employment_type IN ('Full-Time', 'Part-Time', 'Contract', 'Internship', 'Remote')),
+    description TEXT NOT NULL,
+    requirements TEXT,
+    salary_range VARCHAR(80),
+    application_url VARCHAR(255),
+    posted_by_user_id INT REFERENCES users(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    deadline DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for performance & query optimization
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_grad_year ON users(graduation_year);
 CREATE INDEX IF NOT EXISTS idx_announcements_category ON announcements(category);
 CREATE INDEX IF NOT EXISTS idx_announcements_created_at ON announcements(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_job_postings_active ON job_postings(is_active);
+CREATE INDEX IF NOT EXISTS idx_job_postings_employment_type ON job_postings(employment_type);
+CREATE INDEX IF NOT EXISTS idx_job_postings_posted_by ON job_postings(posted_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_job_postings_created_at ON job_postings(created_at DESC);
 
 -- ===================================================
 -- Initial Seed Data
@@ -94,7 +116,15 @@ INSERT INTO announcements (id, title, content, author, category) VALUES
 (3, 'Campus Library Digital Access for Alumni', 'All registered alumni now have off-campus digital access to university academic journals and research repositories.', 'University Library', 'General')
 ON CONFLICT (id) DO NOTHING;
 
+-- Job Postings
+INSERT INTO job_postings (id, title, company, location, employment_type, description, requirements, salary_range, application_url, posted_by_user_id, is_active, deadline) VALUES
+(1, 'Junior Full-Stack Engineer', 'Global Tech Solutions', 'Istanbul / Hybrid', 'Full-Time', 'Join our core platform engineering team working with Node.js, Express, and PostgreSQL.', 'Proficiency in JavaScript/TypeScript, SQL, and REST APIs.', '$40,000 - $60,000', 'https://careers.globaltech.example.com/apply/1', 1, true, '2026-12-31'),
+(2, 'Summer Software Engineering Intern', 'CloudScale Dynamics', 'Remote', 'Internship', 'Exciting 3-month paid summer internship program for junior/senior computer engineering students.', 'Strong foundational CS knowledge, data structures, and Git experience.', '$25/hour', 'mailto:internships@cloudscale.example.com', 3, true, '2026-05-15')
+ON CONFLICT (id) DO NOTHING;
+
 -- Reset sequences
 SELECT setval('departments_id_seq', (SELECT MAX(id) FROM departments));
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 SELECT setval('announcements_id_seq', (SELECT MAX(id) FROM announcements));
+SELECT setval('job_postings_id_seq', (SELECT MAX(id) FROM job_postings));
+

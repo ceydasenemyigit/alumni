@@ -83,6 +83,7 @@ erDiagram
     DEPARTMENTS ||--o{ USERS : "belongs to"
     USERS ||--o| ALUMNI_PROFILES : "has profile"
     USERS ||--o{ ANNOUNCEMENTS : "authors / receives"
+    USERS ||--o{ JOB_POSTINGS : "posts / manages"
 
     DEPARTMENTS {
         int id PK
@@ -126,6 +127,23 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+
+    JOB_POSTINGS {
+        int id PK
+        varchar title
+        varchar company
+        varchar location
+        varchar employment_type
+        text description
+        text requirements
+        varchar salary_range
+        varchar application_url
+        int posted_by_user_id FK
+        boolean is_active
+        date deadline
+        timestamp created_at
+        timestamp updated_at
+    }
 ```
 
 ### Database Schema Summary
@@ -136,6 +154,7 @@ erDiagram
 | **`users`** | `id` (SERIAL) | `department_id -> departments(id)` | `email UNIQUE`, `role IN ('STUDENT','ALUMNI','ADMIN')` |
 | **`alumni_profiles`** | `id` (SERIAL) | `user_id -> users(id) ON DELETE CASCADE` | `user_id UNIQUE` (1:1 Graduate Career Profile) |
 | **`announcements`** | `id` (SERIAL) | — | `category IN ('Event','Career','Academic','General')` |
+| **`job_postings`** | `id` (SERIAL) | `posted_by_user_id -> users(id) ON DELETE SET NULL` | `employment_type IN ('Full-Time','Part-Time','Contract','Internship','Remote')` (Career Board) |
 
 ---
 

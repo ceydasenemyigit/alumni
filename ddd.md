@@ -16,12 +16,13 @@ The **Alumni Tracking System** maintains comprehensive academic, professional, a
 
 ## 🏛️ 2. Conceptual Data Model
 
-The domain model revolves around four core business entities:
+The domain model revolves around five core business entities:
 
 1. **Departments (`departments`)**: Represents academic departments and faculties under the university.
 2. **Users (`users`)**: Represents registered system actors categorized into `STUDENT`, `ALUMNI`, or `ADMIN`.
 3. **Alumni Profiles (`alumni_profiles`)**: Detailed career, employment, and biographical information linked 1:1 to an alumnus.
-4. **Announcements (`announcements`)**: Broadcasted university notices, homecoming events, and career opportunities published for alumni.
+4. **Announcements (`announcements`)**: Broadcasted university notices, homecoming events, and campus updates published for alumni.
+5. **Job Postings (`job_postings`)**: Career opportunities, internships, and job openings posted by alumni and administrators to connect graduates and students with employment prospects.
 
 ---
 
@@ -32,6 +33,7 @@ erDiagram
     DEPARTMENTS ||--o{ USERS : "belongs to"
     USERS ||--o| ALUMNI_PROFILES : "has profile"
     USERS ||--o{ ANNOUNCEMENTS : "authors / receives"
+    USERS ||--o{ JOB_POSTINGS : "posts / manages"
 
     DEPARTMENTS {
         int id PK "Serial, Primary Key"
@@ -77,6 +79,23 @@ erDiagram
         varchar author "Author or department name"
         varchar category "Event | Career | Academic | General"
         timestamp created_at "Publication timestamp"
+        timestamp updated_at "Last modification timestamp"
+    }
+
+    JOB_POSTINGS {
+        int id PK "Serial, Primary Key"
+        varchar title "Job vacancy position / title"
+        varchar company "Hiring organization / company"
+        varchar location "Location or Remote"
+        varchar employment_type "Full-Time | Part-Time | Contract | Internship | Remote"
+        text description "Role details and responsibilities"
+        text requirements "Required skills and qualifications"
+        varchar salary_range "Compensation range (optional)"
+        varchar application_url "Application link or contact email"
+        int posted_by_user_id FK "References users(id) ON DELETE SET NULL"
+        boolean is_active "Listing availability flag"
+        date deadline "Application closing date"
+        timestamp created_at "Posting timestamp"
         timestamp updated_at "Last modification timestamp"
     }
 ```
@@ -144,6 +163,26 @@ Broadcasted university and alumni community notices.
 | `created_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Creation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Last updated timestamp |
 
+### 4.5. Table: `job_postings`
+Career, internship, and employment postings published by alumni and administration.
+
+| Column Name | Data Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `SERIAL` | `PRIMARY KEY` | Auto-incrementing unique job posting identifier |
+| `title` | `VARCHAR(160)` | `NOT NULL` | Job vacancy position / title (e.g., "Full-Stack Developer") |
+| `company` | `VARCHAR(120)` | `NOT NULL` | Hiring organization / company name |
+| `location` | `VARCHAR(100)` | `NOT NULL, DEFAULT 'Remote'` | Workplace location (City, Country, or 'Remote') |
+| `employment_type` | `VARCHAR(30)` | `NOT NULL, DEFAULT 'Full-Time', CHECK IN ('Full-Time', 'Part-Time', 'Contract', 'Internship', 'Remote')` | Employment classification |
+| `description` | `TEXT` | `NOT NULL` | Comprehensive job overview, responsibilities, and team info |
+| `requirements` | `TEXT` | `NULLABLE` | Required technical qualifications, experience, and skills |
+| `salary_range` | `VARCHAR(80)` | `NULLABLE` | Disclosed compensation or salary band (e.g., "$80,000 - $110,000") |
+| `application_url` | `VARCHAR(255)` | `NULLABLE` | Application portal URL or recruiter contact email |
+| `posted_by_user_id` | `INT` | `FK -> users(id) ON DELETE SET NULL` | Alumnus or admin who published the opportunity |
+| `is_active` | `BOOLEAN` | `DEFAULT TRUE` | Posting visibility flag (true = open, false = closed) |
+| `deadline` | `DATE` | `NULLABLE` | Application cutoff date |
+| `created_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Record creation timestamp |
+| `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Last modification timestamp |
+
 ---
 
 ## 📐 5. Normalization Analysis
@@ -159,6 +198,7 @@ The schema satisfies Third Normal Form (3NF):
 3. **Third Normal Form (3NF)**:
    - Department information is decoupled into `departments` rather than storing faculty details directly in `users`, eliminating transitive dependencies (`user_id -> department_id -> faculty`).
    - Profile information is normalized into `alumni_profiles` so that student records are not burdened with sparse alumni employment fields.
+   - Job opportunities are isolated in `job_postings` with a clean foreign key reference (`posted_by_user_id -> users(id)`), eliminating redundant storage of user contact/profile details in the job postings table.
 
 ---
 
@@ -181,6 +221,18 @@ CREATE INDEX idx_announcements_category ON announcements(category);
 
 -- Chronological sorting for announcements feed
 CREATE INDEX idx_announcements_created_at ON announcements(created_at DESC);
+
+-- Fast filtering for active job postings
+CREATE INDEX idx_job_postings_active ON job_postings(is_active);
+
+-- Fast search and filtering by employment type (Full-Time, Internship, etc.)
+CREATE INDEX idx_job_postings_employment_type ON job_postings(employment_type);
+
+-- Lookup of jobs posted by a specific alumnus or admin
+CREATE INDEX idx_job_postings_posted_by ON job_postings(posted_by_user_id);
+
+-- Chronological sorting for job board listings (newest first)
+CREATE INDEX idx_job_postings_created_at ON job_postings(created_at DESC);
 ```
 
 ---

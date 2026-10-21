@@ -52,9 +52,13 @@ The application is structured following the **Model-View-Controller (MVC)** soft
 ```
 
 ### 1. Model Layer (`src/models/`)
-- Encapsulates domain data logic and operations without external dependencies:
-  - **`userModel.js`**: Stores student and alumni profiles with fields (`id`, `email`, `first_name`, `last_name`, `role`, `department`, `graduation_year`, `is_verified`, `created_at`, `updated_at`). Provides `findAll`, `findById`, `findByEmail`, `create`, `update`, `patch`, and `delete`.
-  - **`announcementModel.js`**: Stores university and community notices with fields (`id`, `title`, `content`, `author`, `category`, `createdAt`, `updatedAt`). Pre-seeded with initial data and provides full CRUD helpers: `getAll(query)`, `getById(id)`, `create(data)`, `update(id, data)`, and `delete(id)`.
+- Encapsulates domain data logic, validation, SQL queries, and relational associations with seamless database / in-memory fallback:
+  - **`userModel.js`**: Stores student, alumni, and admin profiles (`id`, `email`, `first_name`, `last_name`, `role`, `department_name`, `graduation_year`, `is_verified`). Implements CRUD and relational methods (`getDepartment`, `getProfile`, `getJobPostings`, `findWithRelations`).
+  - **`departmentModel.js`**: Manages university faculties and departments. Defines **1:N** relation with users (`getUsers(departmentId)`).
+  - **`alumniProfileModel.js`**: Manages extended graduate career details (`current_company`, `current_title`, `industry`, `linkedin_url`, `bio`). Defines **1:1** relation with User (`getUser(userId)`).
+  - **`announcementModel.js`**: Stores university and community notices with categories (`Event`, `Career`, `Academic`, `General`). Provides full CRUD helpers (`getAll`, `getById`, `create`, `update`, `delete`).
+  - **`jobPostingModel.js`**: Manages job vacancies and internship listings. Defines **N:1** relation with User (`getPoster(jobId)`, `findByUserId(userId)`).
+  - **`index.js`**: Central registry exporting all models and defining formal association metadata (`relations`).
 
 ### 2. View Layer (`views/`)
 - Server-side rendered HTML interfaces powered by the **EJS (Embedded JavaScript)** template engine.

@@ -474,6 +474,58 @@ class UserModel {
       return deleted;
     }
   }
+
+  // --- Relational Methods ---
+
+  /**
+   * User belongs to Department (N:1)
+   */
+  async getDepartment(userId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+    const departmentModel = require('./departmentModel');
+    if (user.department_id) {
+      return await departmentModel.findById(user.department_id);
+    }
+    return await departmentModel.findByName(user.department || user.department_name);
+  }
+
+  /**
+   * User has one AlumniProfile (1:1)
+   */
+  async getProfile(userId) {
+    const alumniProfileModel = require('./alumniProfileModel');
+    return await alumniProfileModel.findByUserId(userId);
+  }
+
+  /**
+   * User has many JobPostings (1:N)
+   */
+  async getJobPostings(userId) {
+    const jobPostingModel = require('./jobPostingModel');
+    return await jobPostingModel.findByUserId(userId);
+  }
+
+  /**
+   * Returns user populated with relations: department, profile, job_postings
+   */
+  async findWithRelations(userId) {
+    const user = await this.findById(userId);
+    if (!user) return null;
+
+    const [department, profile, jobPostings] = await Promise.all([
+      this.getDepartment(userId),
+      this.getProfile(userId),
+      this.getJobPostings(userId)
+    ]);
+
+    return {
+      ...user,
+      department_details: department,
+      alumni_profile: profile,
+      job_postings: jobPostings
+    };
+  }
 }
 
 module.exports = new UserModel();

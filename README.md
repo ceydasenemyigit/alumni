@@ -285,11 +285,13 @@ alumni/
 │   │   │   ├── userFactory.js
 │   │   │   ├── alumniProfileFactory.js
 │   │   │   ├── announcementFactory.js
+│   │   │   ├── jobPostingFactory.js
 │   │   │   └── applicationFactory.js
 │   │   └── seeders/                  # Relational database seeders
 │   │       ├── departmentSeeder.js
 │   │       ├── userSeeder.js
 │   │       ├── announcementSeeder.js
+│   │       ├── jobPostingSeeder.js
 │   │       └── databaseSeeder.js     # Master database seeder orchestrator
 │   │
 │   ├── models/                       # [M] MODEL LAYER (PostgreSQL + In-Memory Fallback)

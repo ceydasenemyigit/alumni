@@ -42,9 +42,73 @@ class JobPostingModel {
         deadline: '2026-05-15',
         created_at: new Date('2026-10-10T12:00:00.000Z').toISOString(),
         updated_at: new Date('2026-10-10T12:00:00.000Z').toISOString()
+      },
+      {
+        id: 3,
+        title: 'Senior Backend Architect',
+        company: 'FinTech Horizon',
+        location: 'Istanbul / Hybrid',
+        employment_type: 'Full-Time',
+        description: 'Lead high-throughput payment processing architecture, distributed systems, and Kafka event streaming.',
+        requirements: '5+ years Node.js or Go, PostgreSQL, Redis, Kubernetes, high availability system design.',
+        salary_range: '$85,000 - $110,000',
+        application_url: 'https://careers.fintechhorizon.example.com/apply/backend',
+        posted_by_user_id: 1,
+        is_active: true,
+        deadline: '2026-11-30',
+        created_at: new Date('2026-10-12T08:00:00.000Z').toISOString(),
+        updated_at: new Date('2026-10-12T08:00:00.000Z').toISOString()
+      },
+      {
+        id: 4,
+        title: 'Data Analyst & BI Specialist',
+        company: 'Apex Data Insights',
+        location: 'Maslak, Istanbul',
+        employment_type: 'Full-Time',
+        description: 'Transform raw product and alumni analytics into actionable business dashboards and forecasts.',
+        requirements: 'SQL, Python/Pandas, PowerBI/Tableau, data warehousing fundamentals.',
+        salary_range: '$45,000 - $65,000',
+        application_url: 'https://careers.apexinsights.example.com/data-analyst',
+        posted_by_user_id: 2,
+        is_active: true,
+        deadline: '2026-10-31',
+        created_at: new Date('2026-10-14T14:30:00.000Z').toISOString(),
+        updated_at: new Date('2026-10-14T14:30:00.000Z').toISOString()
+      },
+      {
+        id: 5,
+        title: 'DevOps & Cloud Infrastructure Engineer',
+        company: 'Nexus Cyber Systems',
+        location: 'Ankara / Hybrid',
+        employment_type: 'Full-Time',
+        description: 'Manage AWS cloud infrastructure, Terraform IaC, GitHub Actions CI/CD pipelines, and observability.',
+        requirements: 'AWS, Terraform, Docker, Kubernetes, Linux, Prometheus/Grafana.',
+        salary_range: '$70,000 - $95,000',
+        application_url: 'https://careers.nexuscyber.example.com/devops',
+        posted_by_user_id: 3,
+        is_active: true,
+        deadline: '2026-12-15',
+        created_at: new Date('2026-10-15T09:15:00.000Z').toISOString(),
+        updated_at: new Date('2026-10-15T09:15:00.000Z').toISOString()
+      },
+      {
+        id: 6,
+        title: 'Part-Time Frontend Developer',
+        company: 'Creative Wave Studio',
+        location: 'Remote',
+        employment_type: 'Part-Time',
+        description: 'Build modern responsive landing pages and interactive student/alumni portal user interfaces.',
+        requirements: 'React/Next.js, Tailwind CSS, HTML5/CSS3, responsive design.',
+        salary_range: '$25 - $35/hour',
+        application_url: 'mailto:jobs@creativewave.example.com',
+        posted_by_user_id: 1,
+        is_active: true,
+        deadline: '2026-08-31',
+        created_at: new Date('2026-10-16T11:00:00.000Z').toISOString(),
+        updated_at: new Date('2026-10-16T11:00:00.000Z').toISOString()
       }
     ];
-    this.nextId = 3;
+    this.nextId = 7;
   }
 
   formatRow(row) {

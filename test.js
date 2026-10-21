@@ -334,6 +334,15 @@ async function runTests() {
       assert.ok(appFactory.VALID_STATUSES.includes(testApp.status));
       console.log('✓ Application Factory: generates valid N:M association records');
 
+      const jobFactory = require('./src/database/factories/jobPostingFactory');
+      const testJob = jobFactory.create(1, { employment_type: 'Full-Time' });
+      assert.strictEqual(testJob.posted_by_user_id, 1);
+      assert.strictEqual(testJob.employment_type, 'Full-Time');
+      assert.ok(jobFactory.VALID_EMPLOYMENT_TYPES.includes(testJob.employment_type));
+      const testJobs = jobFactory.createMany(3, 2);
+      assert.strictEqual(testJobs.length, 3);
+      console.log('✓ Job Posting Factory: generates realistic career vacancy records');
+
       // Test Migrations
       const fs = require('fs');
       const path = require('path');
@@ -491,7 +500,7 @@ async function runTests() {
       assert.strictEqual(resDeleteApp.json.success, true);
       console.log(`✓ DELETE /api/applications/:id -> 200 JSON Application Removed`);
 
-      console.log('\n🎉 ALL 56 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Factories & Seeds Verified.\n');
+      console.log('\n🎉 ALL 57 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Factories & Seeds Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

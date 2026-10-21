@@ -174,6 +174,45 @@ class JobPostingModel {
     return await userModel.findById(job.posted_by_user_id);
   }
 
+  // --- Relations: JobPosting has many Applications (1:N) & Many-to-Many with User (Applicants) ---
+
+  async getApplications(jobPostingId) {
+    const applicationModel = require('./applicationModel');
+    return await applicationModel.findByJobId(jobPostingId);
+  }
+
+  async getApplicants(jobPostingId) {
+    const apps = await this.getApplications(jobPostingId);
+    const userModel = require('./userModel');
+    const applicants = [];
+    for (const app of apps) {
+      const user = await userModel.findById(app.user_id);
+      if (user) {
+        applicants.push({
+          ...user,
+          application_id: app.id,
+          application_status: app.status,
+          applied_at: app.applied_at
+        });
+      }
+    }
+    return applicants;
+  }
+
+  async findWithRelations(jobPostingId) {
+    const job = await this.findById(jobPostingId);
+    if (!job) return null;
+    const [poster, applications] = await Promise.all([
+      this.getPoster(jobPostingId),
+      this.getApplications(jobPostingId)
+    ]);
+    return {
+      ...job,
+      poster,
+      applications
+    };
+  }
+
   // --- CRUD: CREATE ---
 
   async create(data) {

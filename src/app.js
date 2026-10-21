@@ -11,6 +11,8 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const apiAnnouncementRoutes = require('./routes/apiAnnouncementRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const apiJobRoutes = require('./routes/apiJobRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
+const apiApplicationRoutes = require('./routes/apiApplicationRoutes');
 const apiDepartmentRoutes = require('./routes/apiDepartmentRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 
@@ -37,11 +39,13 @@ app.get('/api/swagger.json', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/announcements', announcementRoutes);
 app.use('/jobs', jobRoutes);
+app.use('/applications', applicationRoutes);
 
 // RESTful JSON API Routes
 app.use('/api/users', apiUserRoutes);
 app.use('/api/announcements', apiAnnouncementRoutes);
 app.use('/api/jobs', apiJobRoutes);
+app.use('/api/applications', apiApplicationRoutes);
 app.use('/api/departments', apiDepartmentRoutes);
 app.use('/api/health', healthRoutes);
 
@@ -65,6 +69,8 @@ app.get('/', (req, res) => {
     apiAnnouncements: '/api/announcements',
     webJobs: '/jobs',
     apiJobs: '/api/jobs',
+    webApplications: '/applications',
+    apiApplications: '/api/applications',
     apiDepartments: '/api/departments'
   });
 });

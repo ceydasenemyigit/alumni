@@ -54,15 +54,18 @@
       </div>
     <% } %>
 
-    <% if (job.application_url) { %>
-      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">Ready to apply?</div>
-          <div style="color: white; font-weight: 600;">Submit your application directly to <%= job.company %></div>
-        </div>
-        <a href="<%= job.application_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Apply Now ↗</a>
+    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Ready to apply?</div>
+        <div style="color: white; font-weight: 600;">Submit your candidacy for <%= job.company %></div>
       </div>
-    <% } %>
+      <div style="display: flex; gap: 8px;">
+        <a href="/applications/new?job_id=<%= job.id %>" class="btn btn-primary">Apply on Platform &rarr;</a>
+        <% if (job.application_url) { %>
+          <a href="<%= job.application_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-outline">External Link &UpperRightArrow;</a>
+        <% } %>
+      </div>
+    </div>
   </div>
 
   <% if (poster) { %>

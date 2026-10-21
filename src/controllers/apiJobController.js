@@ -90,6 +90,60 @@ exports.getPoster = async (req, res) => {
   }
 };
 
+// GET /api/jobs/:id/applications - Get all applications submitted for this job
+exports.getApplications = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Bad Request',
+      message: 'Geçersiz iş ilanı ID formatı.'
+    });
+  }
+
+  try {
+    const applications = await jobPostingModel.getApplications(id);
+    return res.status(200).json({
+      success: true,
+      count: applications.length,
+      data: applications
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: 'Server Error',
+      message: error.message
+    });
+  }
+};
+
+// GET /api/jobs/:id/applicants - Get applicants (users) who applied for this job (N:M through Application)
+exports.getApplicants = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Bad Request',
+      message: 'Geçersiz iş ilanı ID formatı.'
+    });
+  }
+
+  try {
+    const applicants = await jobPostingModel.getApplicants(id);
+    return res.status(200).json({
+      success: true,
+      count: applicants.length,
+      data: applicants
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: 'Server Error',
+      message: error.message
+    });
+  }
+};
+
 // POST /api/jobs - Create a new job posting
 exports.create = async (req, res) => {
   try {

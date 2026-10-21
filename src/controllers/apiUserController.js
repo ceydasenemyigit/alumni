@@ -256,6 +256,33 @@ exports.getUserJobs = async (req, res) => {
   }
 };
 
+// GET /api/users/:id/applications - Get applications submitted by user (1:N Action relation)
+exports.getUserApplications = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Bad Request',
+      message: 'Geçersiz kullanıcı ID formatı.'
+    });
+  }
+
+  try {
+    const applications = await userModel.getApplications(id);
+    return res.status(200).json({
+      success: true,
+      count: applications.length,
+      data: applications
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error',
+      message: error.message
+    });
+  }
+};
+
 // GET /api/users/:id/relations - Get fully populated user with all relations
 exports.getUserRelations = async (req, res) => {
   const id = parseInt(req.params.id, 10);

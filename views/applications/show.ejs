@@ -1,0 +1,116 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <h1 class="page-title">Application #<%= application.id %></h1>
+      <span class="badge badge-<%= application.status.toLowerCase() %>"><%= application.status %></span>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Applied on <%= new Date(application.applied_at).toLocaleString('tr-TR') %>
+      <% if (application.updated_at && application.updated_at !== application.applied_at) { %>
+        &bull; Last updated on <%= new Date(application.updated_at).toLocaleString('tr-TR') %>
+      <% } %>
+    </p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/applications" class="btn btn-outline">&larr; Back</a>
+    <a href="/applications/<%= application.id %>/edit" class="btn btn-outline">Edit Application</a>
+    <form action="/applications/<%= application.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to withdraw/delete this application?');">
+      <button type="submit" class="btn btn-danger">Withdraw / Delete</button>
+    </form>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <!-- Applicant Card -->
+  <div class="card">
+    <h3 style="font-size: 1.1rem; color: white; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+      <span>Applicant Details</span>
+      <span class="badge badge-alumni">User</span>
+    </h3>
+    <% if (application.applicant) { %>
+      <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Full Name</span>
+          <a href="/users/<%= application.applicant.id %>" style="color: #60a5fa; font-weight: 600; text-decoration: none;">
+            <%= application.applicant.first_name %> <%= application.applicant.last_name %>
+          </a>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Email</span>
+          <span style="color: white;"><%= application.applicant.email %></span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Role / Department</span>
+          <span style="color: white;"><%= application.applicant.role %> &bull; <%= application.applicant.department || application.applicant.department_name || 'N/A' %></span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Graduation Year</span>
+          <span style="color: white;"><%= application.applicant.graduation_year || 'N/A' %></span>
+        </div>
+      </div>
+    <% } else { %>
+      <p style="color: var(--text-muted);">User ID: <%= application.user_id %></p>
+    <% } %>
+  </div>
+
+  <!-- Job Card -->
+  <div class="card">
+    <h3 style="font-size: 1.1rem; color: white; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+      <span>Job Opportunity</span>
+      <span class="badge badge-career">Job Posting</span>
+    </h3>
+    <% if (application.job_posting) { %>
+      <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Position Title</span>
+          <a href="/jobs/<%= application.job_posting.id %>" style="color: white; font-weight: 600; text-decoration: none;">
+            <%= application.job_posting.title %>
+          </a>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Company</span>
+          <span style="color: white;"><%= application.job_posting.company %></span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Type / Location</span>
+          <span style="color: white;"><%= application.job_posting.employment_type %> &bull; <%= application.job_posting.location %></span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.8rem;">Salary Range</span>
+          <span style="color: #38bdf8; font-family: monospace;"><%= application.job_posting.salary_range || 'Competitive' %></span>
+        </div>
+      </div>
+    <% } else { %>
+      <p style="color: var(--text-muted);">Job ID: <%= application.job_posting_id %></p>
+    <% } %>
+  </div>
+</div>
+
+<!-- Application Materials Card -->
+<div class="card">
+  <h3 style="font-size: 1.1rem; color: white; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+    Application Materials
+  </h3>
+
+  <div style="margin-bottom: 20px;">
+    <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Resume / CV Link</h4>
+    <% if (application.resume_url) { %>
+      <a href="<%= application.resume_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="color: #38bdf8;">
+        &UpperRightArrow; View Resume / CV (<%= application.resume_url %>)
+      </a>
+    <% } else { %>
+      <span style="color: var(--text-muted); font-style: italic;">No resume URL attached.</span>
+    <% } %>
+  </div>
+
+  <div>
+    <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Cover Letter</h4>
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 8px; border: 1px solid var(--border); color: #e2e8f0; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;">
+      <%= application.cover_letter || 'No cover letter provided.' %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

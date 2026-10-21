@@ -29,6 +29,10 @@
       "description": "JSON API endpoints under /api/users"
     },
     {
+      "name": "Applications (REST API)",
+      "description": "JSON API endpoints under /api/applications resolving User <-> JobPosting Many-to-Many association"
+    },
+    {
       "name": "System",
       "description": "Health checks and system diagnostics"
     },
@@ -686,9 +690,137 @@
     "/api/users/{id}/relations": {
       "get": {
         "tags": ["Users (REST API)"],
-        "summary": "Get user populated with all relations (department, profile, jobs)",
+        "summary": "Get user populated with all relations (department, profile, jobs, applications)",
         "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
         "responses": { "200": { "description": "Populated user" } }
+      }
+    },
+    "/api/users/{id}/applications": {
+      "get": {
+        "tags": ["Users (REST API)"],
+        "summary": "Get all job applications submitted by user (1:N Action table)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of user applications" } }
+      }
+    },
+    "/api/jobs/{id}/applications": {
+      "get": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Get all applications submitted for this job vacancy (1:N Relational)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of job applications" } }
+      }
+    },
+    "/api/jobs/{id}/applicants": {
+      "get": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Get all applicants (users) who applied for this job (N:M through Application)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of applicants" } }
+      }
+    },
+    "/api/applications": {
+      "get": {
+        "tags": ["Applications (REST API)"],
+        "summary": "List job applications with filtering",
+        "parameters": [
+          { "name": "user_id", "in": "query", "schema": { "type": "integer" } },
+          { "name": "job_posting_id", "in": "query", "schema": { "type": "integer" } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["PENDING", "REVIEWING", "ACCEPTED", "REJECTED", "WITHDRAWN"] } },
+          { "name": "with_relations", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": { "200": { "description": "List of applications" } }
+      },
+      "post": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Submit a new job application",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ApplicationInput" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Application submitted" },
+          "400": { "description": "Bad Request" },
+          "409": { "description": "Conflict - Already applied" }
+        }
+      }
+    },
+    "/api/applications/{id}": {
+      "get": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Get application by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "with_relations", "in": "query", "schema": { "type": "boolean" } }
+        ],
+        "responses": { "200": { "description": "Application details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Full update of application",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApplicationInput" } } } },
+        "responses": { "200": { "description": "Application updated" } }
+      },
+      "patch": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Partial update of application",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Application updated" } }
+      },
+      "delete": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Withdraw / delete application",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Application deleted" } }
+      }
+    },
+    "/api/applications/{id}/relations": {
+      "get": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Get application populated with applicant and job posting relations",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Application with relations" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/api/applications/{id}/status": {
+      "patch": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Update application review status only",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["PENDING", "REVIEWING", "ACCEPTED", "REJECTED", "WITHDRAWN"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Status updated" } }
+      }
+    },
+    "/api/applications/user/{userId}": {
+      "get": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Get applications submitted by specific user",
+        "parameters": [{ "name": "userId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of user applications" } }
+      }
+    },
+    "/api/applications/job/{jobId}": {
+      "get": {
+        "tags": ["Applications (REST API)"],
+        "summary": "Get applications for specific job posting",
+        "parameters": [{ "name": "jobId", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of job applications" } }
       }
     }
   },
@@ -797,6 +929,30 @@
           "salary_range": { "type": "string", "example": "$40,000 - $60,000" },
           "posted_by_user_id": { "type": "integer", "example": 1 },
           "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "Application": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "user_id": { "type": "integer", "example": 2 },
+          "job_posting_id": { "type": "integer", "example": 2 },
+          "resume_url": { "type": "string", "example": "https://storage.example.com/resumes/ayse_kaya_cv.pdf" },
+          "cover_letter": { "type": "string", "example": "I am eager to apply for this engineering role." },
+          "status": { "type": "string", "enum": ["PENDING", "REVIEWING", "ACCEPTED", "REJECTED", "WITHDRAWN"], "example": "REVIEWING" },
+          "applied_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ApplicationInput": {
+        "type": "object",
+        "required": ["user_id", "job_posting_id"],
+        "properties": {
+          "user_id": { "type": "integer", "example": 2 },
+          "job_posting_id": { "type": "integer", "example": 2 },
+          "resume_url": { "type": "string", "example": "https://storage.example.com/resumes/ayse_kaya_cv.pdf" },
+          "cover_letter": { "type": "string", "example": "Interested in contributing to your platform." },
+          "status": { "type": "string", "enum": ["PENDING", "REVIEWING", "ACCEPTED", "REJECTED", "WITHDRAWN"], "default": "PENDING" }
         }
       },
       "JobPostingInput": {

@@ -326,19 +326,27 @@ async function runTests() {
       assert.ok(announceFactory.CATEGORIES.includes(testAnnounce.category));
       console.log('✓ Announcement Factory: generates categorized announcements');
 
+      const appFactory = require('./src/database/factories/applicationFactory');
+      const testApp = appFactory.create(1, 2, { status: 'REVIEWING' });
+      assert.strictEqual(testApp.user_id, 1);
+      assert.strictEqual(testApp.job_posting_id, 2);
+      assert.strictEqual(testApp.status, 'REVIEWING');
+      assert.ok(appFactory.VALID_STATUSES.includes(testApp.status));
+      console.log('✓ Application Factory: generates valid N:M association records');
+
       // Test Migrations
       const fs = require('fs');
       const path = require('path');
       const migrationsDir = path.join(__dirname, 'src', 'database', 'migrations');
       const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.js'));
-      assert.strictEqual(migrationFiles.length, 5);
+      assert.strictEqual(migrationFiles.length, 6);
       for (const file of migrationFiles) {
         const mod = require(path.join(migrationsDir, file));
         assert.ok(typeof mod.name === 'string');
         assert.ok(typeof mod.up === 'function');
         assert.ok(typeof mod.down === 'function');
       }
-      console.log(`✓ Migration Files: 5 verified migrations (departments, users, profiles, announcements, job_postings)`);
+      console.log(`✓ Migration Files: 6 verified migrations (departments, users, profiles, announcements, job_postings, applications)`);
 
       // Test Seeders
       const { runSeeds } = require('./src/database/seeders/databaseSeeder');
@@ -387,9 +395,103 @@ async function runTests() {
       assert.strictEqual(resUserRelations.statusCode, 200);
       assert.strictEqual(resUserRelations.json.data.id, 1);
       assert.ok(resUserRelations.json.data.alumni_profile);
-      console.log('✓ GET /api/users/:id/relations -> 200 JSON User with Relations');
+      assert.ok(Array.isArray(resUserRelations.json.data.applications));
+      console.log('✓ GET /api/users/:id/relations -> 200 JSON User with Relations & Applications');
 
-      console.log('\n🎉 ALL 42 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, Migrations, Factories & Seeds Verified.\n');
+      // 9. Applications Action Table (User <-> Job N:M Relations)
+      console.log('\n--- 9. Applications Action Table (User <-> Job N:M Relations) ---');
+
+      // GET /applications - HTML Listing View
+      const resWebApps = await request({ path: '/applications' });
+      assert.strictEqual(resWebApps.statusCode, 200);
+      assert.ok(resWebApps.body.includes('Job Applications'));
+      console.log('✓ GET /applications -> 200 HTML Applications Board View');
+
+      // GET /applications/new - HTML Form View
+      const resWebNewApp = await request({ path: '/applications/new' });
+      assert.strictEqual(resWebNewApp.statusCode, 200);
+      assert.ok(resWebNewApp.body.includes('Submit a Job Application'));
+      console.log('✓ GET /applications/new -> 200 HTML Application Form View');
+
+      // GET /api/applications - REST API list
+      const resApiApps = await request({ path: '/api/applications' });
+      assert.strictEqual(resApiApps.statusCode, 200);
+      assert.strictEqual(resApiApps.json.success, true);
+      assert.ok(Array.isArray(resApiApps.json.data));
+      console.log('✓ GET /api/applications -> 200 JSON Applications list');
+
+      // POST /api/applications - Create new application linking user and job
+      const newAppPayload = {
+        user_id: 1,
+        job_posting_id: createdJobId,
+        resume_url: 'https://example.com/resumes/emre_cv.pdf',
+        cover_letter: 'Applying for backend developer role.'
+      };
+      const resCreateApp = await request({ path: '/api/applications', method: 'POST' }, newAppPayload);
+      assert.strictEqual(resCreateApp.statusCode, 201);
+      assert.strictEqual(resCreateApp.json.success, true);
+      const createdAppId = resCreateApp.json.data.id;
+      console.log(`✓ POST /api/applications -> 201 JSON Created (ID: ${createdAppId})`);
+
+      // Conflict test (unique constraint: same user + same job)
+      const resDuplicateApp = await request({ path: '/api/applications', method: 'POST' }, newAppPayload);
+      assert.strictEqual(resDuplicateApp.statusCode, 409);
+      console.log('✓ POST /api/applications -> 409 Conflict on duplicate application (uq_applications_user_job)');
+
+      // GET /api/applications/:id/relations
+      const resAppRelations = await request({ path: `/api/applications/${createdAppId}/relations` });
+      assert.strictEqual(resAppRelations.statusCode, 200);
+      assert.strictEqual(resAppRelations.json.data.id, createdAppId);
+      assert.strictEqual(resAppRelations.json.data.applicant.id, 1);
+      assert.strictEqual(resAppRelations.json.data.job_posting.id, createdJobId);
+      console.log('✓ GET /api/applications/:id/relations -> 200 JSON Populated with applicant and job');
+
+      // PATCH /api/applications/:id/status
+      const resUpdateStatus = await request({ path: `/api/applications/${createdAppId}/status`, method: 'PATCH' }, { status: 'ACCEPTED' });
+      assert.strictEqual(resUpdateStatus.statusCode, 200);
+      assert.strictEqual(resUpdateStatus.json.data.status, 'ACCEPTED');
+      console.log('✓ PATCH /api/applications/:id/status -> 200 JSON Status updated to ACCEPTED');
+
+      // GET /api/jobs/:id/applications (Relational 1:N)
+      const resJobApps = await request({ path: `/api/jobs/${createdJobId}/applications` });
+      assert.strictEqual(resJobApps.statusCode, 200);
+      assert.strictEqual(resJobApps.json.success, true);
+      assert.ok(resJobApps.json.data.some(a => a.id === createdAppId));
+      console.log('✓ GET /api/jobs/:id/applications -> 200 JSON Applications for Job');
+
+      // GET /api/jobs/:id/applicants (Relational N:M)
+      const resJobApplicants = await request({ path: `/api/jobs/${createdJobId}/applicants` });
+      assert.strictEqual(resJobApplicants.statusCode, 200);
+      assert.strictEqual(resJobApplicants.json.success, true);
+      assert.ok(resJobApplicants.json.data.some(u => u.id === 1));
+      console.log('✓ GET /api/jobs/:id/applicants -> 200 JSON Applicants for Job');
+
+      // GET /api/users/:id/applications (Relational 1:N)
+      const resUserApps = await request({ path: '/api/users/1/applications' });
+      assert.strictEqual(resUserApps.statusCode, 200);
+      assert.strictEqual(resUserApps.json.success, true);
+      assert.ok(resUserApps.json.data.some(a => a.id === createdAppId));
+      console.log('✓ GET /api/users/:id/applications -> 200 JSON Applications by User');
+
+      // GET /applications/:id - HTML Details View
+      const resWebAppShow = await request({ path: `/applications/${createdAppId}` });
+      assert.strictEqual(resWebAppShow.statusCode, 200);
+      assert.ok(resWebAppShow.body.includes(`Application #${createdAppId}`));
+      console.log(`✓ GET /applications/:id -> 200 HTML Application Detail View`);
+
+      // GET /applications/:id/edit - HTML Edit Form View
+      const resWebAppEdit = await request({ path: `/applications/${createdAppId}/edit` });
+      assert.strictEqual(resWebAppEdit.statusCode, 200);
+      assert.ok(resWebAppEdit.body.includes(`Edit Application #${createdAppId}`));
+      console.log(`✓ GET /applications/:id/edit -> 200 HTML Application Edit Form`);
+
+      // DELETE /api/applications/:id
+      const resDeleteApp = await request({ path: `/api/applications/${createdAppId}`, method: 'DELETE' });
+      assert.strictEqual(resDeleteApp.statusCode, 200);
+      assert.strictEqual(resDeleteApp.json.success, true);
+      console.log(`✓ DELETE /api/applications/:id -> 200 JSON Application Removed`);
+
+      console.log('\n🎉 ALL 56 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Factories & Seeds Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

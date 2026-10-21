@@ -88,6 +88,8 @@ erDiagram
     USERS ||--o| ALUMNI_PROFILES : "has profile"
     USERS ||--o{ ANNOUNCEMENTS : "authors / receives"
     USERS ||--o{ JOB_POSTINGS : "posts / manages"
+    USERS ||--o{ APPLICATIONS : "submits"
+    JOB_POSTINGS ||--o{ APPLICATIONS : "receives"
 
     DEPARTMENTS {
         int id PK
@@ -148,6 +150,17 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
+
+    APPLICATIONS {
+        int id PK
+        int user_id FK
+        int job_posting_id FK
+        varchar resume_url
+        text cover_letter
+        varchar status
+        timestamp applied_at
+        timestamp updated_at
+    }
 ```
 
 ### Database Schema Summary
@@ -159,6 +172,7 @@ erDiagram
 | **`alumni_profiles`** | `id` (SERIAL) | `user_id -> users(id) ON DELETE CASCADE` | `user_id UNIQUE` (1:1 Graduate Career Profile) |
 | **`announcements`** | `id` (SERIAL) | — | `category IN ('Event','Career','Academic','General')` |
 | **`job_postings`** | `id` (SERIAL) | `posted_by_user_id -> users(id) ON DELETE SET NULL` | `employment_type IN ('Full-Time','Part-Time','Contract','Internship','Remote')` (Career Board) |
+| **`applications`** | `id` (SERIAL) | `user_id -> users(id)`, `job_posting_id -> job_postings(id)` | `UNIQUE(user_id, job_posting_id)` (**N:M Action Table** Candidates & Jobs) |
 
 ---
 
@@ -263,12 +277,15 @@ alumni/
 │   │   │   ├── 001_create_departments_table.js
 │   │   │   ├── 002_create_users_table.js
 │   │   │   ├── 003_create_alumni_profiles_table.js
-│   │   │   └── 004_create_announcements_table.js
+│   │   │   ├── 004_create_announcements_table.js
+│   │   │   ├── 005_create_job_postings_table.js
+│   │   │   └── 006_create_applications_table.js
 │   │   ├── factories/                # Mock data generators (Factory Pattern)
 │   │   │   ├── departmentFactory.js
 │   │   │   ├── userFactory.js
 │   │   │   ├── alumniProfileFactory.js
-│   │   │   └── announcementFactory.js
+│   │   │   ├── announcementFactory.js
+│   │   │   └── applicationFactory.js
 │   │   └── seeders/                  # Relational database seeders
 │   │       ├── departmentSeeder.js
 │   │       ├── userSeeder.js
@@ -281,7 +298,8 @@ alumni/
 │   │   ├── departmentModel.js        # Department model with 1:N users relation
 │   │   ├── alumniProfileModel.js     # AlumniProfile model with 1:1 user relation
 │   │   ├── announcementModel.js      # Announcement model with CRUD helpers
-│   │   └── jobPostingModel.js        # JobPosting model with N:1 user relation
+│   │   ├── jobPostingModel.js        # JobPosting model with N:1 user relation
+│   │   └── applicationModel.js       # Application action model resolving User <-> Job N:M
 │   │
 │   ├── controllers/                  # [C] CONTROLLER LAYER
 │   │   ├── userController.js         # Web Controller rendering EJS views for /users
@@ -290,6 +308,8 @@ alumni/
 │   │   ├── apiAnnouncementController.js # API Controller serving JSON for /api/announcements
 │   │   ├── jobController.js          # Web Controller rendering EJS views for /jobs
 │   │   ├── apiJobController.js       # API Controller serving JSON for /api/jobs
+│   │   ├── applicationController.js  # Web Controller rendering EJS views for /applications
+│   │   ├── apiApplicationController.js # API Controller serving JSON for /api/applications
 │   │   ├── apiDepartmentController.js# API Controller serving JSON for /api/departments
 │   │   └── healthController.js       # System health check controller
 │   │
@@ -300,6 +320,8 @@ alumni/
 │   │   ├── apiAnnouncementRoutes.js  # Maps /api/announcements to apiAnnouncementController (REST API)
 │   │   ├── jobRoutes.js              # Maps /jobs to jobController (Views)
 │   │   ├── apiJobRoutes.js           # Maps /api/jobs to apiJobController (REST API)
+│   │   ├── applicationRoutes.js      # Maps /applications to applicationController (Views)
+│   │   ├── apiApplicationRoutes.js   # Maps /api/applications to apiApplicationController (REST API)
 │   │   ├── apiDepartmentRoutes.js    # Maps /api/departments to apiDepartmentController (REST API)
 │   │   └── healthRoutes.js           # Maps /api/health to healthController
 │   │
@@ -324,11 +346,17 @@ alumni/
     │   ├── show.ejs                  # Single announcement detail view
     │   └── edit.ejs                  # Announcement edit form
     │
-    └── jobs/                         # Job Board MVC view templates
-        ├── index.ejs                 # Job board listing table with filters
-        ├── new.ejs                   # Job vacancy creation form
-        ├── show.ejs                  # Detailed job description view
-        └── edit.ejs                  # Job posting edit form
+    ├── jobs/                         # Job Board MVC view templates
+    │   ├── index.ejs                 # Job board listing table with filters
+    │   ├── new.ejs                   # Job vacancy creation form
+    │   ├── show.ejs                  # Detailed job description view
+    │   └── edit.ejs                  # Job posting edit form
+    │
+    └── applications/                 # Application MVC view templates (N:M Action Table)
+        ├── index.ejs                 # Applications listing table with status filter
+        ├── new.ejs                   # Candidate job application form
+        ├── show.ejs                  # Application details with candidate & job cards
+        └── edit.ejs                  # Status update and application edit form
 ```
 
 ---
@@ -391,7 +419,8 @@ Handled by `apiUserController.js`:
 | `GET` | `/api/users/:id/profile` | **[1:1 Relation]** Get user's alumni career profile | Path parameter `:id` | `200 OK` / `404 Not Found` |
 | `GET` | `/api/users/:id/department`| **[N:1 Relation]** Get user's academic department | Path parameter `:id` | `200 OK` / `404 Not Found` |
 | `GET` | `/api/users/:id/jobs` | **[1:N Relation]** Get jobs posted by this user | Path parameter `:id` | `200 OK` |
-| `GET` | `/api/users/:id/relations` | **[Eager Loading]** Get user populated with department, profile & jobs | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/users/:id/applications` | **[1:N Relation]** Get job applications submitted by this user | Path parameter `:id` | `200 OK` |
+| `GET` | `/api/users/:id/relations` | **[Eager Loading]** Get user populated with department, profile, jobs & applications | Path parameter `:id` | `200 OK` / `404 Not Found` |
 
 ### 5. Jobs MVC Web Routes (`/jobs` - HTML Views)
 
@@ -416,12 +445,45 @@ Handled by `apiJobController.js`:
 | `GET` | `/api/jobs` | Retrieve all job postings | Query params (`is_active`, `employment_type`, `company`, `search`) | `200 OK` |
 | `POST` | `/api/jobs` | Create a new job posting | JSON / URL-Encoded / Form-Data | `201 Created` / `400 Bad Request` |
 | `GET` | `/api/jobs/:id` | Get job posting by ID | Path parameter `:id` | `200 OK` / `404 Not Found` |
-| `GET` | `/api/jobs/:id/poster` | **[Relational]** Get user who posted this job | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/jobs/:id/poster` | **[Relational N:1]** Get user who posted this job | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/jobs/:id/applications` | **[Relational 1:N]** Get all applications submitted for this job | Path parameter `:id` | `200 OK` |
+| `GET` | `/api/jobs/:id/applicants` | **[Relational N:M]** Get applicants (users) who applied for this job | Path parameter `:id` | `200 OK` |
 | `PUT` | `/api/jobs/:id` | Full update job posting | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
 | `PATCH` | `/api/jobs/:id` | Partial update job posting | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
 | `DELETE` | `/api/jobs/:id` | Delete job posting | Path parameter `:id` | `200 OK` / `404 Not Found` |
 
-### 7. Departments RESTful JSON API Routes (`/api/departments` - JSON)
+### 7. Applications MVC Web Routes (`/applications` - HTML Views)
+
+Handled by `applicationController.js`:
+
+| Method | URL Route | Description | View Rendered |
+|---|---|---|---|
+| `GET` | `/applications` | List all job applications (with status filter) | `views/applications/index.ejs` |
+| `GET` | `/applications/new` | Display application form (links candidate with job) | `views/applications/new.ejs` |
+| `POST` | `/applications` | Submit application from form | Redirects to `/applications` |
+| `GET` | `/applications/:id` | Display detailed application with candidate & job cards | `views/applications/show.ejs` |
+| `GET` | `/applications/:id/edit` | Display application status & materials edit form | `views/applications/edit.ejs` |
+| `PUT` / `POST` | `/applications/:id` | Update application status & materials | Redirects to `/applications/:id` |
+| `DELETE` / `POST` | `/applications/:id/delete` | Withdraw / delete application | Redirects to `/applications` |
+
+### 8. Applications RESTful JSON API Routes (`/api/applications` - JSON)
+
+Handled by `apiApplicationController.js`:
+
+| Method | URL Route | Description | Payload Formats | Status Codes |
+|---|---|---|---|---|
+| `GET` | `/api/applications` | Retrieve all applications | Query params (`user_id`, `job_posting_id`, `status`, `with_relations`) | `200 OK` |
+| `POST` | `/api/applications` | Submit job application (Action table resolving N:M) | JSON / URL-Encoded / Form-Data (`user_id`, `job_posting_id`, etc.) | `201 Created` / `400` / `409 Conflict` |
+| `GET` | `/api/applications/:id` | Get application by ID | Path parameter `:id` (supports `?with_relations=true`) | `200 OK` / `404 Not Found` |
+| `GET` | `/api/applications/:id/relations` | **[Eager Loading]** Get application populated with applicant & job | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `PUT` | `/api/applications/:id` | Full update application | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
+| `PATCH` | `/api/applications/:id` | Partial update application | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
+| `PATCH` | `/api/applications/:id/status` | Update application review status only | JSON / URL-Encoded (`status`) | `200 OK` / `404 Not Found` |
+| `DELETE` | `/api/applications/:id` | Withdraw / delete application | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/applications/user/:userId` | **[Direct Query]** Applications submitted by user | Path parameter `:userId` | `200 OK` |
+| `GET` | `/api/applications/job/:jobId` | **[Direct Query]** Applications received for job posting | Path parameter `:jobId` | `200 OK` |
+
+### 9. Departments RESTful JSON API Routes (`/api/departments` - JSON)
 
 Handled by `apiDepartmentController.js`:
 
@@ -432,7 +494,7 @@ Handled by `apiDepartmentController.js`:
 | `GET` | `/api/departments/:id` | Get department by ID | Path parameter `:id` | `200 OK` / `404 Not Found` |
 | `GET` | `/api/departments/:id/users`| **[1:N Relational]** List all users in this department | Path parameter `:id` | `200 OK` / `404 Not Found` |
 
-### 8. System & Direct Introductory Routes
+### 10. System & Direct Introductory Routes
 
 | Method | URL Route | Description | Response Type |
 |---|---|---|---|

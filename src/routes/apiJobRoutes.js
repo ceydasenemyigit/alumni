@@ -17,6 +17,12 @@ router.get('/:id', apiJobController.getById);
 // GET /api/jobs/:id/poster - Get the user who posted the job (Relational)
 router.get('/:id/poster', apiJobController.getPoster);
 
+// GET /api/jobs/:id/applications - Get all applications for this job (Relational 1:N)
+router.get('/:id/applications', apiJobController.getApplications);
+
+// GET /api/jobs/:id/applicants - Get all users who applied for this job (Relational N:M)
+router.get('/:id/applicants', apiJobController.getApplicants);
+
 // PUT /api/jobs/:id - Full update
 router.put('/:id', upload.none(), apiJobController.update);
 

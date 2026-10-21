@@ -74,6 +74,19 @@ CREATE TABLE IF NOT EXISTS job_postings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 6. Applications Table (N:M Action Table between Users & Job Postings)
+CREATE TABLE IF NOT EXISTS applications (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    job_posting_id INT NOT NULL REFERENCES job_postings(id) ON DELETE CASCADE,
+    resume_url VARCHAR(255),
+    cover_letter TEXT,
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'REVIEWING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN')),
+    applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_applications_user_job UNIQUE (user_id, job_posting_id)
+);
+
 -- Indexes for performance & query optimization
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -84,6 +97,10 @@ CREATE INDEX IF NOT EXISTS idx_job_postings_active ON job_postings(is_active);
 CREATE INDEX IF NOT EXISTS idx_job_postings_employment_type ON job_postings(employment_type);
 CREATE INDEX IF NOT EXISTS idx_job_postings_posted_by ON job_postings(posted_by_user_id);
 CREATE INDEX IF NOT EXISTS idx_job_postings_created_at ON job_postings(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);
+CREATE INDEX IF NOT EXISTS idx_applications_job_id ON applications(job_posting_id);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_applications_user_job ON applications(user_id, job_posting_id);
 
 -- ===================================================
 -- Initial Seed Data
@@ -122,9 +139,16 @@ INSERT INTO job_postings (id, title, company, location, employment_type, descrip
 (2, 'Summer Software Engineering Intern', 'CloudScale Dynamics', 'Remote', 'Internship', 'Exciting 3-month paid summer internship program for junior/senior computer engineering students.', 'Strong foundational CS knowledge, data structures, and Git experience.', '$25/hour', 'mailto:internships@cloudscale.example.com', 3, true, '2026-05-15')
 ON CONFLICT (id) DO NOTHING;
 
+-- Applications (N:M Action Table Seeds)
+INSERT INTO applications (id, user_id, job_posting_id, resume_url, cover_letter, status) VALUES
+(1, 2, 2, 'https://storage.example.com/resumes/ayse_kaya_cv.pdf', 'I am very eager to apply for this summer internship program at CloudScale Dynamics to leverage my CS foundations.', 'REVIEWING'),
+(2, 1, 2, 'https://storage.example.com/resumes/emre_yilmaz_cv.pdf', 'Interested in contributing and mentoring within cloud infrastructure systems.', 'PENDING')
+ON CONFLICT (user_id, job_posting_id) DO NOTHING;
+
 -- Reset sequences
 SELECT setval('departments_id_seq', (SELECT MAX(id) FROM departments));
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 SELECT setval('announcements_id_seq', (SELECT MAX(id) FROM announcements));
 SELECT setval('job_postings_id_seq', (SELECT MAX(id) FROM job_postings));
+SELECT setval('applications_id_seq', (SELECT MAX(id) FROM applications));
 

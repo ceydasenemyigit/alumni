@@ -16,13 +16,14 @@ The **Alumni Tracking System** maintains comprehensive academic, professional, a
 
 ## 🏛️ 2. Conceptual Data Model
 
-The domain model revolves around five core business entities:
+The domain model revolves around six core business entities:
 
 1. **Departments (`departments`)**: Represents academic departments and faculties under the university.
 2. **Users (`users`)**: Represents registered system actors categorized into `STUDENT`, `ALUMNI`, or `ADMIN`.
 3. **Alumni Profiles (`alumni_profiles`)**: Detailed career, employment, and biographical information linked 1:1 to an alumnus.
 4. **Announcements (`announcements`)**: Broadcasted university notices, homecoming events, and campus updates published for alumni.
 5. **Job Postings (`job_postings`)**: Career opportunities, internships, and job openings posted by alumni and administrators to connect graduates and students with employment prospects.
+6. **Applications (`applications`)**: Action / associative entity resolving the **Many-to-Many (N:M)** relationship between `users` (applicants) and `job_postings` (career opportunities). Records application submissions, resumes, cover letters, and recruitment statuses.
 
 ---
 
@@ -34,6 +35,8 @@ erDiagram
     USERS ||--o| ALUMNI_PROFILES : "has profile"
     USERS ||--o{ ANNOUNCEMENTS : "authors / receives"
     USERS ||--o{ JOB_POSTINGS : "posts / manages"
+    USERS ||--o{ APPLICATIONS : "submits"
+    JOB_POSTINGS ||--o{ APPLICATIONS : "receives"
 
     DEPARTMENTS {
         int id PK "Serial, Primary Key"
@@ -96,6 +99,17 @@ erDiagram
         boolean is_active "Listing availability flag"
         date deadline "Application closing date"
         timestamp created_at "Posting timestamp"
+        timestamp updated_at "Last modification timestamp"
+    }
+
+    APPLICATIONS {
+        int id PK "Serial, Primary Key"
+        int user_id FK "References users(id) ON DELETE CASCADE"
+        int job_posting_id FK "References job_postings(id) ON DELETE CASCADE"
+        varchar resume_url "Resume / CV link"
+        text cover_letter "Applicant motivation statement"
+        varchar status "PENDING | REVIEWING | ACCEPTED | REJECTED | WITHDRAWN"
+        timestamp applied_at "Application submission timestamp"
         timestamp updated_at "Last modification timestamp"
     }
 ```
@@ -183,6 +197,22 @@ Career, internship, and employment postings published by alumni and administrati
 | `created_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Record creation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Last modification timestamp |
 
+### 4.6. Table: `applications` (Action / Associative Table)
+Resolves the **Many-to-Many (N:M)** relationship between `users` (applicants) and `job_postings` (vacancies). Tracks candidate submissions, cover letters, and recruitment stages.
+
+| Column Name | Data Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `SERIAL` | `PRIMARY KEY` | Auto-incrementing unique application identifier |
+| `user_id` | `INT` | `NOT NULL, FK -> users(id) ON DELETE CASCADE` | Applicant identifier |
+| `job_posting_id` | `INT` | `NOT NULL, FK -> job_postings(id) ON DELETE CASCADE` | Job vacancy identifier |
+| `resume_url` | `VARCHAR(255)` | `NULLABLE` | URL link to applicant's CV / resume file or portfolio |
+| `cover_letter` | `TEXT` | `NULLABLE` | Applicant motivation statement and introduction |
+| `status` | `VARCHAR(30)` | `NOT NULL, DEFAULT 'PENDING', CHECK IN ('PENDING', 'REVIEWING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN')` | Recruitment pipeline status |
+| `applied_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Initial application submission timestamp |
+| `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Status change or modification timestamp |
+
+> 🔒 **Composite Unique Constraint:** `UNIQUE(user_id, job_posting_id)` prevents candidate spam by ensuring a user can submit at most one active application per job posting.
+
 ---
 
 ## 📐 5. Normalization Analysis
@@ -195,10 +225,11 @@ The schema satisfies Third Normal Form (3NF):
 2. **Second Normal Form (2NF)**:
    - All tables are in 1NF and utilize single-column surrogate primary keys (`SERIAL`).
    - Every non-key attribute is fully functionally dependent on the primary key, eliminating partial dependencies.
-3. **Third Normal Form (3NF)**:
+3. **Third Normal Form (3NF) & Many-to-Many Decomposition**:
    - Department information is decoupled into `departments` rather than storing faculty details directly in `users`, eliminating transitive dependencies (`user_id -> department_id -> faculty`).
    - Profile information is normalized into `alumni_profiles` so that student records are not burdened with sparse alumni employment fields.
    - Job opportunities are isolated in `job_postings` with a clean foreign key reference (`posted_by_user_id -> users(id)`), eliminating redundant storage of user contact/profile details in the job postings table.
+   - The Many-to-Many (N:M) relationship between `users` (applicants) and `job_postings` (career opportunities) is resolved using the action table `applications` (`users 1:N applications` and `job_postings 1:N applications`). This eliminates repeating groups, maintains referential integrity, and enforces 3NF compliance.
 
 ---
 
@@ -233,6 +264,18 @@ CREATE INDEX idx_job_postings_posted_by ON job_postings(posted_by_user_id);
 
 -- Chronological sorting for job board listings (newest first)
 CREATE INDEX idx_job_postings_created_at ON job_postings(created_at DESC);
+
+-- Fast lookup of all applications submitted by a user
+CREATE INDEX idx_applications_user_id ON applications(user_id);
+
+-- Fast lookup of all candidate applications received for a job posting
+CREATE INDEX idx_applications_job_id ON applications(job_posting_id);
+
+-- Fast filtering by application status (PENDING, REVIEWING, ACCEPTED, etc.)
+CREATE INDEX idx_applications_status ON applications(status);
+
+-- Prevent duplicate applications and accelerate composite queries
+CREATE UNIQUE INDEX idx_applications_user_job ON applications(user_id, job_posting_id);
 ```
 
 ---
@@ -421,6 +464,7 @@ The system features an automated, transactional migration runner located in [`sr
 | `003` | [`003_create_alumni_profiles_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/003_create_alumni_profiles_table.js) | `alumni_profiles` | `CREATE TABLE` (1:1 with users) / `DROP TABLE CASCADE` |
 | `004` | [`004_create_announcements_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/004_create_announcements_table.js) | `announcements` | `CREATE TABLE` & Category Indexes / `DROP TABLE CASCADE` |
 | `005` | [`005_create_job_postings_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/005_create_job_postings_table.js) | `job_postings` | `CREATE TABLE`, Indexes & Foreign Keys / `DROP TABLE CASCADE` |
+| `006` | [`006_create_applications_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/006_create_applications_table.js) | `applications` | `CREATE TABLE` (N:M Action Table), Composite Unique Index / `DROP TABLE CASCADE` |
 
 ### 9.2. Automated Database Creation & Tracking
 

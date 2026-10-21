@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit Application #<%= application.id %></h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update application status, resume link, or cover letter statement.</p>
+  </div>
+  <a href="/applications/<%= application.id %>" class="btn btn-outline">&larr; Back to Details</a>
+</div>
+
+<% if (error) { %>
+  <div class="alert-error">
+    <strong>Error:</strong> <%= error %>
+  </div>
+<% } %>
+
+<div class="card" style="max-width: 680px; margin: 0 auto;">
+  <form action="/applications/<%= application.id %>" method="POST">
+    <input type="hidden" name="_method" value="PUT">
+
+    <div style="background: rgba(15, 23, 42, 0.4); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Linked Applicant & Job:</div>
+      <div style="color: white; font-weight: 600;">
+        <%= application.applicant ? (application.applicant.first_name + ' ' + application.applicant.last_name) : ('User #' + application.user_id) %>
+        &rarr;
+        <%= application.job_posting ? (application.job_posting.title + ' at ' + application.job_posting.company) : ('Job #' + application.job_posting_id) %>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
+        Application Status <span style="color: var(--danger);">*</span>
+      </label>
+      <select name="status" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
+        <% validStatuses.forEach(st => { %>
+          <option value="<%= st %>" <%= application.status === st ? 'selected' : '' %>>
+            <%= st %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
+        Resume / CV URL
+      </label>
+      <input
+        type="url"
+        name="resume_url"
+        value="<%= application.resume_url || '' %>"
+        placeholder="https://storage.example.com/resumes/my-cv.pdf"
+        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;"
+      >
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
+        Cover Letter / Motivation Statement
+      </label>
+      <textarea
+        name="cover_letter"
+        rows="5"
+        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem; resize: vertical;"
+      ><%= application.cover_letter || '' %></textarea>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <a href="/applications/<%= application.id %>" class="btn btn-outline">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

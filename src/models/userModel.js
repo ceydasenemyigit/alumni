@@ -507,23 +507,34 @@ class UserModel {
   }
 
   /**
-   * Returns user populated with relations: department, profile, job_postings
+   * User has many Applications (1:N via action table)
+   * Resolves Many-to-Many with JobPostings
+   */
+  async getApplications(userId) {
+    const applicationModel = require('./applicationModel');
+    return await applicationModel.findByUserId(userId);
+  }
+
+  /**
+   * Returns user populated with relations: department, profile, job_postings, applications
    */
   async findWithRelations(userId) {
     const user = await this.findById(userId);
     if (!user) return null;
 
-    const [department, profile, jobPostings] = await Promise.all([
+    const [department, profile, jobPostings, applications] = await Promise.all([
       this.getDepartment(userId),
       this.getProfile(userId),
-      this.getJobPostings(userId)
+      this.getJobPostings(userId),
+      this.getApplications(userId)
     ]);
 
     return {
       ...user,
       department_details: department,
       alumni_profile: profile,
-      job_postings: jobPostings
+      job_postings: jobPostings,
+      applications: applications
     };
   }
 }

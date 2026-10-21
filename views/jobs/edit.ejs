@@ -1,0 +1,137 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Edit Job Posting</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update position details, requirements, or listing status.</p>
+    </div>
+    <a href="/jobs/<%= job.id %>" class="btn btn-outline btn-sm">← Back to Job</a>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert-error">
+      <strong>Error:</strong> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <form action="/jobs/<%= job.id %>" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+      <input type="hidden" name="_method" value="PUT">
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title *</label>
+        <input
+          type="text"
+          name="title"
+          required
+          value="<%= job.title %>"
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Company *</label>
+          <input
+            type="text"
+            name="company"
+            required
+            value="<%= job.company %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Employment Type *</label>
+          <select
+            name="employment_type"
+            required
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+            <option value="Full-Time" <%= job.employment_type === 'Full-Time' ? 'selected' : '' %>>Full-Time</option>
+            <option value="Part-Time" <%= job.employment_type === 'Part-Time' ? 'selected' : '' %>>Part-Time</option>
+            <option value="Contract" <%= job.employment_type === 'Contract' ? 'selected' : '' %>>Contract</option>
+            <option value="Internship" <%= job.employment_type === 'Internship' ? 'selected' : '' %>>Internship</option>
+            <option value="Remote" <%= job.employment_type === 'Remote' ? 'selected' : '' %>>Remote</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Location</label>
+          <input
+            type="text"
+            name="location"
+            value="<%= job.location %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Salary Range</label>
+          <input
+            type="text"
+            name="salary_range"
+            value="<%= job.salary_range || '' %>"
+            placeholder="e.g. $60,000 - $80,000"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description *</label>
+        <textarea
+          name="description"
+          rows="5"
+          required
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+        ><%= job.description %></textarea>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Requirements</label>
+        <textarea
+          name="requirements"
+          rows="3"
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+        ><%= job.requirements || '' %></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Application URL / Contact Email</label>
+          <input
+            type="text"
+            name="application_url"
+            value="<%= job.application_url || '' %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Deadline Date</label>
+          <input
+            type="date"
+            name="deadline"
+            value="<%= job.deadline ? job.deadline.slice(0, 10) : '' %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
+          <input type="checkbox" name="is_active" value="true" <%= job.is_active ? 'checked' : '' %>>
+          <span>Active Listing (visible to students and alumni)</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+        <a href="/jobs/<%= job.id %>" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

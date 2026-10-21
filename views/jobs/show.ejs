@@ -1,0 +1,86 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 800px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <span class="badge badge-career"><%= job.employment_type %></span>
+        <% if (job.is_active) { %>
+          <span class="badge badge-student">Active</span>
+        <% } else { %>
+          <span class="badge badge-general">Closed</span>
+        <% } %>
+      </div>
+      <h1 class="page-title"><%= job.title %></h1>
+      <p style="color: #38bdf8; font-size: 1.1rem; font-weight: 600; margin-top: 4px;"><%= job.company %> • <%= job.location %></p>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="/jobs/<%= job.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
+      <form action="/jobs/<%= job.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this job?');">
+        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Salary Range</div>
+        <div style="font-size: 1.05rem; font-weight: 600; color: white; margin-top: 4px;"><%= job.salary_range || 'Competitive' %></div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Location</div>
+        <div style="font-size: 1.05rem; font-weight: 600; color: white; margin-top: 4px;"><%= job.location %></div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Application Deadline</div>
+        <div style="font-size: 1.05rem; font-weight: 600; color: white; margin-top: 4px;"><%= job.deadline || 'Open until filled' %></div>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Posted Date</div>
+        <div style="font-size: 1.05rem; font-weight: 600; color: white; margin-top: 4px;"><%= new Date(job.created_at).toLocaleDateString() %></div>
+      </div>
+    </div>
+
+    <h3 style="color: white; margin-bottom: 12px; font-size: 1.1rem;">Role Description</h3>
+    <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 24px;">
+      <%= job.description %>
+    </div>
+
+    <% if (job.requirements) { %>
+      <h3 style="color: white; margin-bottom: 12px; font-size: 1.1rem;">Requirements & Skills</h3>
+      <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 24px;">
+        <%= job.requirements %>
+      </div>
+    <% } %>
+
+    <% if (job.application_url) { %>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Ready to apply?</div>
+          <div style="color: white; font-weight: 600;">Submit your application directly to <%= job.company %></div>
+        </div>
+        <a href="<%= job.application_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Apply Now ↗</a>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (poster) { %>
+    <div class="card" style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; color: white;">
+        <%= poster.first_name ? poster.first_name[0] : 'U' %>
+      </div>
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Opportunity Posted By</div>
+        <div style="font-weight: 600; color: white;"><%= poster.first_name %> <%= poster.last_name %> (<%= poster.role %>)</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);"><%= poster.email %></div>
+      </div>
+    </div>
+  <% } %>
+
+  <div style="margin-top: 24px;">
+    <a href="/jobs" class="btn btn-outline btn-sm">← Back to Job Board</a>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

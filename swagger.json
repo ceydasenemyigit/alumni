@@ -591,6 +591,105 @@
         "summary": "About project page",
         "responses": { "200": { "description": "About HTML page" } }
       }
+    },
+    "/api/jobs": {
+      "get": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Retrieve job postings with filters",
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "employment_type", "in": "query", "schema": { "type": "string" } },
+          { "name": "company", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "List of job postings" } }
+      },
+      "post": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Create a new job posting",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/JobPostingInput" } }
+          }
+        },
+        "responses": {
+          "201": { "description": "Job created" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/api/jobs/{id}": {
+      "get": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Get job posting by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Job details" }, "404": { "description": "Not found" } }
+      },
+      "put": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Full update of job posting",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JobPostingInput" } } } },
+        "responses": { "200": { "description": "Job updated" } }
+      },
+      "delete": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Delete job posting by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Job deleted" } }
+      }
+    },
+    "/api/jobs/{id}/poster": {
+      "get": {
+        "tags": ["Job Postings (REST API)"],
+        "summary": "Get user who posted this job vacancy (Relational)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "User details" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/api/departments": {
+      "get": {
+        "tags": ["Departments (REST API)"],
+        "summary": "List all academic departments",
+        "responses": { "200": { "description": "List of departments" } }
+      },
+      "post": {
+        "tags": ["Departments (REST API)"],
+        "summary": "Create academic department",
+        "responses": { "201": { "description": "Department created" } }
+      }
+    },
+    "/api/departments/{id}": {
+      "get": {
+        "tags": ["Departments (REST API)"],
+        "summary": "Get department by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Department details" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/api/departments/{id}/users": {
+      "get": {
+        "tags": ["Departments (REST API)"],
+        "summary": "List users belonging to department (1:N Relational)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "List of users" } }
+      }
+    },
+    "/api/users/{id}/profile": {
+      "get": {
+        "tags": ["Users (REST API)"],
+        "summary": "Get user alumni career profile (1:1 Relational)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Profile details" } }
+      }
+    },
+    "/api/users/{id}/relations": {
+      "get": {
+        "tags": ["Users (REST API)"],
+        "summary": "Get user populated with all relations (department, profile, jobs)",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { "200": { "description": "Populated user" } }
+      }
     }
   },
   "components": {
@@ -684,6 +783,33 @@
           "timestamp": { "type": "string", "format": "date-time" },
           "uptime": { "type": "object" },
           "system": { "type": "object" }
+        }
+      },
+      "JobPosting": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "Junior Full-Stack Engineer" },
+          "company": { "type": "string", "example": "Global Tech Solutions" },
+          "location": { "type": "string", "example": "Istanbul / Hybrid" },
+          "employment_type": { "type": "string", "example": "Full-Time" },
+          "description": { "type": "string", "example": "Join our platform team..." },
+          "salary_range": { "type": "string", "example": "$40,000 - $60,000" },
+          "posted_by_user_id": { "type": "integer", "example": 1 },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "JobPostingInput": {
+        "type": "object",
+        "required": ["title", "company", "description"],
+        "properties": {
+          "title": { "type": "string", "example": "Software Engineer" },
+          "company": { "type": "string", "example": "Tech Corp" },
+          "location": { "type": "string", "example": "Remote" },
+          "employment_type": { "type": "string", "enum": ["Full-Time", "Part-Time", "Contract", "Internship", "Remote"], "example": "Full-Time" },
+          "description": { "type": "string", "example": "Role duties..." },
+          "salary_range": { "type": "string", "example": "$50,000 - $70,000" },
+          "posted_by_user_id": { "type": "integer", "example": 1 }
         }
       },
       "ErrorResponse": {

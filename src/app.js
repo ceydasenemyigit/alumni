@@ -9,6 +9,9 @@ const userRoutes = require('./routes/userRoutes');
 const apiUserRoutes = require('./routes/apiUserRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const apiAnnouncementRoutes = require('./routes/apiAnnouncementRoutes');
+const jobRoutes = require('./routes/jobRoutes');
+const apiJobRoutes = require('./routes/apiJobRoutes');
+const apiDepartmentRoutes = require('./routes/apiDepartmentRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 
 const app = express();
@@ -33,10 +36,13 @@ app.get('/api/swagger.json', (req, res) => {
 // MVC Web Routes (HTML Views)
 app.use('/users', userRoutes);
 app.use('/announcements', announcementRoutes);
+app.use('/jobs', jobRoutes);
 
 // RESTful JSON API Routes
 app.use('/api/users', apiUserRoutes);
 app.use('/api/announcements', apiAnnouncementRoutes);
+app.use('/api/jobs', apiJobRoutes);
+app.use('/api/departments', apiDepartmentRoutes);
 app.use('/api/health', healthRoutes);
 
 // --- Basic & Introductory Routes ---
@@ -56,7 +62,10 @@ app.get('/', (req, res) => {
     webUsers: '/users',
     apiUsers: '/api/users',
     webAnnouncements: '/announcements',
-    apiAnnouncements: '/api/announcements'
+    apiAnnouncements: '/api/announcements',
+    webJobs: '/jobs',
+    apiJobs: '/api/jobs',
+    apiDepartments: '/api/departments'
   });
 });
 

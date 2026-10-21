@@ -346,7 +346,50 @@ async function runTests() {
       await runSeeds();
       console.log('✓ Database Seeder: successfully seeded models via factories');
 
-      console.log('\n🎉 ALL 36 TESTS PASSED SUCCESSFULLY! MVC, APIs, Migrations, Factories & Seeds Verified.\n');
+      // 8. Direct & Needed Routes (Jobs, Departments, User Relations)
+      console.log('\n--- 8. Direct & Needed Routes (Jobs, Departments, Relations) ---');
+      const resWebJobs = await request({ path: '/jobs' });
+      assert.strictEqual(resWebJobs.statusCode, 200);
+      assert.ok(resWebJobs.body.includes('Job Board'));
+      console.log('✓ GET /jobs -> 200 HTML Job Board View');
+
+      const resApiJobs = await request({ path: '/api/jobs' });
+      assert.strictEqual(resApiJobs.statusCode, 200);
+      assert.strictEqual(resApiJobs.json.success, true);
+      assert.ok(Array.isArray(resApiJobs.json.data));
+      console.log('✓ GET /api/jobs -> 200 JSON Job Postings');
+
+      const newJobPayload = {
+        title: 'Backend Node.js Developer',
+        company: 'InnovateX',
+        location: 'Remote',
+        employment_type: 'Full-Time',
+        description: 'Building microservices with Node.js and Express.',
+        posted_by_user_id: 1
+      };
+      const resCreateJob = await request({ path: '/api/jobs', method: 'POST' }, newJobPayload);
+      assert.strictEqual(resCreateJob.statusCode, 201);
+      assert.strictEqual(resCreateJob.json.success, true);
+      const createdJobId = resCreateJob.json.data.id;
+      console.log(`✓ POST /api/jobs -> 201 JSON Created (ID: ${createdJobId})`);
+
+      const resJobPoster = await request({ path: `/api/jobs/${createdJobId}/poster` });
+      assert.strictEqual(resJobPoster.statusCode, 200);
+      assert.strictEqual(resJobPoster.json.data.id, 1);
+      console.log('✓ GET /api/jobs/:id/poster -> 200 JSON Relational Poster');
+
+      const resDepts = await request({ path: '/api/departments' });
+      assert.strictEqual(resDepts.statusCode, 200);
+      assert.ok(Array.isArray(resDepts.json.data));
+      console.log('✓ GET /api/departments -> 200 JSON Academic Departments');
+
+      const resUserRelations = await request({ path: '/api/users/1/relations' });
+      assert.strictEqual(resUserRelations.statusCode, 200);
+      assert.strictEqual(resUserRelations.json.data.id, 1);
+      assert.ok(resUserRelations.json.data.alumni_profile);
+      console.log('✓ GET /api/users/:id/relations -> 200 JSON User with Relations');
+
+      console.log('\n🎉 ALL 42 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, Migrations, Factories & Seeds Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

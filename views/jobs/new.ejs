@@ -1,0 +1,151 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Post a New Job Opportunity</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Share an employment opportunity with students and university alumni.</p>
+    </div>
+    <a href="/jobs" class="btn btn-outline btn-sm">← Back to Jobs</a>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert-error">
+      <strong>Error:</strong> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <form action="/jobs" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title *</label>
+        <input
+          type="text"
+          name="title"
+          required
+          value="<%= formData && formData.title ? formData.title : '' %>"
+          placeholder="e.g. Senior Backend Engineer"
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+        >
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Company / Employer *</label>
+          <input
+            type="text"
+            name="company"
+            required
+            value="<%= formData && formData.company ? formData.company : '' %>"
+            placeholder="e.g. Global Tech Solutions"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Employment Type *</label>
+          <select
+            name="employment_type"
+            required
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+            <option value="Full-Time" <%= formData && formData.employment_type === 'Full-Time' ? 'selected' : '' %>>Full-Time</option>
+            <option value="Part-Time" <%= formData && formData.employment_type === 'Part-Time' ? 'selected' : '' %>>Part-Time</option>
+            <option value="Contract" <%= formData && formData.employment_type === 'Contract' ? 'selected' : '' %>>Contract</option>
+            <option value="Internship" <%= formData && formData.employment_type === 'Internship' ? 'selected' : '' %>>Internship</option>
+            <option value="Remote" <%= formData && formData.employment_type === 'Remote' ? 'selected' : '' %>>Remote</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Location</label>
+          <input
+            type="text"
+            name="location"
+            value="<%= formData && formData.location ? formData.location : 'Remote' %>"
+            placeholder="e.g. Istanbul / Hybrid"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Salary Range</label>
+          <input
+            type="text"
+            name="salary_range"
+            value="<%= formData && formData.salary_range ? formData.salary_range : '' %>"
+            placeholder="e.g. $60,000 - $80,000"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description *</label>
+        <textarea
+          name="description"
+          rows="5"
+          required
+          placeholder="Detailed role responsibilities and team overview..."
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+        ><%= formData && formData.description ? formData.description : '' %></textarea>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Requirements</label>
+        <textarea
+          name="requirements"
+          rows="3"
+          placeholder="Required tech stack, years of experience, and qualifications..."
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+        ><%= formData && formData.requirements ? formData.requirements : '' %></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Application URL / Contact Email</label>
+          <input
+            type="text"
+            name="application_url"
+            value="<%= formData && formData.application_url ? formData.application_url : '' %>"
+            placeholder="https://... or mailto:..."
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Deadline Date</label>
+          <input
+            type="date"
+            name="deadline"
+            value="<%= formData && formData.deadline ? formData.deadline : '' %>"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+        </div>
+      </div>
+
+      <% if (users && users.length > 0) { %>
+        <div>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Posted By (Alumnus / Admin)</label>
+          <select
+            name="posted_by_user_id"
+            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          >
+            <option value="">Select User (Optional)</option>
+            <% users.forEach(u => { %>
+              <option value="<%= u.id %>" <%= formData && formData.posted_by_user_id == u.id ? 'selected' : '' %>>
+                <%= u.first_name %> <%= u.last_name %> (<%= u.role %> - <%= u.email %>)
+              </option>
+            <% }) %>
+          </select>
+        </div>
+      <% } %>
+
+      <div style="display: flex; gap: 12px; margin-top: 10px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Publish Job Posting</button>
+        <a href="/jobs" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -275,15 +275,22 @@ alumni/
 │   │       ├── announcementSeeder.js
 │   │       └── databaseSeeder.js     # Master database seeder orchestrator
 │   │
-│   ├── models/                       # [M] MODEL LAYER (In-Memory Data Stores)
-│   │   ├── userModel.js              # User model with CRUD helper functions
-│   │   └── announcementModel.js      # Announcement model with seed data & CRUD helpers
+│   ├── models/                       # [M] MODEL LAYER (PostgreSQL + In-Memory Fallback)
+│   │   ├── index.js                  # Central registry & relationship definitions
+│   │   ├── userModel.js              # User model with CRUD & relational helpers
+│   │   ├── departmentModel.js        # Department model with 1:N users relation
+│   │   ├── alumniProfileModel.js     # AlumniProfile model with 1:1 user relation
+│   │   ├── announcementModel.js      # Announcement model with CRUD helpers
+│   │   └── jobPostingModel.js        # JobPosting model with N:1 user relation
 │   │
 │   ├── controllers/                  # [C] CONTROLLER LAYER
 │   │   ├── userController.js         # Web Controller rendering EJS views for /users
 │   │   ├── apiUserController.js      # API Controller serving JSON for /api/users
 │   │   ├── announcementController.js # Web Controller rendering EJS views for /announcements
 │   │   ├── apiAnnouncementController.js # API Controller serving JSON for /api/announcements
+│   │   ├── jobController.js          # Web Controller rendering EJS views for /jobs
+│   │   ├── apiJobController.js       # API Controller serving JSON for /api/jobs
+│   │   ├── apiDepartmentController.js# API Controller serving JSON for /api/departments
 │   │   └── healthController.js       # System health check controller
 │   │
 │   ├── routes/                       # ROUTING LAYER
@@ -291,6 +298,9 @@ alumni/
 │   │   ├── apiUserRoutes.js          # Maps /api/users to apiUserController (REST API)
 │   │   ├── announcementRoutes.js     # Maps /announcements to announcementController (Views)
 │   │   ├── apiAnnouncementRoutes.js  # Maps /api/announcements to apiAnnouncementController (REST API)
+│   │   ├── jobRoutes.js              # Maps /jobs to jobController (Views)
+│   │   ├── apiJobRoutes.js           # Maps /api/jobs to apiJobController (REST API)
+│   │   ├── apiDepartmentRoutes.js    # Maps /api/departments to apiDepartmentController (REST API)
 │   │   └── healthRoutes.js           # Maps /api/health to healthController
 │   │
 │   └── docs/                         # DOCUMENTATION & SPECS
@@ -308,11 +318,17 @@ alumni/
     │   ├── show.ejs                  # Single user profile card view
     │   └── edit.ejs                  # User edit form
     │
-    └── announcements/                # Announcement MVC view templates
-        ├── index.ejs                 # Announcement listing table view with filters
-        ├── new.ejs                   # Announcement publishing form
-        ├── show.ejs                  # Single announcement detail view
-        └── edit.ejs                  # Announcement edit form
+    ├── announcements/                # Announcement MVC view templates
+    │   ├── index.ejs                 # Announcement listing table view with filters
+    │   ├── new.ejs                   # Announcement publishing form
+    │   ├── show.ejs                  # Single announcement detail view
+    │   └── edit.ejs                  # Announcement edit form
+    │
+    └── jobs/                         # Job Board MVC view templates
+        ├── index.ejs                 # Job board listing table with filters
+        ├── new.ejs                   # Job vacancy creation form
+        ├── show.ejs                  # Detailed job description view
+        └── edit.ejs                  # Job posting edit form
 ```
 
 ---
@@ -372,16 +388,60 @@ Handled by `apiUserController.js`:
 | `PUT` | `/api/users/:id` | Full update user | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
 | `PATCH` | `/api/users/:id` | Partial update user | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
 | `DELETE` | `/api/users/:id` | Delete user | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/users/:id/profile` | **[1:1 Relation]** Get user's alumni career profile | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/users/:id/department`| **[N:1 Relation]** Get user's academic department | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/users/:id/jobs` | **[1:N Relation]** Get jobs posted by this user | Path parameter `:id` | `200 OK` |
+| `GET` | `/api/users/:id/relations` | **[Eager Loading]** Get user populated with department, profile & jobs | Path parameter `:id` | `200 OK` / `404 Not Found` |
 
-### 5. System & Introductory Routes
+### 5. Jobs MVC Web Routes (`/jobs` - HTML Views)
+
+Handled by `jobController.js`:
+
+| Method | URL Route | Description | View Rendered |
+|---|---|---|---|
+| `GET` | `/jobs` | Job board listing (search & employment type filters) | `views/jobs/index.ejs` |
+| `GET` | `/jobs/new` | Display job creation form | `views/jobs/new.ejs` |
+| `POST` | `/jobs` | Publish job posting from form submission | Redirects to `/jobs` |
+| `GET` | `/jobs/:id` | Display detailed job opportunity & poster profile | `views/jobs/show.ejs` |
+| `GET` | `/jobs/:id/edit` | Display job edit form | `views/jobs/edit.ejs` |
+| `PUT` / `POST` | `/jobs/:id` | Update job posting from form | Redirects to `/jobs/:id` |
+| `DELETE` / `POST` | `/jobs/:id/delete` | Delete job posting | Redirects to `/jobs` |
+
+### 6. Jobs RESTful JSON API Routes (`/api/jobs` - JSON)
+
+Handled by `apiJobController.js`:
+
+| Method | URL Route | Description | Payload Formats | Status Codes |
+|---|---|---|---|---|
+| `GET` | `/api/jobs` | Retrieve all job postings | Query params (`is_active`, `employment_type`, `company`, `search`) | `200 OK` |
+| `POST` | `/api/jobs` | Create a new job posting | JSON / URL-Encoded / Form-Data | `201 Created` / `400 Bad Request` |
+| `GET` | `/api/jobs/:id` | Get job posting by ID | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/jobs/:id/poster` | **[Relational]** Get user who posted this job | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `PUT` | `/api/jobs/:id` | Full update job posting | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
+| `PATCH` | `/api/jobs/:id` | Partial update job posting | JSON / URL-Encoded / Form-Data | `200 OK` / `404 Not Found` |
+| `DELETE` | `/api/jobs/:id` | Delete job posting | Path parameter `:id` | `200 OK` / `404 Not Found` |
+
+### 7. Departments RESTful JSON API Routes (`/api/departments` - JSON)
+
+Handled by `apiDepartmentController.js`:
+
+| Method | URL Route | Description | Payload Formats | Status Codes |
+|---|---|---|---|---|
+| `GET` | `/api/departments` | Retrieve all academic departments | — | `200 OK` |
+| `POST` | `/api/departments` | Create academic department | JSON / URL-Encoded (`name`, `faculty`) | `201 Created` / `400 Bad Request` |
+| `GET` | `/api/departments/:id` | Get department by ID | Path parameter `:id` | `200 OK` / `404 Not Found` |
+| `GET` | `/api/departments/:id/users`| **[1:N Relational]** List all users in this department | Path parameter `:id` | `200 OK` / `404 Not Found` |
+
+### 8. System & Direct Introductory Routes
 
 | Method | URL Route | Description | Response Type |
 |---|---|---|---|
-| `GET` | `/api/health` | System diagnostics & uptime | `application/json` (`status: "UP"`) |
+| `GET` | `/api/health` | System diagnostics & uptime metrics | `application/json` (`status: "UP"`) |
 | `GET` | `/api/swagger` | Interactive Swagger UI documentation | `text/html` |
 | `GET` | `/api/swagger.json` | OpenAPI 3.0.3 specification | `application/json` |
 | `GET` | `/` | Root landing page / Welcome API | `text/html` or `application/json` |
 | `GET` | `/about` | Project description and tech stack | `text/html` |
+| `GET` | `/home` | Alternative main portal | `text/html` or `text/plain` |
 | `GET` | `/hello` | Basic greeting | `text/plain` (`"Hello World"`) |
 | `GET` | `/hello/:name` | Parameterized greeting | `text/plain` (`"Hello {Name}!"`) |
 | `GET` | `/sum/:number1/:number2` | Arithmetic addition | `text/plain` (`"toplam= {sum}"`) |

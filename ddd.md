@@ -420,6 +420,7 @@ The system features an automated, transactional migration runner located in [`sr
 | `002` | [`002_create_users_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/002_create_users_table.js) | `users` | `CREATE TABLE`, Constraints & Indexes / `DROP TABLE CASCADE` |
 | `003` | [`003_create_alumni_profiles_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/003_create_alumni_profiles_table.js) | `alumni_profiles` | `CREATE TABLE` (1:1 with users) / `DROP TABLE CASCADE` |
 | `004` | [`004_create_announcements_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/004_create_announcements_table.js) | `announcements` | `CREATE TABLE` & Category Indexes / `DROP TABLE CASCADE` |
+| `005` | [`005_create_job_postings_table.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/database/migrations/005_create_job_postings_table.js) | `job_postings` | `CREATE TABLE`, Indexes & Foreign Keys / `DROP TABLE CASCADE` |
 
 ### 9.2. Automated Database Creation & Tracking
 

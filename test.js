@@ -331,14 +331,14 @@ async function runTests() {
       const path = require('path');
       const migrationsDir = path.join(__dirname, 'src', 'database', 'migrations');
       const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.js'));
-      assert.strictEqual(migrationFiles.length, 4);
+      assert.strictEqual(migrationFiles.length, 5);
       for (const file of migrationFiles) {
         const mod = require(path.join(migrationsDir, file));
         assert.ok(typeof mod.name === 'string');
         assert.ok(typeof mod.up === 'function');
         assert.ok(typeof mod.down === 'function');
       }
-      console.log(`✓ Migration Files: 4 verified migrations (departments, users, profiles, announcements)`);
+      console.log(`✓ Migration Files: 5 verified migrations (departments, users, profiles, announcements, job_postings)`);
 
       // Test Seeders
       const { runSeeds } = require('./src/database/seeders/databaseSeeder');

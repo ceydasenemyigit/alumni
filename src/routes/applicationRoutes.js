@@ -26,4 +26,7 @@ router.post('/:id', applicationController.update); // HTML form POST fallback
 router.delete('/:id', applicationController.delete);
 router.post('/:id/delete', applicationController.delete); // HTML form button fallback
 
+// 8. POST /applications/:id/status - Quick status update
+router.post('/:id/status', applicationController.updateStatus);
+
 module.exports = router;

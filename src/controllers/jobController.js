@@ -8,10 +8,33 @@ const userModel = require('../models/userModel');
 // 1. GET /jobs - Listing view
 exports.index = async (req, res) => {
   try {
-    const jobs = await jobPostingModel.findAll(req.query);
+    const rawJobs = await jobPostingModel.findAll(req.query);
+    const applicationModel = require('../models/applicationModel');
+
+    // Enrich each job with the count of applications submitted
+    const jobs = await Promise.all(
+      rawJobs.map(async job => {
+        const apps = await applicationModel.findByJobId(job.id);
+        return {
+          ...job,
+          applicationCount: apps.length
+        };
+      })
+    );
+
+    // Calculate high-level statistics for the UI header cards
+    const allJobs = await jobPostingModel.findAll().catch(() => []);
+    const allApps = await applicationModel.findAll().catch(() => []);
+    const stats = {
+      totalJobs: allJobs.length,
+      activeJobs: allJobs.filter(j => j.is_active).length,
+      totalApplications: allApps.length
+    };
+
     res.render('jobs/index', {
       title: 'Job Board & Career Opportunities',
       jobs,
+      stats,
       query: req.query
     });
   } catch (error) {
@@ -80,12 +103,22 @@ exports.show = async (req, res) => {
       });
     }
 
-    const poster = await jobPostingModel.getPoster(id);
+    const applicationModel = require('../models/applicationModel');
+    const [poster, rawApplications] = await Promise.all([
+      jobPostingModel.getPoster(id),
+      jobPostingModel.getApplications(id)
+    ]);
+
+    // Populate each candidate application with user details
+    const applications = await Promise.all(
+      rawApplications.map(app => applicationModel.findWithRelations(app.id))
+    );
 
     res.render('jobs/show', {
       title: job.title + ' - ' + job.company,
       job,
-      poster
+      poster,
+      applications
     });
   } catch (error) {
     res.status(500).render('error', {

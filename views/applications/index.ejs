@@ -2,15 +2,43 @@
 
 <div class="page-header">
   <div>
-    <h1 class="page-title">Job Applications & Candidacies</h1>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Track and manage applications connecting applicants with career opportunities.</p>
+    <h1 class="page-title">Candidate Applications & Tracking</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Monitor candidate pipelines, review applicant resumes, and track recruitment progress.</p>
   </div>
-  <a href="/applications/new" class="btn btn-primary">+ Submit Application</a>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="/jobs" class="btn btn-outline">&larr; Job Board</a>
+    <a href="/applications/new" class="btn btn-primary">+ Submit Application</a>
+  </div>
 </div>
 
+<% if (typeof stats !== 'undefined' && stats) { %>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px;">
+    <div class="card" style="padding: 14px 18px;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Submissions</div>
+      <div style="font-size: 1.6rem; font-weight: 700; color: white; margin-top: 4px;"><%= stats.total %></div>
+    </div>
+    <div class="card" style="padding: 14px 18px;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pending</div>
+      <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 4px;"><%= stats.pending %></div>
+    </div>
+    <div class="card" style="padding: 14px 18px;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Under Review</div>
+      <div style="font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 4px;"><%= stats.reviewing %></div>
+    </div>
+    <div class="card" style="padding: 14px 18px;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Accepted</div>
+      <div style="font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 4px;"><%= stats.accepted %></div>
+    </div>
+    <div class="card" style="padding: 14px 18px;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Rejected</div>
+      <div style="font-size: 1.6rem; font-weight: 700; color: #f87171; margin-top: 4px;"><%= stats.rejected %></div>
+    </div>
+  </div>
+<% } %>
+
 <div class="card" style="margin-bottom: 24px;">
-  <form action="/applications" method="GET" style="display: flex; gap: 12px; flex-wrap: wrap;">
-    <select name="status" style="padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
+  <form action="/applications" method="GET" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <select name="status" style="flex: 1; min-width: 200px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
       <option value="">All Application Statuses</option>
       <option value="PENDING" <%= query && query.status === 'PENDING' ? 'selected' : '' %>>Pending</option>
       <option value="REVIEWING" <%= query && query.status === 'REVIEWING' ? 'selected' : '' %>>Reviewing</option>
@@ -18,9 +46,21 @@
       <option value="REJECTED" <%= query && query.status === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
       <option value="WITHDRAWN" <%= query && query.status === 'WITHDRAWN' ? 'selected' : '' %>>Withdrawn</option>
     </select>
-    <button type="submit" class="btn btn-outline">Filter</button>
-    <% if (query && query.status) { %>
-      <a href="/applications" class="btn btn-outline" style="color: var(--text-muted);">Reset</a>
+
+    <% if (typeof jobs !== 'undefined' && jobs && jobs.length > 0) { %>
+      <select name="job_posting_id" style="flex: 1; min-width: 240px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
+        <option value="">All Job Opportunities</option>
+        <% jobs.forEach(j => { %>
+          <option value="<%= j.id %>" <%= query && String(query.job_posting_id) === String(j.id) ? 'selected' : '' %>>
+            <%= j.title %> (<%= j.company %>)
+          </option>
+        <% }) %>
+      </select>
+    <% } %>
+
+    <button type="submit" class="btn btn-outline">Filter Applications</button>
+    <% if (query && (query.status || query.job_posting_id)) { %>
+      <a href="/applications" class="btn btn-outline" style="color: var(--text-muted);">Reset Filter</a>
     <% } %>
   </form>
 </div>
@@ -29,16 +69,16 @@
   <% if (!applications || applications.length === 0) { %>
     <div style="padding: 48px 24px; text-align: center; color: var(--text-muted);">
       <p style="font-size: 1.1rem; margin-bottom: 12px;">No applications found matching your criteria.</p>
-      <a href="/applications/new" class="btn btn-primary btn-sm">Submit your first application</a>
+      <a href="/applications/new" class="btn btn-primary btn-sm">+ Submit the first application</a>
     </div>
   <% } else { %>
     <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
       <thead>
         <tr style="border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.4); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
           <th style="padding: 14px 20px;">ID</th>
-          <th style="padding: 14px 20px;">Applicant</th>
-          <th style="padding: 14px 20px;">Job Opportunity</th>
-          <th style="padding: 14px 20px;">Status</th>
+          <th style="padding: 14px 20px;">Applicant (Candidate)</th>
+          <th style="padding: 14px 20px;">Position Applied</th>
+          <th style="padding: 14px 20px;">Review Status</th>
           <th style="padding: 14px 20px;">Applied Date</th>
           <th style="padding: 14px 20px; text-align: right;">Actions</th>
         </tr>
@@ -47,22 +87,22 @@
         <% applications.forEach(app => { %>
           <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.4); transition: background 0.15s;" onmouseover="this.style.background='rgba(51,65,85,0.2)'" onmouseout="this.style.background='transparent'">
             <td style="padding: 16px 20px; color: var(--text-muted); font-family: monospace;">#<%= app.id %></td>
-            <td style="padding: 16px 20px; font-weight: 600; color: white;">
+            <td style="padding: 16px 20px;">
               <% if (app.applicant) { %>
-                <a href="/users/<%= app.applicant.id %>" style="color: #60a5fa; text-decoration: none;">
+                <a href="/users/<%= app.applicant.id %>" style="color: white; font-weight: 600; text-decoration: none; display: block;">
                   <%= app.applicant.first_name %> <%= app.applicant.last_name %>
                 </a>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;"><%= app.applicant.email %></div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);"><%= app.applicant.email %></span>
               <% } else { %>
                 <span style="color: var(--text-muted);">User #<%= app.user_id %></span>
               <% } %>
             </td>
             <td style="padding: 16px 20px;">
               <% if (app.job_posting) { %>
-                <a href="/jobs/<%= app.job_posting.id %>" style="color: white; text-decoration: none; font-weight: 500;">
+                <a href="/jobs/<%= app.job_posting.id %>" style="color: #38bdf8; text-decoration: none; font-weight: 500; display: block;">
                   <%= app.job_posting.title %>
                 </a>
-                <div style="font-size: 0.8rem; color: var(--text-muted);"><%= app.job_posting.company %></div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);"><%= app.job_posting.company %> &bull; <%= app.job_posting.location %></span>
               <% } else { %>
                 <span style="color: var(--text-muted);">Job #<%= app.job_posting_id %></span>
               <% } %>
@@ -75,9 +115,9 @@
             </td>
             <td style="padding: 16px 20px; text-align: right;">
               <div style="display: inline-flex; gap: 8px;">
-                <a href="/applications/<%= app.id %>" class="btn btn-outline btn-sm">View</a>
+                <a href="/applications/<%= app.id %>" class="btn btn-outline btn-sm">Review</a>
                 <a href="/applications/<%= app.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
-                <form action="/applications/<%= app.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this application?');">
+                <form action="/applications/<%= app.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to withdraw/delete this application?');">
                   <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
               </div>

@@ -9,14 +9,29 @@ const jobPostingModel = require('../models/jobPostingModel');
 // 1. GET /applications - Listing view
 exports.index = async (req, res) => {
   try {
-    const rawApps = await applicationModel.findAll(req.query);
+    const [rawApps, allJobs, allRawApps] = await Promise.all([
+      applicationModel.findAll(req.query),
+      jobPostingModel.findAll().catch(() => []),
+      applicationModel.findAll().catch(() => [])
+    ]);
+
     const applications = await Promise.all(
       rawApps.map(app => applicationModel.findWithRelations(app.id))
     );
 
+    const stats = {
+      total: allRawApps.length,
+      pending: allRawApps.filter(a => a.status === 'PENDING').length,
+      reviewing: allRawApps.filter(a => a.status === 'REVIEWING').length,
+      accepted: allRawApps.filter(a => a.status === 'ACCEPTED').length,
+      rejected: allRawApps.filter(a => a.status === 'REJECTED').length
+    };
+
     res.render('applications/index', {
       title: 'Job Applications & Candidacies',
       applications,
+      jobs: allJobs,
+      stats,
       query: req.query
     });
   } catch (error) {
@@ -202,5 +217,20 @@ exports.delete = async (req, res) => {
       statusCode: error.status || 500,
       message: error.message
     });
+  }
+};
+
+// 8. POST /applications/:id/status - Quick status transition action
+exports.updateStatus = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id) || !req.body.status) {
+    return res.redirect('/applications');
+  }
+
+  try {
+    await applicationModel.update(id, { status: req.body.status });
+    res.redirect(`/applications/${id}`);
+  } catch (error) {
+    res.redirect(`/applications/${id}`);
   }
 };

@@ -1,92 +1,121 @@
 <%- include('../partials/header') %>
 
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Submit a Job Application</h1>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Connect an applicant to a job posting (action table resolving Many-to-Many relationship).</p>
+<div style="max-width: 720px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Submit a Job Application</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Connect a candidate user with an open career vacancy.</p>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="/jobs" class="btn btn-outline btn-sm">&larr; Job Board</a>
+      <a href="/applications" class="btn btn-outline btn-sm">All Applications</a>
+    </div>
   </div>
-  <a href="/applications" class="btn btn-outline">&larr; Back to Applications</a>
-</div>
 
-<% if (error) { %>
-  <div class="alert-error">
-    <strong>Error:</strong> <%= error %>
+  <% if (error) { %>
+    <div class="alert-error">
+      <strong>Error:</strong> <%= error %>
+    </div>
+  <% } %>
+
+  <% 
+    let selectedJob = null;
+    if (preselectedJobId && jobs) {
+      selectedJob = jobs.find(j => j.id === preselectedJobId);
+    }
+  %>
+
+  <% if (selectedJob) { %>
+    <div class="card" style="margin-bottom: 20px; background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3);">
+      <div style="font-size: 0.8rem; color: #38bdf8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 4px;">Target Job Vacancy Selected</div>
+      <div style="font-size: 1.15rem; font-weight: 700; color: white;">
+        <%= selectedJob.title %>
+      </div>
+      <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 2px;">
+        <%= selectedJob.company %> &bull; <%= selectedJob.employment_type %> &bull; <%= selectedJob.location %>
+        <% if (selectedJob.salary_range) { %>
+          &bull; <span style="font-family: monospace; color: #38bdf8;"><%= selectedJob.salary_range %></span>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <form action="/applications" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">
+          Candidate / Applicant (User) <span style="color: var(--danger);">*</span>
+        </label>
+        <select name="user_id" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;">
+          <option value="">-- Choose Candidate User --</option>
+          <% users.forEach(u => { %>
+            <option value="<%= u.id %>" <%= (formData && String(formData.user_id) === String(u.id)) || (preselectedUserId && preselectedUserId === u.id) ? 'selected' : '' %>>
+              <%= u.first_name %> <%= u.last_name %> (<%= u.email %>) &bull; <%= u.role %>
+            </option>
+          <% }) %>
+        </select>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Select the registered student or alumnus submitting this candidacy.</div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">
+          Job Opportunity (Vacancy) <span style="color: var(--danger);">*</span>
+        </label>
+        <select name="job_posting_id" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;">
+          <option value="">-- Choose Job Position --</option>
+          <% jobs.forEach(j => { %>
+            <option value="<%= j.id %>" <%= (formData && String(formData.job_posting_id) === String(j.id)) || (preselectedJobId && preselectedJobId === j.id) ? 'selected' : '' %>>
+              <%= j.title %> &bull; <%= j.company %> (<%= j.employment_type %> - <%= j.location %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">
+          Resume / Curriculum Vitae Link
+        </label>
+        <input
+          type="url"
+          name="resume_url"
+          value="<%= formData && formData.resume_url ? formData.resume_url : '' %>"
+          placeholder="https://storage.example.com/resumes/my_resume.pdf"
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+        >
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">URL pointing to PDF resume stored on Cloud / Google Drive / LinkedIn.</div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">
+          Cover Letter / Candidate Statement
+        </label>
+        <textarea
+          name="cover_letter"
+          rows="5"
+          placeholder="Write your brief introduction, key skills, and motivation for applying to this position..."
+          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5; resize: vertical;"
+        ><%= formData && formData.cover_letter ? formData.cover_letter : '' %></textarea>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">
+          Initial Review Status
+        </label>
+        <select name="status" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;">
+          <option value="PENDING" <%= !formData || formData.status === 'PENDING' ? 'selected' : '' %>>PENDING (Awaiting Review)</option>
+          <option value="REVIEWING" <%= formData && formData.status === 'REVIEWING' ? 'selected' : '' %>>REVIEWING (Under Evaluation)</option>
+          <option value="ACCEPTED" <%= formData && formData.status === 'ACCEPTED' ? 'selected' : '' %>>ACCEPTED (Offer Extended)</option>
+          <option value="REJECTED" <%= formData && formData.status === 'REJECTED' ? 'selected' : '' %>>REJECTED</option>
+          <option value="WITHDRAWN" <%= formData && formData.status === 'WITHDRAWN' ? 'selected' : '' %>>WITHDRAWN</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+        <a href="/applications" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">Submit Candidate Application</button>
+      </div>
+    </form>
   </div>
-<% } %>
-
-<div class="card" style="max-width: 680px; margin: 0 auto;">
-  <form action="/applications" method="POST">
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Applicant (User) <span style="color: var(--danger);">*</span>
-      </label>
-      <select name="user_id" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
-        <option value="">-- Select an Applicant --</option>
-        <% users.forEach(u => { %>
-          <option value="<%= u.id %>" <%= (formData && String(formData.user_id) === String(u.id)) || (preselectedUserId && preselectedUserId === u.id) ? 'selected' : '' %>>
-            <%= u.first_name %> <%= u.last_name %> (<%= u.email %>) - <%= u.role %>
-          </option>
-        <% }) %>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Job Posting (Position) <span style="color: var(--danger);">*</span>
-      </label>
-      <select name="job_posting_id" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
-        <option value="">-- Select an Open Job Opportunity --</option>
-        <% jobs.forEach(j => { %>
-          <option value="<%= j.id %>" <%= (formData && String(formData.job_posting_id) === String(j.id)) || (preselectedJobId && preselectedJobId === j.id) ? 'selected' : '' %>>
-            <%= j.title %> - <%= j.company %> (<%= j.employment_type %>)
-          </option>
-        <% }) %>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Resume / CV URL
-      </label>
-      <input
-        type="url"
-        name="resume_url"
-        value="<%= formData && formData.resume_url ? formData.resume_url : '' %>"
-        placeholder="https://storage.example.com/resumes/my-cv.pdf"
-        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;"
-      >
-    </div>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Cover Letter / Motivation Statement
-      </label>
-      <textarea
-        name="cover_letter"
-        rows="4"
-        placeholder="Summarize your motivation and relevant qualifications for this role..."
-        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem; resize: vertical;"
-      ><%= formData && formData.cover_letter ? formData.cover_letter : '' %></textarea>
-    </div>
-
-    <div style="margin-bottom: 24px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Initial Status
-      </label>
-      <select name="status" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
-        <option value="PENDING" <%= !formData || formData.status === 'PENDING' ? 'selected' : '' %>>PENDING</option>
-        <option value="REVIEWING" <%= formData && formData.status === 'REVIEWING' ? 'selected' : '' %>>REVIEWING</option>
-        <option value="ACCEPTED" <%= formData && formData.status === 'ACCEPTED' ? 'selected' : '' %>>ACCEPTED</option>
-        <option value="REJECTED" <%= formData && formData.status === 'REJECTED' ? 'selected' : '' %>>REJECTED</option>
-        <option value="WITHDRAWN" <%= formData && formData.status === 'WITHDRAWN' ? 'selected' : '' %>>WITHDRAWN</option>
-      </select>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; gap: 12px;">
-      <a href="/applications" class="btn btn-outline">Cancel</a>
-      <button type="submit" class="btn btn-primary">Submit Application</button>
-    </div>
-  </form>
 </div>
 
 <%- include('../partials/footer') %>

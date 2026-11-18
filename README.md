@@ -5,6 +5,7 @@
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016-blue.svg)](https://www.postgresql.org/)
 [![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Ready-2496ED.svg)](#-docker-setup--the-forgetting-test)
 [![Data Design](https://img.shields.io/badge/Documentation-DDD%20Data%20Design-orange.svg)](ddd.md)
+[![Brand Guide](https://img.shields.io/badge/Design%20System-Brand%20Guidelines-2563eb.svg)](brand.md)
 [![Architecture](https://img.shields.io/badge/Architecture-MVC%20Pattern-blueviolet.svg)](#-mvc-architecture-overview)
 [![Swagger](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D.svg)](http://localhost:3000/api/swagger)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/ceydasenemyigit/alumni)
@@ -688,7 +689,7 @@ npm run db:setup
 
 ---
 
-## 📖 Interactive API Documentation
+## 📖 Interactive API Documentation & Resources
 
 Once the server is running, navigate to:
 - **Swagger UI**: [http://localhost:3000/api/swagger](http://localhost:3000/api/swagger)
@@ -699,3 +700,4 @@ Once the server is running, navigate to:
 - **Applications Board**: [http://localhost:3000/applications](http://localhost:3000/applications)
 - **Postman Collection**: [`alumni_postman_collection.json`](alumni_postman_collection.json)
 - **Data Design Documentation**: [ddd.md](ddd.md)
+- **Brand Guidelines & Design System**: [brand.md](brand.md)

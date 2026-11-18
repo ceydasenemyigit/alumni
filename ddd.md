@@ -87,11 +87,11 @@ erDiagram
 
     JOB_POSTINGS {
         int id PK "Serial, Primary Key"
-        varchar title "Job vacancy position / title"
-        varchar company "Hiring organization / company"
-        varchar location "Location or Remote"
+        varchar title "Job vacancy position (Required, max 120 chars)"
+        varchar company "Hiring organization / company (Required)"
+        varchar location "Workplace city / location (Optional, Default: Remote)"
         varchar employment_type "Full-Time | Part-Time | Contract | Internship | Remote"
-        text description "Role details and responsibilities"
+        text description "Role details and responsibilities (Optional)"
         text requirements "Required skills and qualifications"
         varchar salary_range "Compensation range (optional)"
         varchar application_url "Application link or contact email"
@@ -183,11 +183,11 @@ Career, internship, and employment postings published by alumni and administrati
 | Column Name | Data Type | Constraints | Description |
 |---|---|---|---|
 | `id` | `SERIAL` | `PRIMARY KEY` | Auto-incrementing unique job posting identifier |
-| `title` | `VARCHAR(160)` | `NOT NULL` | Job vacancy position / title (e.g., "Full-Stack Developer") |
-| `company` | `VARCHAR(120)` | `NOT NULL` | Hiring organization / company name |
-| `location` | `VARCHAR(100)` | `NOT NULL, DEFAULT 'Remote'` | Workplace location (City, Country, or 'Remote') |
+| `title` | `VARCHAR(120)` | `NOT NULL` | Job vacancy position / title (**Required**, maximum **120 characters**) |
+| `company` | `VARCHAR(120)` | `NOT NULL` | Hiring organization / company name (**Required**) |
+| `location` / `city` | `VARCHAR(100)` | `NULLABLE, DEFAULT 'Remote'` | Workplace city or location (**Optional**, e.g., "Istanbul", "Remote") |
 | `employment_type` | `VARCHAR(30)` | `NOT NULL, DEFAULT 'Full-Time', CHECK IN ('Full-Time', 'Part-Time', 'Contract', 'Internship', 'Remote')` | Employment classification |
-| `description` | `TEXT` | `NOT NULL` | Comprehensive job overview, responsibilities, and team info |
+| `description` | `TEXT` | `NULLABLE` | Comprehensive job overview, responsibilities, and team info (**Optional**) |
 | `requirements` | `TEXT` | `NULLABLE` | Required technical qualifications, experience, and skills |
 | `salary_range` | `VARCHAR(80)` | `NULLABLE` | Disclosed compensation or salary band (e.g., "$80,000 - $110,000") |
 | `application_url` | `VARCHAR(255)` | `NULLABLE` | Application portal URL or recruiter contact email |
@@ -196,6 +196,12 @@ Career, internship, and employment postings published by alumni and administrati
 | `deadline` | `DATE` | `NULLABLE` | Application cutoff date |
 | `created_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Record creation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Last modification timestamp |
+
+#### 📋 Job Posting Domain & Business Rules
+* **Title (`title`)**: **Required**. String value. Strictly capped at **maximum 120 characters**. Submissions exceeding 120 characters or with empty values trigger `400 Bad Request`.
+* **Company (`company`)**: **Required**. Name of hiring company or institution. Cannot be blank or empty (`400 Bad Request` if omitted).
+* **City / Location (`city` / `location`)**: **Optional**. Can be omitted, specified as a city name (e.g. `Ankara`, `Izmir`), or marked as `Remote`.
+* **Description (`description`)**: **Optional**. Narrative details of the role are optional upon vacancy registration and can be populated or enriched incrementally.
 
 ### 4.6. Table: `applications` (Action / Associative Table)
 Resolves the **Many-to-Many (N:M)** relationship between `users` (applicants) and `job_postings` (vacancies). Tracks candidate submissions, cover letters, and recruitment stages.

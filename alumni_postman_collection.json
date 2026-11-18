@@ -1,0 +1,229 @@
+{
+  "info": {
+    "_postman_id": "alumni-tracking-system-collection",
+    "name": "Alumni Tracking System API (with Invalid Requests)",
+    "description": "Comprehensive Postman collection for Alumni Tracking System, covering introductory routes, CRUD APIs, Job Postings, N:M Applications, Logger, 404 Guardian, 5xx Guardian, and invalid request scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. System & Health",
+      "item": [
+        {
+          "name": "Health Check (GET /api/health)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+          }
+        },
+        {
+          "name": "Swagger JSON Spec (GET /api/swagger.json)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/swagger.json", "host": ["{{baseUrl}}"], "path": ["api", "swagger.json"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Job Postings (Valid CRUD)",
+      "item": [
+        {
+          "name": "List All Jobs (GET /api/jobs)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "Create Job - Valid with Optional City (POST /api/jobs)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cloud Native DevOps Engineer\",\n  \"company\": \"Apex Cloud Ltd.\",\n  \"city\": \"Izmir\",\n  \"employment_type\": \"Remote\",\n  \"description\": \"Responsible for Kubernetes cluster management and CI/CD pipelines.\",\n  \"salary_range\": \"$75,000 - $95,000\",\n  \"posted_by_user_id\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "Create Job - Without Optional Description (POST /api/jobs)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Junior QA Automation Tester\",\n  \"company\": \"FinTech Horizon\",\n  \"city\": \"Istanbul\",\n  \"employment_type\": \"Full-Time\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "Get Single Job (GET /api/jobs/1)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs/1", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "1"] }
+          }
+        },
+        {
+          "name": "Get Job Applications (GET /api/jobs/1/applications)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs/1/applications", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "1", "applications"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Applications (User <-> Job N:M)",
+      "item": [
+        {
+          "name": "List Applications (GET /api/applications)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
+          }
+        },
+        {
+          "name": "Submit Application (POST /api/applications)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"job_posting_id\": 3,\n  \"resume_url\": \"https://drive.google.com/resume/alumni-2\",\n  \"cover_letter\": \"I am enthusiastic about scalable backend architecture.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
+          }
+        },
+        {
+          "name": "Update Application Status (PATCH /api/applications/1/status)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"REVIEWING\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/applications/1/status", "host": ["{{baseUrl}}"], "path": ["api", "applications", "1", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Invalid Requests (Testing Validations & Guardians)",
+      "item": [
+        {
+          "name": "❌ 400 Bad Request: Missing Title (POST /api/jobs)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company\": \"FinTech Horizon\",\n  \"city\": \"Istanbul\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "❌ 400 Bad Request: Title Exceeding 120 Characters (POST /api/jobs)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"This is an extraordinarily long job vacancy title intentionally engineered to cross the strict maximum limit of one hundred and twenty characters.\",\n  \"company\": \"FinTech Horizon\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "❌ 400 Bad Request: Missing Company (POST /api/jobs)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Data Engineer\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
+          }
+        },
+        {
+          "name": "❌ 400 Bad Request: Invalid ID Format (GET /api/jobs/abc)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs/abc", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "abc"] }
+          }
+        },
+        {
+          "name": "❌ 400 Bad Request: Non-Numeric Sum (GET /sum/invalid/10)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sum/invalid/10", "host": ["{{baseUrl}}"], "path": ["sum", "invalid", "10"] }
+          }
+        },
+        {
+          "name": "❌ 404 Guardian: Non-Existent API Endpoint (GET /api/does-not-exist)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/does-not-exist", "host": ["{{baseUrl}}"], "path": ["api", "does-not-exist"] }
+          }
+        },
+        {
+          "name": "❌ 404 Not Found: Non-Existent Job ID (GET /api/jobs/9999)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs/9999", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "9999"] }
+          }
+        },
+        {
+          "name": "❌ 404 Guardian (Web): Non-Existent Web Route (GET /missing-page)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "text/html" }],
+            "url": { "raw": "{{baseUrl}}/missing-page", "host": ["{{baseUrl}}"], "path": ["missing-page"] }
+          }
+        },
+        {
+          "name": "❌ 409 Conflict: Duplicate Candidate Application (POST /api/applications)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"job_posting_id\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
+          }
+        },
+        {
+          "name": "❌ 500 Guardian: Simulated Server Error & logs/error.logs (GET /api/test/error-500)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/test/error-500", "host": ["{{baseUrl}}"], "path": ["api", "test", "error-500"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

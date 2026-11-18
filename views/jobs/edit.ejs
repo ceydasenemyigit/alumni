@@ -20,11 +20,12 @@
       <input type="hidden" name="_method" value="PUT">
 
       <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title *</label>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title * (Max 120 chars)</label>
         <input
           type="text"
           name="title"
           required
+          maxlength="120"
           value="<%= job.title %>"
           style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
         >
@@ -59,11 +60,11 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Location</label>
+          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">City / Location (Optional)</label>
           <input
             type="text"
             name="location"
-            value="<%= job.location %>"
+            value="<%= job.location || '' %>"
             style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
           >
         </div>
@@ -80,13 +81,12 @@
       </div>
 
       <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description *</label>
+        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description (Optional)</label>
         <textarea
           name="description"
           rows="5"
-          required
           style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
-        ><%= job.description %></textarea>
+        ><%= job.description || '' %></textarea>
       </div>
 
       <div>

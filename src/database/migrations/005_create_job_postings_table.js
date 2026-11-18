@@ -4,11 +4,11 @@ module.exports = {
     await client.query(`
       CREATE TABLE IF NOT EXISTS job_postings (
         id SERIAL PRIMARY KEY,
-        title VARCHAR(160) NOT NULL,
+        title VARCHAR(120) NOT NULL,
         company VARCHAR(120) NOT NULL,
-        location VARCHAR(100) NOT NULL DEFAULT 'Remote',
+        location VARCHAR(100) DEFAULT 'Remote',
         employment_type VARCHAR(30) NOT NULL DEFAULT 'Full-Time' CHECK (employment_type IN ('Full-Time', 'Part-Time', 'Contract', 'Internship', 'Remote')),
-        description TEXT NOT NULL,
+        description TEXT,
         requirements TEXT,
         salary_range VARCHAR(80),
         application_url VARCHAR(255),

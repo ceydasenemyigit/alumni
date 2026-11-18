@@ -16,9 +16,16 @@ const apiApplicationRoutes = require('./routes/apiApplicationRoutes');
 const apiDepartmentRoutes = require('./routes/apiDepartmentRoutes');
 const healthRoutes = require('./routes/healthRoutes');
 
+const {
+  loggerMiddleware,
+  notFoundGuardian,
+  errorGuardian
+} = require('./middlewares');
+
 const app = express();
 
 // Middlewares
+app.use(loggerMiddleware);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -112,5 +119,19 @@ app.get('/sum/:number1/:number2', (req, res) => {
   const sum = num1 + num2;
   res.send(`toplam= ${sum}`);
 });
+
+// Test route for 5xx Guardian & error log testing
+app.get('/api/test/error-500', (req, res, next) => {
+  const testError = new Error('Simulated 500 server exception for 5xx Guardian verification');
+  testError.status = 500;
+  testError.reason = 'Database transaction deadlock simulated for 5xx Guardian';
+  next(testError);
+});
+
+// 404 Guardian Middleware (returns 404 with reason)
+app.use(notFoundGuardian);
+
+// 5xx Guardian & Logs (logs to logs/error.logs)
+app.use(errorGuardian);
 
 module.exports = app;

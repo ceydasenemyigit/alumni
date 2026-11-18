@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<div style="max-width: 620px; margin: 60px auto; text-align: center;">
+  <div class="card" style="padding: 48px 36px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 2.2rem; margin-bottom: 20px;">
+      🔍
+    </div>
+
+    <div style="display: inline-block; padding: 4px 14px; border-radius: 9999px; background: rgba(239, 68, 68, 0.15); color: #fca5a5; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">
+      HTTP 404 &bull; Not Found
+    </div>
+
+    <h1 style="font-size: 2rem; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.02em;">
+      <%= typeof title !== 'undefined' ? title : 'Page Not Found' %>
+    </h1>
+
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 20px 0; text-align: left;">
+      <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; font-weight: 600;">REASON:</div>
+      <div style="color: #fca5a5; font-size: 0.95rem; line-height: 1.5;">
+        <%= typeof reason !== 'undefined' ? reason : 'The requested resource or page does not exist on this server.' %>
+      </div>
+      <% if (typeof path !== 'undefined' && path) { %>
+        <div style="margin-top: 8px; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
+          <span style="color: #94a3b8;">Requested Path:</span> <%= path %>
+        </div>
+      <% } %>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 28px;">
+      Please verify the address or use the quick links below to navigate through the platform:
+    </p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+      <a href="/" class="btn btn-primary btn-sm">🏠 Home</a>
+      <a href="/users" class="btn btn-outline btn-sm">👥 Alumni Directory</a>
+      <a href="/jobs" class="btn btn-outline btn-sm">💼 Job Board</a>
+      <a href="/announcements" class="btn btn-outline btn-sm">📢 Announcements</a>
+      <a href="/api/swagger" class="btn btn-outline btn-sm" target="_blank">📚 API Docs</a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

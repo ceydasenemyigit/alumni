@@ -565,7 +565,100 @@ Handled by `apiDepartmentController.js`:
    ```bash
    npm test
    ```
-   Executes 30 integration tests verifying all introductory routes, Swagger, Users, and Announcements MVC & API endpoints.
+   Executes 65 integration tests verifying all introductory routes, Swagger, Users, Announcements, Job Postings, Applications (N:M), Database Migrations, Seeders, Logger Middleware, 404 Guardian, 5xx Guardian, and `logs/error.logs`.
+
+---
+
+## 🛡️ Middlewares, Guardians & Observability
+
+The application implements a robust middleware pipeline to protect endpoints, maintain clear error contracts with clients, and provide runtime observability:
+
+### 1. Terminal Logger Middleware (`src/middlewares/loggerMiddleware.js`)
+Captures all HTTP incoming requests and logs structured access rows directly to the console upon response completion:
+* **Log Format**: `time method route res. type duration`
+* **Example Output**:
+  ```text
+  10:20:30 post /api/jobs 201 json 18ms
+  10:20:31 get /jobs 200 html 24ms
+  10:20:32 get /api/nonexistent 404 json 2ms
+  10:20:35 get /api/test/error-500 500 json 6ms
+  ```
+* **Columns**:
+  1. `time`: Local timestamp (`HH:mm:ss`)
+  2. `method`: HTTP verb (`get`, `post`, `put`, `patch`, `delete`)
+  3. `route`: Full target URL path (`req.originalUrl`)
+  4. `res.` / status: HTTP status code (`200`, `201`, `400`, `404`, `500`)
+  5. `type`: Response format (`json`, `html`, `text`, `css`, `js`)
+  6. `duration`: Wall-clock execution time in milliseconds (`18ms`)
+
+### 2. 404 Guardian Middleware (`src/middlewares/notFoundGuardian.js`)
+Intercepts all unmatched routes and returns a descriptive `404 Not Found` response with an **explicit reason**:
+* **API / JSON Client**:
+  ```json
+  {
+    "success": false,
+    "status": 404,
+    "error": "Not Found",
+    "reason": "The requested route 'GET /api/nonexistent' does not exist on this server. Check /api/swagger for available endpoints.",
+    "path": "/api/nonexistent",
+    "method": "GET",
+    "timestamp": "2026-11-18T10:20:32.000Z"
+  }
+  ```
+* **Web Browser / HTML**:
+  Renders the **Generic 404 Page** (`views/404.ejs`) with a friendly card layout, detailed reason banner, the requested path, and navigation shortcuts back to `/`, `/users`, `/jobs`, `/announcements`, and `/api/swagger`.
+
+### 3. 5xx Guardian & Error Logging (`src/middlewares/errorGuardian.js`)
+Catches uncaught exceptions or server errors (status $\ge$ 500):
+* Intercepts 5xx exceptions and returns structured JSON/HTML with status and failure reason.
+* Automatically persists error details to disk in **`logs/error.logs`**:
+  ```text
+  [2026-11-18T10:20:35.000Z] [500] GET /api/test/error-500
+  Error: Simulated 500 server exception for 5xx Guardian verification
+  Reason: Database transaction deadlock simulated for 5xx Guardian
+  Stack: Error: Simulated 500 server exception ...
+  Body: {}
+  Query: {}
+  IP: ::1
+  --------------------------------------------------------------------------------
+  ```
+
+---
+
+## 📋 Job Posting Business & Validation Rules
+
+The `job_postings` table and models enforce explicit domain validation rules:
+* **Title (`title`)**: **Required**. String value. Strictly capped at **maximum 120 characters**. Submissions exceeding 120 characters or with empty values trigger `400 Bad Request`.
+* **Company (`company`)**: **Required**. Name of hiring organization or company. Cannot be empty or whitespace (`400 Bad Request` if omitted).
+* **City / Location (`city` / `location`)**: **Optional**. Can be omitted, specified as a city name (e.g. `Istanbul`, `Izmir`), or marked as `Remote`.
+* **Description (`description`)**: **Optional**. Detailed overview of the role can be omitted upon posting creation and added/updated later.
+
+---
+
+## 📬 Postman Testing & Invalid Request Scenarios
+
+A ready-to-import Postman collection is included in the root directory: **[`alumni_postman_collection.json`](alumni_postman_collection.json)**.
+
+### Testing Invalid Requests in Postman:
+Import `alumni_postman_collection.json` into Postman to test:
+1. **400 Bad Request - Missing Job Title**:
+   - `POST /api/jobs` with `{ "company": "Tech Corp" }` $\rightarrow$ Rejects with `"Job title is required."`
+2. **400 Bad Request - Job Title Exceeds 120 Chars**:
+   - `POST /api/jobs` with 121-character title $\rightarrow$ Rejects with `"Job title cannot exceed 120 characters."`
+3. **400 Bad Request - Missing Company**:
+   - `POST /api/jobs` with `{ "title": "Developer" }` $\rightarrow$ Rejects with `"Company name is required."`
+4. **400 Bad Request - Invalid Resource ID Format**:
+   - `GET /api/jobs/abc` $\rightarrow$ Returns 400 with invalid ID message.
+5. **400 Bad Request - Invalid Arithmetic Sum**:
+   - `GET /sum/invalid/10` $\rightarrow$ Returns 400 Bad Request.
+6. **404 Guardian - Undefined API Route**:
+   - `GET /api/does-not-exist` $\rightarrow$ 404 Guardian returns structured JSON with reason and swagger docs link.
+7. **404 Guardian - Undefined Web Route**:
+   - `GET /missing-page` (Accept: text/html) $\rightarrow$ Serves generic 404 page (`views/404.ejs`).
+8. **409 Conflict - Duplicate Job Application**:
+   - `POST /api/applications` with already applied user and job $\rightarrow$ Returns 409 Conflict.
+9. **500 Server Error - 5xx Guardian & logs/error.logs**:
+   - `GET /api/test/error-500` $\rightarrow$ Returns 500 JSON with reason and appends stack trace to `logs/error.logs`.
 
 ---
 
@@ -602,4 +695,7 @@ Once the server is running, navigate to:
 - **OpenAPI JSON**: [http://localhost:3000/api/swagger.json](http://localhost:3000/api/swagger.json)
 - **Web UI Directory**: [http://localhost:3000/users](http://localhost:3000/users)
 - **Announcements Board**: [http://localhost:3000/announcements](http://localhost:3000/announcements)
+- **Job Board**: [http://localhost:3000/jobs](http://localhost:3000/jobs)
+- **Applications Board**: [http://localhost:3000/applications](http://localhost:3000/applications)
+- **Postman Collection**: [`alumni_postman_collection.json`](alumni_postman_collection.json)
 - **Data Design Documentation**: [ddd.md](ddd.md)

@@ -500,7 +500,76 @@ async function runTests() {
       assert.strictEqual(resDeleteApp.json.success, true);
       console.log(`✓ DELETE /api/applications/:id -> 200 JSON Application Removed`);
 
-      console.log('\n🎉 ALL 57 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Factories & Seeds Verified.\n');
+      // 10. Guardians, Logger & Validation Rules
+      console.log('\n--- 10. Guardians, Logger & Job Posting Validation Rules ---');
+
+      // Rule: Title is required
+      const resJobNoTitle = await request({ path: '/api/jobs', method: 'POST' }, { company: 'Acme Corp' });
+      assert.strictEqual(resJobNoTitle.statusCode, 400);
+      assert.strictEqual(resJobNoTitle.json.success, false);
+      assert.ok(resJobNoTitle.json.message.includes('title'));
+      console.log('✓ Validation: Job posting rejects missing title (400 Bad Request)');
+
+      // Rule: Title max 120 characters
+      const longTitle = 'A'.repeat(121);
+      const resJobLongTitle = await request({ path: '/api/jobs', method: 'POST' }, { title: longTitle, company: 'Acme Corp' });
+      assert.strictEqual(resJobLongTitle.statusCode, 400);
+      assert.strictEqual(resJobLongTitle.json.success, false);
+      assert.ok(resJobLongTitle.json.message.includes('120'));
+      console.log('✓ Validation: Job posting rejects title exceeding 120 characters (400 Bad Request)');
+
+      // Rule: Company is required
+      const resJobNoCompany = await request({ path: '/api/jobs', method: 'POST' }, { title: 'Cloud Engineer' });
+      assert.strictEqual(resJobNoCompany.statusCode, 400);
+      assert.strictEqual(resJobNoCompany.json.success, false);
+      assert.ok(resJobNoCompany.json.message.includes('company') || resJobNoCompany.json.message.includes('Company'));
+      console.log('✓ Validation: Job posting rejects missing company (400 Bad Request)');
+
+      // Rule: City and Description are optional
+      const resJobOptionalFields = await request({ path: '/api/jobs', method: 'POST' }, {
+        title: 'Platform Site Reliability Engineer',
+        company: 'CloudSphere Global',
+        city: 'Izmir',
+        employment_type: 'Remote'
+        // description intentionally omitted!
+      });
+      assert.strictEqual(resJobOptionalFields.statusCode, 201);
+      assert.strictEqual(resJobOptionalFields.json.success, true);
+      assert.strictEqual(resJobOptionalFields.json.data.location, 'Izmir');
+      assert.strictEqual(resJobOptionalFields.json.data.description, null);
+      console.log('✓ Validation: Job posting creates successfully with optional city and without description (201 Created)');
+
+      // 404 Guardian: API Route with reason
+      const res404Api = await request({ path: '/api/non-existent-endpoint-test' });
+      assert.strictEqual(res404Api.statusCode, 404);
+      assert.strictEqual(res404Api.json.success, false);
+      assert.ok(res404Api.json.reason);
+      assert.ok(res404Api.json.reason.includes('does not exist'));
+      console.log('✓ 404 Guardian (API): returns 404 JSON with explicit reason');
+
+      // 404 Guardian: Generic 404 Page (HTML)
+      const res404Html = await request({ path: '/some-missing-page', headers: { Accept: 'text/html' } });
+      assert.strictEqual(res404Html.statusCode, 404);
+      assert.ok(res404Html.body.includes('404'));
+      assert.ok(res404Html.body.includes('REASON:') || res404Html.body.includes('Page Not Found'));
+      console.log('✓ 404 Guardian (Web): renders generic 404 page with reason and navigation');
+
+      // 5xx Guardian & logs/error.logs
+      const res500Test = await request({ path: '/api/test/error-500' });
+      assert.strictEqual(res500Test.statusCode, 500);
+      assert.strictEqual(res500Test.json.status, 500);
+      assert.ok(res500Test.json.reason);
+      assert.ok(res500Test.json.reason.includes('deadlock') || res500Test.json.message.includes('500'));
+      console.log('✓ 5xx Guardian: catches server error and returns structured 500 with reason');
+
+      // Verify logs/error.logs file content
+      const errorLogPath = path.join(__dirname, 'logs', 'error.logs');
+      assert.ok(fs.existsSync(errorLogPath), 'logs/error.logs must exist');
+      const errorLogContent = fs.readFileSync(errorLogPath, 'utf8');
+      assert.ok(errorLogContent.includes('Simulated 500 server exception') || errorLogContent.includes('deadlock'));
+      console.log('✓ Error Logging: verified error entries successfully written to logs/error.logs');
+
+      console.log('\n🎉 ALL 65 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, 404 Guardian, 5xx Guardian & error.logs Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

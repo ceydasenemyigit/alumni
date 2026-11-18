@@ -280,8 +280,20 @@ class JobPostingModel {
   // --- CRUD: CREATE ---
 
   async create(data) {
-    if (!data.title || !data.company || !data.description) {
-      const err = new Error('Title, company, and description are required.');
+    if (!data.title || typeof data.title !== 'string' || !data.title.trim()) {
+      const err = new Error('Job title is required.');
+      err.status = 400;
+      throw err;
+    }
+
+    if (data.title.trim().length > 120) {
+      const err = new Error('Job title cannot exceed 120 characters.');
+      err.status = 400;
+      throw err;
+    }
+
+    if (!data.company || typeof data.company !== 'string' || !data.company.trim()) {
+      const err = new Error('Company name is required.');
       err.status = 400;
       throw err;
     }
@@ -294,6 +306,8 @@ class JobPostingModel {
     }
 
     const postedByUserId = data.posted_by_user_id ? parseInt(data.posted_by_user_id, 10) : null;
+    const locationVal = (data.city || data.location) ? (data.city || data.location).trim() : 'Remote';
+    const descriptionVal = data.description ? data.description.trim() : null;
 
     try {
       const res = await db.query(`
@@ -303,9 +317,9 @@ class JobPostingModel {
       `, [
         data.title.trim(),
         data.company.trim(),
-        data.location ? data.location.trim() : 'Remote',
+        locationVal,
         employmentType,
-        data.description.trim(),
+        descriptionVal,
         data.requirements ? data.requirements.trim() : null,
         data.salary_range ? data.salary_range.trim() : null,
         data.application_url ? data.application_url.trim() : null,
@@ -320,9 +334,9 @@ class JobPostingModel {
         id: this.nextId++,
         title: data.title.trim(),
         company: data.company.trim(),
-        location: data.location ? data.location.trim() : 'Remote',
+        location: locationVal,
         employment_type: employmentType,
-        description: data.description.trim(),
+        description: descriptionVal,
         requirements: data.requirements ? data.requirements.trim() : null,
         salary_range: data.salary_range ? data.salary_range.trim() : null,
         application_url: data.application_url ? data.application_url.trim() : null,
@@ -347,11 +361,34 @@ class JobPostingModel {
       throw err;
     }
 
+    if (data.title !== undefined) {
+      if (!data.title || typeof data.title !== 'string' || !data.title.trim()) {
+        const err = new Error('Job title cannot be empty.');
+        err.status = 400;
+        throw err;
+      }
+      if (data.title.trim().length > 120) {
+        const err = new Error('Job title cannot exceed 120 characters.');
+        err.status = 400;
+        throw err;
+      }
+    }
+
+    if (data.company !== undefined) {
+      if (!data.company || typeof data.company !== 'string' || !data.company.trim()) {
+        const err = new Error('Company name cannot be empty.');
+        err.status = 400;
+        throw err;
+      }
+    }
+
     if (data.employment_type && !VALID_EMPLOYMENT_TYPES.includes(data.employment_type)) {
       const err = new Error(`Invalid employment_type. Must be one of: ${VALID_EMPLOYMENT_TYPES.join(', ')}`);
       err.status = 400;
       throw err;
     }
+
+    const locationVal = (data.city || data.location) ? (data.city || data.location).trim() : null;
 
     try {
       const res = await db.query(`
@@ -372,9 +409,9 @@ class JobPostingModel {
       `, [
         data.title ? data.title.trim() : null,
         data.company ? data.company.trim() : null,
-        data.location ? data.location.trim() : null,
+        locationVal,
         data.employment_type || null,
-        data.description ? data.description.trim() : null,
+        data.description !== undefined ? (data.description ? data.description.trim() : null) : null,
         data.requirements !== undefined ? data.requirements : null,
         data.salary_range !== undefined ? data.salary_range : null,
         data.application_url !== undefined ? data.application_url : null,
@@ -397,9 +434,11 @@ class JobPostingModel {
         err.status = 404;
         throw err;
       }
+      const updatedFields = { ...data };
+      if (locationVal) updatedFields.location = locationVal;
       this.jobPostings[idx] = {
         ...this.jobPostings[idx],
-        ...data,
+        ...updatedFields,
         updated_at: new Date().toISOString()
       };
       return this.jobPostings[idx];

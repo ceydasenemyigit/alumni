@@ -4,8 +4,8 @@
 [![Design System](https://img.shields.io/badge/Design%20System-Apple%20Minimalism%20%2B%20Pinky%20Rose-f43f5e.svg)](#-1-overview--design-philosophy)
 [![Palette](https://img.shields.io/badge/Color%20Palette-Rose%20%2B%20Velvet%20Plum-e11d48.svg)](#-2-colors--pinky-rose-palette)
 [![Typography](https://img.shields.io/badge/Typography-Plus%20Jakarta%20Sans%2017px-fb7185.svg)](#-3-typography-system)
-[![Components](https://img.shields.io/badge/Components-Edge--to--Edge%20Tiles%20%2B%20Pills-ec4899.svg)](#-6-component-specifications)
-[![Status](https://img.shields.io/badge/Specification-Living%20System%20v2.0-blueviolet.svg)](#)
+[![Brand Guide](https://img.shields.io/badge/Brand%20Guide-Core%20Identity-2563eb.svg)](brand.md)
+[![README](https://img.shields.io/badge/Documentation-README.md-10b981.svg)](README.md)
 
 ---
 

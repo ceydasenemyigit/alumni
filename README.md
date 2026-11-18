@@ -17,6 +17,11 @@
 
 The **Alumni Tracking System** is a web-based platform designed to maintain academic and professional records of university graduates, support networking between alumni, broadcast events and announcements, and enhance communication with university management. Developed for the Web Programming course at Istanbul University, the project strictly adheres to the **Model-View-Controller (MVC)** architectural pattern while exposing both server-rendered web views and RESTful JSON APIs, accompanied by robust containerization and database persistence.
 
+### 📚 Core Documentation & Design Specifications
+- 📘 [**Data Design Documentation (`ddd.md`)**](ddd.md) — Comprehensive entity relationships, normalization proofs, constraints, and data dictionary.
+- 🎨 [**Brand Guidelines & Core Identity (`brand.md`)**](brand.md) — Brand philosophy, academic cap emblem architecture (`🎓`), Dark Slate & Cobalt visual hierarchy, and typography guidelines.
+- 🌸 [**Visual Design System (`design.md`)**](design.md) — Apple-grade full-bleed tile architecture, Pinky Rose & Velvet Plum palette, dual button grammars (`rounded.pill`), and responsive UI specifications.
+
 ---
 
 ## 🏛️ MVC Architecture Overview
@@ -178,6 +183,19 @@ erDiagram
 
 ---
 
+## 🎨 Brand Guidelines & Visual Design System
+
+The platform's identity, design philosophy, and UI components are fully defined across two companion specifications:
+
+| Document | Focus & Highlights | Anchor Link |
+|---|---|---|
+| 🎨 **`brand.md`** | **Core Identity & Values**: Academic excellence, community ethos, logo architecture (`🎓`), high-contrast dark slate (`#0f172a`), cobalt accents (`#2563eb`), and Plus Jakarta Sans typography. | [👉 Read Brand Guidelines (`brand.md`)](brand.md) |
+| 🌸 **`design.md`** | **Pinky Rose Design System**: Apple-grade full-bleed tile architecture, Deep Velvet Plum (`#1a101e`) ↔ Rose Parchment (`#fdf5f7`), Action Rose (`#f43f5e`), pill CTAs (`rounded.pill`), and floating glass metric cards. | [👉 Read Visual Design System (`design.md`)](design.md) |
+
+> 💡 **Implementation**: The landing page ([`public/index.html`](public/index.html)) served at `GET /` and `GET /home` implements the complete tile stack and Pinky Rose tokens specified in [**`design.md`**](design.md).
+
+---
+
 ## 🧪 Docker Setup & The Forgetting Test
 
 ### 1. What is "The Forgetting Test"?
@@ -245,6 +263,8 @@ alumni/
 ├── .dockerignore                     # Excluded container build files
 ├── .env.example                      # Template for all environment variables
 ├── ddd.md                            # Comprehensive Data Design Document (DDD)
+├── brand.md                          # Brand Guidelines & Core Visual Identity
+├── design.md                         # Visual Design System Specification (Pinky Rose Edition)
 ├── index.js                          # Server entrypoint (listens on PORT)
 ├── package.json                      # Project dependencies, scripts, and metadata
 ├── package-lock.json                 # Dependency tree lockfile
@@ -700,6 +720,6 @@ Once the server is running, navigate to:
 - **Job Board**: [http://localhost:3000/jobs](http://localhost:3000/jobs)
 - **Applications Board**: [http://localhost:3000/applications](http://localhost:3000/applications)
 - **Postman Collection**: [`alumni_postman_collection.json`](alumni_postman_collection.json)
-- **Data Design Documentation**: [ddd.md](ddd.md)
-- **Brand Guidelines & Core Identity**: [brand.md](brand.md)
-- **Visual Design System (Pinky Rose Edition)**: [design.md](design.md)
+- **Data Design Documentation**: [ddd.md](ddd.md) — Relational schema, normalization proofs, constraints, and SQL DDL
+- **Brand Guidelines & Core Identity**: [brand.md](brand.md) — Logo architecture (`🎓`), brand values, dark theme color system, and typography
+- **Visual Design System (Pinky Rose Edition)**: [design.md](design.md) — Apple-grade tile architecture, Pinky Rose palette (`#f43f5e`), pill CTAs, and component specs

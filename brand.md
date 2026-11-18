@@ -1,10 +1,11 @@
 # Brand Identity & Design System Guidelines
 ## Alumni Tracking System (Mezun Takip Sistemi)
 
-[![Brand](https://img.shields.io/badge/Brand-Alumni%20Tracking%20System-2563eb.svg)](#-brand-overview--core-identity)
-[![UI Kit](https://img.shields.io/badge/Design%20System-Dark%20Slate%20%2B%20Cobalt-0ea5e9.svg)](#-color-palette--visual-hierarchy)
-[![Typography](https://img.shields.io/badge/Typography-Plus%20Jakarta%20Sans-10b981.svg)](#-typography-system)
-[![Status](https://img.shields.io/badge/Status-Living%20Design%20System-blueviolet.svg)](#)
+[![Brand](https://img.shields.io/badge/Brand-Alumni%20Tracking%20System-2563eb.svg)](#-1-brand-overview--core-identity)
+[![UI Kit](https://img.shields.io/badge/Design%20System-Dark%20Slate%20%2B%20Cobalt-0ea5e9.svg)](#-3-color-palette--visual-hierarchy)
+[![Typography](https://img.shields.io/badge/Typography-Plus%20Jakarta%20Sans-10b981.svg)](#-4-typography-system)
+[![Design Spec](https://img.shields.io/badge/Design%20Spec-Pinky%20Rose-f43f5e.svg)](design.md)
+[![README](https://img.shields.io/badge/Documentation-README.md-10b981.svg)](README.md)
 
 ---
 

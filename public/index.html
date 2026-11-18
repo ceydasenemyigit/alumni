@@ -3,220 +3,1107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alumni Tracking System - Home</title>
+  <title>Alumni Tracking System — Bridging Heritage with Future</title>
+  <meta name="description" content="Official Alumni Tracking System connecting university graduates, students, faculty, and industry leaders through career postings and networking.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* -------------------------------------------------------------
+       PINKY ROSE & VELVET PLUM DESIGN SYSTEM (design.md Reference)
+       ------------------------------------------------------------- */
     :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --accent: #0ea5e9;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-border: #334155;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --tag-bg: #0369a1;
-      --tag-text: #e0f2fe;
+      /* Brand Pinky Interactive */
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --primary-focus: #fb7185;
+      --primary-on-dark: #fda4af;
+      --accent-magenta: #ec4899;
+
+      /* Surfaces & Canvases */
+      --canvas-white: #ffffff;
+      --canvas-parchment: #fdf5f7;
+      --surface-pearl: #fff1f4;
+      --surface-tile-1: #1a101e;
+      --surface-tile-2: #221428;
+      --surface-tile-3: #140c17;
+      --surface-card-dark: #231527;
+
+      /* Hairlines & Borders */
+      --border-light: rgba(225, 29, 72, 0.14);
+      --border-dark: rgba(244, 63, 94, 0.20);
+      --divider-dark: rgba(255, 255, 255, 0.08);
+
+      /* Typography Colors */
+      --ink: #180e1b;
+      --ink-muted: #736171;
+      --text-on-dark: #ffffff;
+      --text-on-dark-muted: #d4c6d3;
+      --text-disabled: #a3919e;
+
+      /* Semantic Statuses */
+      --status-pending: #f59e0b;
+      --status-reviewing: #ec4899;
+      --status-accepted: #10b981;
+      --status-rejected: #e11d48;
+      --status-withdrawn: #736171;
+
+      /* The Single Elevation Rule */
+      --shadow-hero-card: 3px 5px 30px rgba(225, 29, 72, 0.18), 0 2px 10px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 12px 30px -10px rgba(244, 63, 94, 0.35);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0b0f19 0%, #0f172a 100%);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      background: var(--surface-tile-3);
+      color: var(--text-on-dark);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.2px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { text-decoration: none; color: inherit; transition: all 0.2s ease; }
+
+    /* -------------------------------------------------------------
+       TOP NAVIGATION (GLOBAL NAV + FROSTED SUB-NAV)
+       ------------------------------------------------------------- */
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: 44px;
+      background: rgba(20, 12, 23, 0.94);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-dark);
       display: flex;
-      flex-direction: column;
+      align-items: center;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent-magenta));
+      color: white;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-links-cluster {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .nav-link-item {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-on-dark-muted);
+      letter-spacing: -0.12px;
+      transition: color 0.2s ease;
+    }
+    .nav-link-item:hover { color: var(--primary-on-dark); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sub-nav-frosted {
+      position: sticky;
+      top: 44px;
+      z-index: 990;
+      height: 52px;
+      background: rgba(26, 16, 30, 0.82);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--divider-dark);
+      display: flex;
+      align-items: center;
+    }
+    .sub-nav-inner {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sub-nav-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+    }
+    .sub-nav-quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* -------------------------------------------------------------
+       BUTTON GRAMMARS (design.md)
+       ------------------------------------------------------------- */
+    .btn-pill-primary {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 32px 16px;
+      gap: 8px;
+      background: var(--primary);
+      color: #ffffff !important;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 11px 24px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+      transition: all 0.2s ease;
     }
-    .container {
-      max-width: 680px;
+    .btn-pill-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(244, 63, 94, 0.45);
+    }
+    .btn-pill-primary:active { transform: scale(0.96); }
+
+    .btn-pill-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--primary-on-dark) !important;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      border: 1.5px solid var(--primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-pill-secondary:hover {
+      background: rgba(244, 63, 94, 0.12);
+      color: #ffffff !important;
+      border-color: var(--primary-focus);
+    }
+    .btn-pill-secondary:active { transform: scale(0.96); }
+
+    .btn-pill-light {
+      background: var(--surface-pearl);
+      color: var(--primary) !important;
+      border: 1.5px solid rgba(225, 29, 72, 0.25);
+    }
+    .btn-pill-light:hover {
+      background: var(--primary);
+      color: white !important;
+      border-color: var(--primary);
+    }
+
+    .btn-utility-rect {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-tile-2);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-dark);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-utility-rect:hover {
+      background: #2f1b37;
+      border-color: var(--primary-focus);
+    }
+    .btn-utility-rect:active { transform: scale(0.96); }
+
+    /* -------------------------------------------------------------
+       TILE ARCHITECTURE (ALTERNATING FULL-BLEED SECTIONS)
+       ------------------------------------------------------------- */
+    section.tile {
       width: 100%;
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--surface-border);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      padding: 80px 24px;
+      position: relative;
     }
-    .badge {
+    .tile-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .tile-header-centered {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 56px;
+    }
+    .tile-eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .tile-headline {
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.35px;
+      margin-bottom: 16px;
+    }
+    .tile-subcopy {
+      font-size: 20px;
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    /* TILE 1: HERO (Dark Velvet 1) */
+    .tile-hero {
+      background: var(--surface-tile-1);
+      padding: 96px 24px 80px;
+      text-align: center;
+    }
+    .hero-h1 {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.07;
+      letter-spacing: -0.38px;
+      color: #ffffff;
+      max-width: 900px;
+      margin: 0 auto 20px;
+    }
+    .hero-h1 span.gradient-text {
+      background: linear-gradient(135deg, #ffffff 40%, var(--primary-focus) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-lead {
+      font-size: 22px;
+      line-height: 1.45;
+      color: var(--text-on-dark-muted);
+      max-width: 680px;
+      margin: 0 auto 36px;
+    }
+    .hero-cta-cluster {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 64px;
+    }
+
+    /* Floating Hero Artifact Card with Single System Drop-Shadow */
+    .hero-artifact-card {
+      background: rgba(35, 21, 39, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-dark);
+      border-radius: 24px;
+      padding: 36px 40px;
+      max-width: 980px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-hero-card);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: left;
+    }
+    .artifact-stat-item {
+      border-right: 1px solid var(--divider-dark);
+      padding-right: 20px;
+    }
+    .artifact-stat-item:last-child { border-right: none; padding-right: 0; }
+    .stat-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-number span.plus { color: var(--primary); }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-on-dark-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 6px;
+    }
+    .stat-subtext {
+      font-size: 12px;
+      color: var(--text-disabled);
+      margin-top: 4px;
+    }
+
+    /* TILE 2: ALUMNI DIRECTORY SPOTLIGHT (Pure White) */
+    .tile-white {
+      background: var(--canvas-white);
+      color: var(--ink);
+    }
+    .tile-white .tile-headline { color: var(--ink); }
+    .tile-white .tile-subcopy { color: var(--ink-muted); }
+    .alumni-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .alumni-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      padding: 24px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .alumni-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -12px rgba(225, 29, 72, 0.15);
+      border-color: var(--primary);
+    }
+    .alumni-avatar-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--surface-pearl), #fce7f3);
+      border: 2px solid var(--primary-focus);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .alumni-name {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+    }
+    .alumni-role {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .alumni-meta {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    /* TILE 3: CAREER & JOB BOARD (Dark Velvet 2) */
+    .tile-dark-2 {
+      background: var(--surface-tile-2);
+      color: var(--text-on-dark);
+    }
+    .job-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .job-card {
+      background: var(--surface-tile-1);
+      border: 1px solid var(--border-dark);
+      border-radius: 18px;
+      padding: 28px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .job-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary-focus);
+      box-shadow: var(--shadow-hover);
+    }
+    .job-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .job-type-badge {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--primary-on-dark);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .job-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .job-company {
+      font-size: 14px;
+      color: var(--primary-on-dark);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .job-details-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-on-dark-muted);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--divider-dark);
+    }
+
+    /* TILE 4: APPLICATION PIPELINE (Rose Parchment) */
+    .tile-parchment {
+      background: var(--canvas-parchment);
+      color: var(--ink);
+    }
+    .tile-parchment .tile-headline { color: var(--ink); }
+    .tile-parchment .tile-subcopy { color: var(--ink-muted); }
+    .pipeline-status-banner {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 32px 36px;
+      box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 40px;
+    }
+    .pipeline-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 24px 0 16px;
+    }
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 6px 14px;
-      background: rgba(14, 165, 233, 0.15);
-      border: 1px solid rgba(14, 165, 233, 0.3);
-      color: #38bdf8;
-      font-size: 0.8rem;
-      font-weight: 600;
       border-radius: 9999px;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    h1 {
-      font-size: 2.25rem;
+      font-size: 12px;
       font-weight: 700;
-      line-height: 1.2;
-      background: linear-gradient(to right, #ffffff, #93c5fd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
-    p.subtitle {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      line-height: 1.6;
-      margin-bottom: 28px;
+    .status-pill.pending { background: rgba(245, 158, 11, 0.12); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-pill.reviewing { background: rgba(236, 72, 153, 0.12); color: #db2777; border: 1px solid rgba(236, 72, 153, 0.3); }
+    .status-pill.accepted { background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-pill.rejected { background: rgba(225, 29, 72, 0.12); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.3); }
+    .status-pill.withdrawn { background: rgba(115, 97, 113, 0.12); color: #736171; border: 1px solid rgba(115, 97, 113, 0.3); }
+
+    /* TILE 5: ANNOUNCEMENTS (Dark Velvet 1) */
+    .announcements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
     }
-    .endpoints-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--surface-border);
-      border-radius: 14px;
+    .announcement-card {
+      background: var(--surface-card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 18px;
       padding: 24px;
-      margin-top: 16px;
+      transition: all 0.25s ease;
     }
-    .endpoints-card h3 {
-      font-size: 1rem;
+    .announcement-card:hover {
+      border-color: var(--primary-focus);
+      transform: translateY(-3px);
+    }
+    .announcement-category {
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #38bdf8;
+      color: var(--primary-on-dark);
+      margin-bottom: 8px;
+    }
+    .announcement-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .announcement-snippet {
+      font-size: 14px;
+      color: var(--text-on-dark-muted);
+      line-height: 1.6;
       margin-bottom: 16px;
     }
-    .endpoint-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+
+    /* TILE 6: API & GUARDIANS (Rose Parchment) */
+    .api-explorer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 36px;
     }
-    .endpoint-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: rgba(30, 41, 59, 0.4);
-      border: 1px solid rgba(51, 65, 85, 0.5);
-      border-radius: 10px;
-      transition: all 0.2s ease;
+    .explorer-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      padding: 28px;
     }
-    .endpoint-item:hover {
-      background: rgba(30, 41, 59, 0.8);
-      border-color: #38bdf8;
-      transform: translateX(4px);
-    }
-    .endpoint-item a {
-      color: #f1f5f9;
-      text-decoration: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem;
-      font-weight: 500;
+    .explorer-card h4 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .endpoint-desc {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-    .method {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .method.get { background: #0284c7; color: #fff; }
-    .footer-nav {
-      margin-top: 28px;
+    .api-route-pill {
       display: flex;
-      gap: 16px;
-      justify-content: center;
-    }
-    .btn {
-      padding: 10px 20px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface-pearl);
+      border: 1px solid var(--border-light);
       border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      transition: all 0.2s;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: white;
+    .method-badge {
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
     }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-outline {
-      border: 1px solid var(--surface-border);
-      color: var(--text-muted);
+    .method-get { background: #e0f2fe; color: #0369a1; }
+    .method-post { background: #fce7f3; color: #be185d; }
+    .method-patch { background: #fef3c7; color: #b45309; }
+
+    /* -------------------------------------------------------------
+       EDITORIAL FOOTER (Dark Velvet 3 with Relaxed Leading)
+       ------------------------------------------------------------- */
+    footer.site-footer {
+      background: var(--surface-tile-3);
+      border-top: 1px solid var(--border-dark);
+      padding: 64px 24px 32px;
+      color: var(--text-on-dark-muted);
     }
-    .btn-outline:hover {
-      border-color: #94a3b8;
-      color: white;
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .footer-columns-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+    .footer-col h5 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+      margin-bottom: 18px;
+    }
+    .footer-col ul {
+      list-style: none;
+    }
+    .footer-col li {
+      margin-bottom: 10px;
+    }
+    .footer-col a {
+      font-size: 14px;
+      color: var(--text-on-dark-muted);
+      line-height: 2.1; /* Apple's relaxed leading */
+      transition: color 0.2s ease;
+    }
+    .footer-col a:hover { color: var(--primary-on-dark); }
+    .footer-legal-row {
+      padding-top: 24px;
+      border-top: 1px solid var(--divider-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-disabled);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* -------------------------------------------------------------
+       RESPONSIVE DESIGN (BREAKPOINT MATRIX - design.md)
+       ------------------------------------------------------------- */
+    @media (max-width: 834px) {
+      .hero-h1 { font-size: 38px; }
+      .tile-headline { font-size: 30px; }
+      .hero-artifact-card { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .artifact-stat-item:nth-child(2) { border-right: none; }
+      .footer-columns-grid { grid-template-columns: repeat(2, 1fr); }
+      .api-explorer-grid { grid-template-columns: 1fr; }
+      .nav-links-cluster { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .hero-h1 { font-size: 32px; }
+      .tile-headline { font-size: 26px; }
+      .hero-lead { font-size: 18px; }
+      .hero-artifact-card { grid-template-columns: 1fr; }
+      .artifact-stat-item { border-right: none; border-bottom: 1px solid var(--divider-dark); padding-bottom: 12px; }
+      .artifact-stat-item:last-child { border-bottom: none; }
+      .footer-columns-grid { grid-template-columns: 1fr; }
+      .sub-nav-quick-actions { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <span class="badge">temporary home page</span>
-    <h1>Alumni Tracking System</h1>
-    <p class="subtitle">
-      Welcome to the <strong>Alumni Tracking System</strong> web portal. This is a temporary home page developed for Istanbul University Web Programming course.
-    </p>
 
-    <div class="endpoints-card">
-      <h3>Quick API Explorer</h3>
-      <ul class="endpoint-list">
-        <li class="endpoint-item">
-          <a href="/users"><span class="method get">GET</span> /users</a>
-          <span class="endpoint-desc">MVC Users Management</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/announcements"><span class="method get">GET</span> /announcements</a>
-          <span class="endpoint-desc">MVC Announcements Board</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/jobs"><span class="method get">GET</span> /jobs</a>
-          <span class="endpoint-desc">MVC Career & Job Board</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/applications"><span class="method get">GET</span> /applications</a>
-          <span class="endpoint-desc">MVC Job Applications & Candidacies</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/swagger"><span class="method get">GET</span> /api/swagger</a>
-          <span class="endpoint-desc">Interactive Swagger UI</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/health"><span class="method get">GET</span> /api/health</a>
-          <span class="endpoint-desc">System Health Diagnostics</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/users"><span class="method get">GET</span> /api/users</a>
-          <span class="endpoint-desc">REST User Roster & Relations</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/jobs"><span class="method get">GET</span> /api/jobs</a>
-          <span class="endpoint-desc">REST Job Vacancies API</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/applications"><span class="method get">GET</span> /api/applications</a>
-          <span class="endpoint-desc">REST Job Applications API</span>
-        </li>
-        <li class="endpoint-item">
-          <a href="/api/departments"><span class="method get">GET</span> /api/departments</a>
-          <span class="endpoint-desc">Academic Departments API</span>
-        </li>
-      </ul>
-    </div>
+  <!-- ========================================================= -->
+  <!-- 1. TOP NAVIGATION (GLOBAL NAV + FROSTED SUB-NAV)         -->
+  <!-- ========================================================= -->
+  <header class="global-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand-logo">
+        <span>🎓</span>
+        <span>Alumni Tracking System</span>
+        <span class="brand-badge">Official</span>
+      </a>
 
-    <div class="footer-nav">
-      <a href="/about" class="btn btn-primary">About This Project</a>
-      <a href="/api/swagger" class="btn btn-outline">Swagger Documentation</a>
+      <nav class="nav-links-cluster">
+        <a href="/users" class="nav-link-item">Directory</a>
+        <a href="/jobs" class="nav-link-item">Job Board</a>
+        <a href="/applications" class="nav-link-item">Applications</a>
+        <a href="/announcements" class="nav-link-item">Announcements</a>
+        <a href="/api/swagger" class="nav-link-item" target="_blank">Swagger API</a>
+        <a href="/about" class="nav-link-item">About</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="/users" class="btn-utility-rect">Alumni Portal &rarr;</a>
+      </div>
     </div>
-  </div>
+  </header>
+
+  <!-- Persistent Frosted Sub-Navigation Bar (52px) -->
+  <nav class="sub-nav-frosted">
+    <div class="sub-nav-inner">
+      <div class="sub-nav-title">Alumni Platform 2026</div>
+      <div class="sub-nav-quick-actions">
+        <a href="/jobs/new" class="btn-utility-rect">+ Post a Job</a>
+        <a href="/applications/new" class="btn-utility-rect">Submit Application</a>
+        <a href="/jobs" class="btn-pill-primary" style="padding: 6px 18px; font-size: 13px;">Explore Openings</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================= -->
+  <!-- TILE 1: HERO SHOWCASE (Dark Velvet 1)                     -->
+  <!-- ========================================================= -->
+  <section class="tile tile-hero">
+    <div class="tile-container">
+      <span class="tile-eyebrow">Istanbul University • Web Programming</span>
+      <h1 class="hero-h1">
+        Bridging Academic Heritage with <span class="gradient-text">Professional Futures.</span>
+      </h1>
+      <p class="hero-lead">
+        Connect with over 15,000 university graduates, discover vetted career vacancies, and track recruitment opportunities in an elegant, modern workspace.
+      </p>
+
+      <div class="hero-cta-cluster">
+        <a href="/users" class="btn-pill-primary">Explore Alumni Directory &rarr;</a>
+        <a href="/jobs" class="btn-pill-secondary">Browse Career Board</a>
+      </div>
+
+      <!-- Floating Glass Hero Artifact Card with Single System Drop-Shadow -->
+      <div class="hero-artifact-card">
+        <div class="artifact-stat-item">
+          <div class="stat-number">15,420<span class="plus">+</span></div>
+          <div class="stat-label">Registered Alumni</div>
+          <div class="stat-subtext">Across 42 countries worldwide</div>
+        </div>
+        <div class="artifact-stat-item">
+          <div class="stat-number">9</div>
+          <div class="stat-label">Academic Faculties</div>
+          <div class="stat-subtext">Computer, Civil, Electrical & more</div>
+        </div>
+        <div class="artifact-stat-item">
+          <div class="stat-number">450<span class="plus">+</span></div>
+          <div class="stat-label">Active Vacancies</div>
+          <div class="stat-subtext">Full-Time, Remote & Internships</div>
+        </div>
+        <div class="artifact-stat-item">
+          <div class="stat-number">98<span class="plus">%</span></div>
+          <div class="stat-label">Placement Rate</div>
+          <div class="stat-subtext">Verified candidate candidacies</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TILE 2: ALUMNI DIRECTORY SPOTLIGHT (Pure White)           -->
+  <!-- ========================================================= -->
+  <section class="tile tile-white" id="directory">
+    <div class="tile-container">
+      <div class="tile-header-centered">
+        <span class="tile-eyebrow">Global Network</span>
+        <h2 class="tile-headline">Graduates Leading Industry Across the Globe.</h2>
+        <p class="tile-subcopy">
+          From cutting-edge Silicon Valley tech hubs to high-frequency European financial institutions, our graduates build what matters next.
+        </p>
+      </div>
+
+      <div class="alumni-grid">
+        <div class="alumni-card">
+          <div>
+            <div class="alumni-avatar-wrap">👨‍💻</div>
+            <h3 class="alumni-name">Emre Yılmaz</h3>
+            <div class="alumni-role">Lead Distributed Systems Engineer</div>
+            <p class="alumni-meta">FinTech Horizon • Istanbul / Hybrid<br>Class of 2021 • Computer Engineering</p>
+          </div>
+          <a href="/users/1" class="btn-pill-primary btn-pill-light" style="width: 100%; text-align: center;">View Profile</a>
+        </div>
+
+        <div class="alumni-card">
+          <div>
+            <div class="alumni-avatar-wrap">👩‍🔬</div>
+            <h3 class="alumni-name">Ayşe Kaya</h3>
+            <div class="alumni-role">Senior AI Research Scientist</div>
+            <p class="alumni-meta">DeepVision Labs • Berlin / Remote<br>Class of 2020 • Computer Engineering</p>
+          </div>
+          <a href="/users/2" class="btn-pill-primary btn-pill-light" style="width: 100%; text-align: center;">View Profile</a>
+        </div>
+
+        <div class="alumni-card">
+          <div>
+            <div class="alumni-avatar-wrap">👨‍💼</div>
+            <h3 class="alumni-name">Can Yıldız</h3>
+            <div class="alumni-role">VP of Cloud Infrastructure</div>
+            <p class="alumni-meta">Nexus Cyber Systems • Ankara<br>Class of 2018 • Industrial Engineering</p>
+          </div>
+          <a href="/users/3" class="btn-pill-primary btn-pill-light" style="width: 100%; text-align: center;">View Profile</a>
+        </div>
+
+        <div class="alumni-card">
+          <div>
+            <div class="alumni-avatar-wrap">👩‍💻</div>
+            <h3 class="alumni-name">Zeynep Arslan</h3>
+            <div class="alumni-role">Staff Frontend Architect</div>
+            <p class="alumni-meta">Creative Wave • London / Remote<br>Class of 2022 • Electrical & Electronics</p>
+          </div>
+          <a href="/users" class="btn-pill-primary btn-pill-light" style="width: 100%; text-align: center;">View Profile</a>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="/users" class="btn-pill-primary">Browse All 15,000+ Alumni Profiles &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TILE 3: CAREER & JOB BOARD (Dark Velvet 2)                -->
+  <!-- ========================================================= -->
+  <section class="tile tile-dark-2" id="jobs">
+    <div class="tile-container">
+      <div class="tile-header-centered">
+        <span class="tile-eyebrow">Opportunities</span>
+        <h2 class="tile-headline" style="color: #ffffff;">Step Into Your Next Chapter.</h2>
+        <p class="tile-subcopy" style="color: var(--text-on-dark-muted);">
+          Verified employment openings and summer internships published directly by alumnus recruiters and university partners.
+        </p>
+      </div>
+
+      <div class="job-cards-grid">
+        <div class="job-card">
+          <div>
+            <div class="job-card-header">
+              <span class="job-type-badge">Full-Time</span>
+              <span style="font-size: 13px; color: var(--primary-on-dark); font-weight: 600;">$85,000 - $110,000</span>
+            </div>
+            <h3 class="job-title">Senior Backend Architect</h3>
+            <div class="job-company">FinTech Horizon • Maslak, Istanbul</div>
+            <div class="job-details-row">
+              <span>📍 Istanbul / Hybrid</span>
+              <span>📅 Closes in 12 days</span>
+            </div>
+          </div>
+          <a href="/applications/new?job_id=3" class="btn-pill-primary" style="width: 100%;">Instant Apply &rarr;</a>
+        </div>
+
+        <div class="job-card">
+          <div>
+            <div class="job-card-header">
+              <span class="job-type-badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border-color: rgba(14, 165, 233, 0.3);">Internship</span>
+              <span style="font-size: 13px; color: var(--primary-on-dark); font-weight: 600;">$25 / hour</span>
+            </div>
+            <h3 class="job-title">Software Engineering Intern</h3>
+            <div class="job-company">CloudScale Dynamics • Remote</div>
+            <div class="job-details-row">
+              <span>📍 Global Remote</span>
+              <span>📅 Summer 2026</span>
+            </div>
+          </div>
+          <a href="/applications/new?job_id=2" class="btn-pill-primary" style="width: 100%;">Instant Apply &rarr;</a>
+        </div>
+
+        <div class="job-card">
+          <div>
+            <div class="job-card-header">
+              <span class="job-type-badge">Full-Time</span>
+              <span style="font-size: 13px; color: var(--primary-on-dark); font-weight: 600;">$70,000 - $95,000</span>
+            </div>
+            <h3 class="job-title">DevOps & Cloud Engineer</h3>
+            <div class="job-company">Nexus Cyber Systems • Ankara</div>
+            <div class="job-details-row">
+              <span>📍 Ankara / Hybrid</span>
+              <span>📅 Open Listing</span>
+            </div>
+          </div>
+          <a href="/applications/new?job_id=5" class="btn-pill-primary" style="width: 100%;">Instant Apply &rarr;</a>
+        </div>
+      </div>
+
+      <div style="text-align: center; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="/jobs" class="btn-pill-primary">Open Career Board &rarr;</a>
+        <a href="/jobs/new" class="btn-pill-secondary">+ Post a New Opportunity</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TILE 4: APPLICATION PIPELINE (Rose Parchment)             -->
+  <!-- ========================================================= -->
+  <section class="tile tile-parchment" id="applications">
+    <div class="tile-container">
+      <div class="tile-header-centered">
+        <span class="tile-eyebrow">Recruitment Architecture</span>
+        <h2 class="tile-headline">Frictionless Candidacy Tracking.</h2>
+        <p class="tile-subcopy">
+          A dedicated Many-to-Many action table connecting applicants with hiring managers in real-time with comprehensive status lifecycle reviews.
+        </p>
+      </div>
+
+      <div class="pipeline-status-banner">
+        <div style="text-align: center;">
+          <h3 style="font-size: 20px; font-weight: 700; color: var(--ink);">Unified Pipeline Lifecycle Statuses</h3>
+          <p style="font-size: 14px; color: var(--ink-muted); margin-top: 4px;">Enforced across both MVC web views and RESTful API endpoints</p>
+        </div>
+
+        <div class="pipeline-pills-row">
+          <span class="status-pill pending">⏳ Pending Review</span>
+          <span class="status-pill reviewing">🔍 Under Evaluation</span>
+          <span class="status-pill accepted">✅ Accepted Offer</span>
+          <span class="status-pill rejected">❌ Rejected</span>
+          <span class="status-pill withdrawn">🚫 Withdrawn</span>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-light); text-align: center;">
+          <a href="/applications" class="btn-pill-primary">Explore Live Application Dashboard &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TILE 5: ANNOUNCEMENTS (Dark Velvet 1)                     -->
+  <!-- ========================================================= -->
+  <section class="tile" style="background: var(--surface-tile-1);" id="announcements">
+    <div class="tile-container">
+      <div class="tile-header-centered">
+        <span class="tile-eyebrow">Community Pulse</span>
+        <h2 class="tile-headline" style="color: #ffffff;">Campus Happenings & Alumni Events.</h2>
+        <p class="tile-subcopy" style="color: var(--text-on-dark-muted);">
+          Stay informed about global homecoming events, mentorship webinars, and institutional milestones.
+        </p>
+      </div>
+
+      <div class="announcements-grid">
+        <div class="announcement-card">
+          <div class="announcement-category">Event • Homecoming</div>
+          <h3 class="announcement-title">Grand Alumni Homecoming Weekend 2026</h3>
+          <p class="announcement-snippet">Join us on the historic Istanbul University campus for panel discussions, reunion dinners, and our keynote address.</p>
+          <a href="/announcements/1" style="font-size: 13px; font-weight: 600; color: var(--primary-on-dark);">Read Announcement &rarr;</a>
+        </div>
+
+        <div class="announcement-card">
+          <div class="announcement-category">Career • Mentorship</div>
+          <h3 class="announcement-title">Spring 2026 Student-Alumni Mentorship Cohort</h3>
+          <p class="announcement-snippet">Experienced alumni are paired with 3rd and 4th-year students to review resumes, conduct mock interviews, and advise careers.</p>
+          <a href="/announcements/2" style="font-size: 13px; font-weight: 600; color: var(--primary-on-dark);">Read Announcement &rarr;</a>
+        </div>
+
+        <div class="announcement-card">
+          <div class="announcement-category">Academic • Research</div>
+          <h3 class="announcement-title">Faculty AI & Autonomous Systems Research Grant</h3>
+          <p class="announcement-snippet">The Department of Computer Engineering announces new funded positions for research assistants and graduate scholars.</p>
+          <a href="/announcements/3" style="font-size: 13px; font-weight: 600; color: var(--primary-on-dark);">Read Announcement &rarr;</a>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="/announcements" class="btn-pill-primary">View All Announcements &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- TILE 6: API OBSERVABILITY & GUARDIANS (Rose Parchment)    -->
+  <!-- ========================================================= -->
+  <section class="tile tile-parchment" id="api">
+    <div class="tile-container">
+      <div class="tile-header-centered">
+        <span class="tile-eyebrow">Developer & Reliability Center</span>
+        <h2 class="tile-headline">Engineered for Robust Observability.</h2>
+        <p class="tile-subcopy">
+          Guarded by custom Express middlewares, content-negotiated error handlers, and an automated 65-test verification suite.
+        </p>
+      </div>
+
+      <div class="api-explorer-grid">
+        <div class="explorer-card">
+          <h4>🛡️ Active System Guardians</h4>
+          <p style="font-size: 14px; color: var(--ink-muted); margin-bottom: 16px;">
+            Every request is protected against dead ends, unexpected crashes, and missing routes:
+          </p>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--ink);">
+            <li style="display: flex; align-items: flex-start; gap: 8px;">
+              <span style="color: var(--primary); font-weight: 700;">✓</span>
+              <span><strong>404 Guardian:</strong> Catches undefined routes, delivering structured JSON with explicit reasons or generic 404 views.</span>
+            </li>
+            <li style="display: flex; align-items: flex-start; gap: 8px;">
+              <span style="color: var(--primary); font-weight: 700;">✓</span>
+              <span><strong>5xx Guardian:</strong> Intercepts uncaught exceptions and records detailed diagnostic trails to <code>logs/error.logs</code>.</span>
+            </li>
+            <li style="display: flex; align-items: flex-start; gap: 8px;">
+              <span style="color: var(--primary); font-weight: 700;">✓</span>
+              <span><strong>Terminal Logger:</strong> Prints structured request lines: <code>time method route res. type duration</code>.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="explorer-card">
+          <h4>⚡ Core REST API Endpoints</h4>
+          <div class="api-route-pill">
+            <span><span class="method-badge method-get">GET</span> /api/jobs</span>
+            <a href="/api/jobs" target="_blank" style="color: var(--primary); font-weight: 600;">Explore &rarr;</a>
+          </div>
+          <div class="api-route-pill">
+            <span><span class="method-badge method-get">GET</span> /api/applications</span>
+            <a href="/api/applications" target="_blank" style="color: var(--primary); font-weight: 600;">Explore &rarr;</a>
+          </div>
+          <div class="api-route-pill">
+            <span><span class="method-badge method-get">GET</span> /api/users</span>
+            <a href="/api/users" target="_blank" style="color: var(--primary); font-weight: 600;">Explore &rarr;</a>
+          </div>
+          <div class="api-route-pill">
+            <span><span class="method-badge method-get">GET</span> /api/health</span>
+            <a href="/api/health" target="_blank" style="color: var(--primary); font-weight: 600;">Explore &rarr;</a>
+          </div>
+          <div style="margin-top: 16px;">
+            <a href="/api/swagger" target="_blank" class="btn-pill-primary" style="width: 100%;">Interactive Swagger UI &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 7. EDITORIAL FOOTER (Dark Velvet 3)                       -->
+  <!-- ========================================================= -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-columns-grid">
+        <div class="footer-col">
+          <h5>Alumni Platform</h5>
+          <ul>
+            <li><a href="/users">Alumni Directory</a></li>
+            <li><a href="/jobs">Job Board & Careers</a></li>
+            <li><a href="/applications">Candidate Applications</a></li>
+            <li><a href="/announcements">News & Events</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Developer Hub</h5>
+          <ul>
+            <li><a href="/api/swagger" target="_blank">Interactive Swagger Docs</a></li>
+            <li><a href="/api/swagger.json" target="_blank">OpenAPI 3.0 JSON</a></li>
+            <li><a href="/api/health" target="_blank">System Health Check</a></li>
+            <li><a href="/api/departments" target="_blank">Faculties & Departments</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Design & Architecture</h5>
+          <ul>
+            <li><a href="design.md" target="_blank">Pinky Rose Design Spec</a></li>
+            <li><a href="brand.md" target="_blank">Brand Identity Guidelines</a></li>
+            <li><a href="ddd.md" target="_blank">Domain-Driven Design (DDD)</a></li>
+            <li><a href="alumni_postman_collection.json" download>Postman Collection JSON</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Institution</h5>
+          <ul>
+            <li><a href="https://istanbul.edu.tr" target="_blank">Istanbul University</a></li>
+            <li><a href="/about">About This Project</a></li>
+            <li><a href="https://github.com/ceydasenemyigit/alumni" target="_blank">GitHub Repository</a></li>
+            <li><a href="/hello/guest">Greeting API Sandbox</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-legal-row">
+        <div>
+          Copyright © 2026 Alumni Tracking System (Mezun Takip Sistemi). Web Programming Course Project. All rights reserved.
+        </div>
+        <div style="display: flex; gap: 16px;">
+          <span>Node.js & Express 5</span>
+          <span>•</span>
+          <span>PostgreSQL & EJS</span>
+          <span>•</span>
+          <span>Apple-Grade Tile Architecture</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>

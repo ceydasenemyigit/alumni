@@ -161,6 +161,7 @@ When rendering error screens or API responses:
 ## 📂 7. Brand Assets & Repository Integration
 
 * **Brand Documentation**: [brand.md](brand.md)
+* **Visual Design System (Pinky Rose Edition)**: [design.md](design.md)
 * **Data Design Architecture**: [ddd.md](ddd.md)
 * **Project Readme**: [README.md](README.md)
 * **Interactive UI**: [http://localhost:3000](http://localhost:3000)

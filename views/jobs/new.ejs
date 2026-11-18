@@ -1,148 +1,144 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 680px; margin: 0 auto;">
+<div style="max-width: 760px; margin: 0 auto;">
   <div class="page-header">
     <div>
-      <h1 class="page-title">Post a New Job Opportunity</h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Share an employment opportunity with students and university alumni.</p>
+      <h1 class="page-title">Publish Career Vacancy</h1>
+      <p class="page-subtitle">Share employment or internship opportunities with the university alumni network.</p>
     </div>
-    <a href="/jobs" class="btn btn-outline btn-sm">← Back to Jobs</a>
+    <a href="/jobs" class="btn btn-utility">&larr; Job Board</a>
   </div>
 
   <% if (error) { %>
     <div class="alert-error">
-      <strong>Error:</strong> <%= error %>
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>Validation Error:</strong> <%= error %>
+      </div>
     </div>
   <% } %>
 
-  <div class="card">
-    <form action="/jobs" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title * (Max 120 chars)</label>
+  <div class="card" style="box-shadow: var(--shadow-apple);">
+    <form action="/jobs" method="POST">
+      <div class="form-group">
+        <label class="form-label">Position Title * <small>(Required, maximum 120 characters)</small></label>
         <input
           type="text"
           name="title"
           required
           maxlength="120"
           value="<%= formData && formData.title ? formData.title : '' %>"
-          placeholder="e.g. Senior Backend Engineer"
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          placeholder="e.g. Senior Full-Stack Engineer (Node.js & React)"
+          class="form-control"
         >
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Company / Employer *</label>
+        <div class="form-group">
+          <label class="form-label">Company / Organization *</label>
           <input
             type="text"
             name="company"
             required
             value="<%= formData && formData.company ? formData.company : '' %>"
-            placeholder="e.g. Global Tech Solutions"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            placeholder="e.g. Apple, Google, Trendyol..."
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Employment Type *</label>
-          <select
-            name="employment_type"
-            required
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
-          >
+        <div class="form-group">
+          <label class="form-label">Employment Type *</label>
+          <select name="employment_type" required class="form-control">
             <option value="Full-Time" <%= formData && formData.employment_type === 'Full-Time' ? 'selected' : '' %>>Full-Time</option>
             <option value="Part-Time" <%= formData && formData.employment_type === 'Part-Time' ? 'selected' : '' %>>Part-Time</option>
-            <option value="Contract" <%= formData && formData.employment_type === 'Contract' ? 'selected' : '' %>>Contract</option>
-            <option value="Internship" <%= formData && formData.employment_type === 'Internship' ? 'selected' : '' %>>Internship</option>
-            <option value="Remote" <%= formData && formData.employment_type === 'Remote' ? 'selected' : '' %>>Remote</option>
+            <option value="Contract" <%= formData && formData.employment_type === 'Contract' ? 'selected' : '' %>>Contract / Freelance</option>
+            <option value="Internship" <%= formData && formData.employment_type === 'Internship' ? 'selected' : '' %>>Summer / Fall Internship</option>
+            <option value="Remote" <%= formData && formData.employment_type === 'Remote' ? 'selected' : '' %>>Fully Remote</option>
           </select>
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">City / Location (Optional)</label>
+        <div class="form-group">
+          <label class="form-label">City / Location <small>(Optional)</small></label>
           <input
             type="text"
             name="location"
             value="<%= formData && formData.location ? formData.location : 'Remote' %>"
-            placeholder="e.g. Istanbul, Ankara, or Remote"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            placeholder="e.g. Istanbul, London, or Hybrid"
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Salary Range</label>
+        <div class="form-group">
+          <label class="form-label">Salary Range <small>(Optional)</small></label>
           <input
             type="text"
             name="salary_range"
             value="<%= formData && formData.salary_range ? formData.salary_range : '' %>"
-            placeholder="e.g. $60,000 - $80,000"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            placeholder="e.g. $80,000 - $110,000"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description (Optional)</label>
+      <div class="form-group">
+        <label class="form-label">Job Description <small>(Optional)</small></label>
         <textarea
           name="description"
           rows="5"
-          placeholder="Role responsibilities and team overview (optional)..."
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+          placeholder="Detailed role responsibilities, team impact, and day-to-day workflow..."
+          class="form-control"
         ><%= formData && formData.description ? formData.description : '' %></textarea>
       </div>
 
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Requirements</label>
+      <div class="form-group">
+        <label class="form-label">Candidate Requirements & Qualifications</label>
         <textarea
           name="requirements"
           rows="3"
-          placeholder="Required tech stack, years of experience, and qualifications..."
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+          placeholder="Preferred technologies, educational background, and experience level..."
+          class="form-control"
         ><%= formData && formData.requirements ? formData.requirements : '' %></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Application URL / Contact Email</label>
+        <div class="form-group">
+          <label class="form-label">External Application Link</label>
           <input
             type="text"
             name="application_url"
             value="<%= formData && formData.application_url ? formData.application_url : '' %>"
-            placeholder="https://... or mailto:..."
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            placeholder="https://company.com/careers/..."
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Deadline Date</label>
+        <div class="form-group">
+          <label class="form-label">Application Deadline</label>
           <input
             type="date"
             name="deadline"
             value="<%= formData && formData.deadline ? formData.deadline : '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            class="form-control"
           >
         </div>
       </div>
 
       <% if (users && users.length > 0) { %>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Posted By (Alumnus / Admin)</label>
-          <select
-            name="posted_by_user_id"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
-          >
-            <option value="">Select User (Optional)</option>
+        <div class="form-group">
+          <label class="form-label">Posting Alumnus / Referral Contact</label>
+          <select name="posted_by_user_id" class="form-control">
+            <option value="">Select Alumni (Optional)</option>
             <% users.forEach(u => { %>
               <option value="<%= u.id %>" <%= formData && formData.posted_by_user_id == u.id ? 'selected' : '' %>>
-                <%= u.first_name %> <%= u.last_name %> (<%= u.role %> - <%= u.email %>)
+                <%= u.first_name %> <%= u.last_name %> (<%= u.role %> &bull; <%= u.email %>)
               </option>
             <% }) %>
           </select>
         </div>
       <% } %>
 
-      <div style="display: flex; gap: 12px; margin-top: 10px;">
-        <button type="submit" class="btn btn-primary" style="flex: 1;">Publish Job Posting</button>
-        <a href="/jobs" class="btn btn-outline">Cancel</a>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 14px; justify-content: flex-end; align-items: center;">
+        <a href="/jobs" class="btn btn-utility">Cancel</a>
+        <button type="submit" class="btn btn-pill btn-pill-primary">Publish Job Vacancy &rarr;</button>
       </div>
     </form>
   </div>

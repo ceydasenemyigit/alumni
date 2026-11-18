@@ -1,74 +1,77 @@
 <%- include('../partials/header') %>
 
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Edit Application #<%= application.id %></h1>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update application status, resume link, or cover letter statement.</p>
+<div style="max-width: 760px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-<%= (application.status || 'pending').toLowerCase() %>"><%= application.status %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">REF #APP-<%= application.id %></span>
+      </div>
+      <h1 class="page-title">Edit Application #<%= application.id %></h1>
+      <p class="page-subtitle">Update recruitment pipeline status, modify candidate resume URL, or edit cover notes.</p>
+    </div>
+    <a href="/applications/<%= application.id %>" class="btn btn-utility">&larr; Back to Details</a>
   </div>
-  <a href="/applications/<%= application.id %>" class="btn btn-outline">&larr; Back to Details</a>
-</div>
 
-<% if (error) { %>
-  <div class="alert-error">
-    <strong>Error:</strong> <%= error %>
-  </div>
-<% } %>
-
-<div class="card" style="max-width: 680px; margin: 0 auto;">
-  <form action="/applications/<%= application.id %>" method="POST">
-    <input type="hidden" name="_method" value="PUT">
-
-    <div style="background: rgba(15, 23, 42, 0.4); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
-      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Linked Applicant & Job:</div>
-      <div style="color: white; font-weight: 600;">
-        <%= application.applicant ? (application.applicant.first_name + ' ' + application.applicant.last_name) : ('User #' + application.user_id) %>
-        &rarr;
-        <%= application.job_posting ? (application.job_posting.title + ' at ' + application.job_posting.company) : ('Job #' + application.job_posting_id) %>
+  <% if (error) { %>
+    <div class="alert-error">
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>Update Error:</strong> <%= error %>
       </div>
     </div>
+  <% } %>
 
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Application Status <span style="color: var(--danger);">*</span>
-      </label>
-      <select name="status" required style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
-        <% validStatuses.forEach(st => { %>
-          <option value="<%= st %>" <%= application.status === st ? 'selected' : '' %>>
-            <%= st %>
-          </option>
-        <% }) %>
-      </select>
-    </div>
+  <div class="card" style="box-shadow: var(--shadow-apple);">
+    <form action="/applications/<%= application.id %>" method="POST">
+      <input type="hidden" name="_method" value="PUT">
 
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Resume / CV URL
-      </label>
-      <input
-        type="url"
-        name="resume_url"
-        value="<%= application.resume_url || '' %>"
-        placeholder="https://storage.example.com/resumes/my-cv.pdf"
-        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;"
-      >
-    </div>
+      <div style="background: rgba(20, 12, 23, 0.5); padding: 16px 20px; border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.2); margin-bottom: 24px;">
+        <div style="font-size: 0.76rem; color: var(--text-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 4px;">Associated Association (N:M)</div>
+        <div style="color: white; font-weight: 700; font-size: 1.05rem;">
+          👤 <%= application.applicant ? (application.applicant.first_name + ' ' + application.applicant.last_name) : ('User #' + application.user_id) %>
+          <span style="color: var(--primary-on-dark); margin: 0 6px;">&rarr;</span>
+          🏢 <%= application.job_posting ? (application.job_posting.title + ' at ' + application.job_posting.company) : ('Job #' + application.job_posting_id) %>
+        </div>
+      </div>
 
-    <div style="margin-bottom: 24px;">
-      <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
-        Cover Letter / Motivation Statement
-      </label>
-      <textarea
-        name="cover_letter"
-        rows="5"
-        style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem; resize: vertical;"
-      ><%= application.cover_letter || '' %></textarea>
-    </div>
+      <div class="form-group">
+        <label class="form-label">Recruitment Status *</label>
+        <select name="status" required class="form-control">
+          <% validStatuses.forEach(st => { %>
+            <option value="<%= st %>" <%= application.status === st ? 'selected' : '' %>>
+              <%= st %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 12px;">
-      <a href="/applications/<%= application.id %>" class="btn btn-outline">Cancel</a>
-      <button type="submit" class="btn btn-primary">Save Changes</button>
-    </div>
-  </form>
+      <div class="form-group">
+        <label class="form-label">Resume / CV URL</label>
+        <input
+          type="url"
+          name="resume_url"
+          value="<%= application.resume_url || '' %>"
+          placeholder="https://storage.example.com/resumes/my-cv.pdf"
+          class="form-control"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cover Letter / Motivation Statement</label>
+        <textarea
+          name="cover_letter"
+          rows="5"
+          class="form-control"
+        ><%= application.cover_letter || '' %></textarea>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: flex-end; gap: 14px; align-items: center;">
+        <a href="/applications/<%= application.id %>" class="btn btn-utility">Cancel</a>
+        <button type="submit" class="btn btn-pill btn-pill-primary">Save Changes &rarr;</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <%- include('../partials/footer') %>

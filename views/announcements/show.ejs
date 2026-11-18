@@ -1,47 +1,62 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 760px; margin: 0 auto;">
+<div style="max-width: 820px; margin: 0 auto;">
   <div class="page-header">
     <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="badge badge-<%= (announcement.category || 'general').toLowerCase() %>"><%= announcement.category %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">REF #ANN-<%= announcement.id %></span>
+      </div>
       <h1 class="page-title"><%= announcement.title %></h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Announcement #<%= announcement.id %></p>
+      <p class="page-subtitle">Authored by <strong style="color: white;"><%= announcement.author %></strong> &bull; Published on <%= new Date(announcement.createdAt).toLocaleDateString() %></p>
     </div>
-    <a href="/announcements" class="btn btn-outline">&larr; Back to Announcements</a>
+    <div style="display: flex; gap: 10px;">
+      <a href="/announcements" class="btn btn-utility">&larr; Notices</a>
+      <a href="/announcements/<%= announcement.id %>/edit" class="btn btn-utility">Edit</a>
+    </div>
   </div>
 
-  <div class="card">
-    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+  <div class="card" style="box-shadow: var(--shadow-apple); margin-bottom: 28px;">
+    <!-- Editorial Header Strip -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 18px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="badge badge-<%= (announcement.category || 'general').toLowerCase() %>"><%= announcement.category %></span>
-        <span style="color: var(--text-muted); font-size: 0.9rem;">By <strong style="color: white;"><%= announcement.author %></strong></span>
+        <div style="width: 44px; height: 44px; border-radius: 9999px; background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.35); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+          📢
+        </div>
+        <div>
+          <div style="color: white; font-weight: 700; font-size: 1.05rem;"><%= announcement.author %></div>
+          <div style="color: var(--text-soft); font-size: 0.8rem;">Official University & Community Board</div>
+        </div>
+      </div>
+      <span class="badge badge-<%= (announcement.category || 'general').toLowerCase() %>" style="font-size: 0.8rem; padding: 5px 12px;">
+        <%= announcement.category %> BULLETIN
+      </span>
+    </div>
+
+    <!-- Longform Article Body (17px Apple reading pace) -->
+    <div style="line-height: 1.8; font-size: 1.08rem; color: var(--text-muted); margin-bottom: 36px; white-space: pre-wrap;">
+<%= announcement.content %>
+    </div>
+
+    <!-- Metadata Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 18px 20px; background: rgba(20, 12, 23, 0.5); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.88rem;">
+      <div>
+        <span style="color: var(--text-soft); display: block; font-size: 0.74rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Published</span>
+        <span style="color: white; font-weight: 600;"><%= new Date(announcement.createdAt).toLocaleString() %></span>
       </div>
       <div>
-        <a href="/announcements/<%= announcement.id %>/edit" class="btn btn-outline btn-sm">Edit Announcement</a>
+        <span style="color: var(--text-soft); display: block; font-size: 0.74rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Last Modified</span>
+        <span style="color: white; font-weight: 600;"><%= new Date(announcement.updatedAt).toLocaleString() %></span>
       </div>
     </div>
 
-    <div style="line-height: 1.7; font-size: 1.05rem; color: #e2e8f0; margin-bottom: 32px; white-space: pre-wrap;">
-      <%= announcement.content %>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; background: rgba(15, 23, 42, 0.4); border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem;">
-      <div>
-        <span style="color: var(--text-muted); display: block; margin-bottom: 2px;">Published</span>
-        <span style="color: white; font-weight: 500;"><%= new Date(announcement.createdAt).toLocaleString() %></span>
-      </div>
-      <div>
-        <span style="color: var(--text-muted); display: block; margin-bottom: 2px;">Last Modified</span>
-        <span style="color: white; font-weight: 500;"><%= new Date(announcement.updatedAt).toLocaleString() %></span>
-      </div>
-    </div>
-
-    <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-      <form action="/announcements/<%= announcement.id %>/delete" method="POST" onsubmit="return confirm('Permanently delete this announcement?');">
-        <button type="submit" class="btn btn-danger btn-sm">Delete Announcement</button>
+    <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <form action="/announcements/<%= announcement.id %>/delete" method="POST" onsubmit="return confirm('Permanently remove this announcement?');">
+        <button type="submit" class="btn btn-danger">Delete Notice</button>
       </form>
       <div style="display: flex; gap: 10px;">
-        <a href="/api/announcements/<%= announcement.id %>" class="btn btn-outline btn-sm" target="_blank">View JSON</a>
-        <a href="/announcements" class="btn btn-primary btn-sm">All Announcements</a>
+        <a href="/api/announcements/<%= announcement.id %>" class="btn btn-utility" target="_blank">Raw JSON</a>
+        <a href="/announcements" class="btn btn-pill btn-pill-primary btn-sm">All Notices &rarr;</a>
       </div>
     </div>
   </div>

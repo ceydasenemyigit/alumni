@@ -1,175 +1,175 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 860px; margin: 0 auto;">
+<div style="max-width: 920px; margin: 0 auto;">
   <div class="page-header">
     <div>
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-        <h1 class="page-title">Application #<%= application.id %></h1>
-        <span class="badge badge-<%= application.status.toLowerCase() %>" style="font-size: 0.85rem; padding: 6px 14px;">
-          <%= application.status %>
+        <span class="badge badge-<%= (application.status || 'pending').toLowerCase() %>" style="font-size: 0.85rem; padding: 6px 14px;">
+          ● <%= application.status %>
         </span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-soft);">REF #APP-<%= application.id %></span>
       </div>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        Submitted on <%= new Date(application.applied_at).toLocaleString('tr-TR') %>
+      <h1 class="page-title">Application #<%= application.id %> Review</h1>
+      <p class="page-subtitle">
+        Submitted on <%= new Date(application.applied_at).toLocaleDateString() %>
         <% if (application.updated_at && application.updated_at !== application.applied_at) { %>
-          &bull; Last updated <%= new Date(application.updated_at).toLocaleString('tr-TR') %>
+          &bull; Last modified <%= new Date(application.updated_at).toLocaleDateString() %>
         <% } %>
       </p>
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <a href="/applications" class="btn btn-outline btn-sm">&larr; Back to Applications</a>
-      <a href="/applications/<%= application.id %>/edit" class="btn btn-outline btn-sm">Edit Application</a>
-      <form action="/applications/<%= application.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to withdraw/delete this application?');">
-        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+      <a href="/applications" class="btn btn-utility">&larr; Pipeline</a>
+      <a href="/applications/<%= application.id %>/edit" class="btn btn-utility">Edit</a>
+      <form action="/applications/<%= application.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Permanently withdraw/delete this application?');">
+        <button type="submit" class="btn btn-danger">Withdraw</button>
       </form>
     </div>
   </div>
 
-  <!-- Quick Status Workflow Bar -->
-  <div class="card" style="margin-bottom: 24px; background: rgba(15, 23, 42, 0.5); padding: 16px 20px;">
-    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 10px;">
-      Quick Review & Status Transition
+  <!-- Quick Status Transition Bar -->
+  <div class="card" style="margin-bottom: 24px; padding: 18px 24px;">
+    <div style="font-size: 0.76rem; color: var(--text-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 12px;">
+      Recruitment Lifecycle Transition
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
       <form action="/applications/<%= application.id %>/status" method="POST" style="display: inline;">
         <input type="hidden" name="status" value="PENDING">
-        <button type="submit" class="btn btn-outline btn-sm" <%= application.status === 'PENDING' ? 'disabled style="opacity:0.5;"' : '' %>>
-          Set Pending
+        <button type="submit" class="btn btn-utility btn-sm" <%= application.status === 'PENDING' ? 'disabled style="opacity:0.4;"' : '' %>>
+          ⏳ Mark Pending
         </button>
       </form>
 
       <form action="/applications/<%= application.id %>/status" method="POST" style="display: inline;">
         <input type="hidden" name="status" value="REVIEWING">
-        <button type="submit" class="btn btn-outline btn-sm" style="border-color: #38bdf8; color: #38bdf8;" <%= application.status === 'REVIEWING' ? 'disabled style="opacity:0.5;"' : '' %>>
-          Mark Under Review
+        <button type="submit" class="btn btn-utility btn-sm" style="border-color: #38bdf8; color: #7dd3fc;" <%= application.status === 'REVIEWING' ? 'disabled style="opacity:0.4;"' : '' %>>
+          🔍 In Review / Interview
         </button>
       </form>
 
       <form action="/applications/<%= application.id %>/status" method="POST" style="display: inline;">
         <input type="hidden" name="status" value="ACCEPTED">
-        <button type="submit" class="btn btn-outline btn-sm" style="border-color: #34d399; color: #34d399;" <%= application.status === 'ACCEPTED' ? 'disabled style="opacity:0.5;"' : '' %>>
-          Accept Candidate
+        <button type="submit" class="btn btn-pill-primary btn-sm" style="background: #10b981; border: none;" <%= application.status === 'ACCEPTED' ? 'disabled style="opacity:0.4;"' : '' %>>
+          ✓ Accept Candidate
         </button>
       </form>
 
       <form action="/applications/<%= application.id %>/status" method="POST" style="display: inline;">
         <input type="hidden" name="status" value="REJECTED">
-        <button type="submit" class="btn btn-outline btn-sm" style="border-color: #f87171; color: #f87171;" <%= application.status === 'REJECTED' ? 'disabled style="opacity:0.5;"' : '' %>>
-          Reject Application
+        <button type="submit" class="btn btn-danger btn-sm" <%= application.status === 'REJECTED' ? 'disabled style="opacity:0.4;"' : '' %>>
+          ✕ Reject Application
         </button>
       </form>
 
       <form action="/applications/<%= application.id %>/status" method="POST" style="display: inline;">
         <input type="hidden" name="status" value="WITHDRAWN">
-        <button type="submit" class="btn btn-outline btn-sm" style="color: var(--text-muted);" <%= application.status === 'WITHDRAWN' ? 'disabled style="opacity:0.5;"' : '' %>>
-          Mark Withdrawn
+        <button type="submit" class="btn btn-utility btn-sm" style="color: var(--text-soft);" <%= application.status === 'WITHDRAWN' ? 'disabled style="opacity:0.4;"' : '' %>>
+          ↩ Withdrawn
         </button>
       </form>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 28px;">
     <!-- Applicant Card -->
-    <div class="card">
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
-        <h3 style="font-size: 1.1rem; color: white;">Candidate Details</h3>
+    <div class="card" style="box-shadow: var(--shadow-apple);">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 14px; margin-bottom: 16px;">
+        <h3 style="font-size: 1.15rem; color: white; font-weight: 700;">Candidate Details</h3>
         <span class="badge badge-alumni">Applicant</span>
       </div>
       <% if (application.applicant) { %>
-        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
-          <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Full Name</span>
-            <a href="/users/<%= application.applicant.id %>" style="color: white; font-weight: 600; font-size: 1.05rem; text-decoration: none;">
-              <%= application.applicant.first_name %> <%= application.applicant.last_name %>
-            </a>
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.92rem;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 48px; height: 48px; border-radius: 9999px; background: rgba(244, 63, 94, 0.25); border: 2px solid rgba(244, 63, 94, 0.4); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 1.1rem;">
+              <%= application.applicant.first_name ? application.applicant.first_name[0].toUpperCase() : 'U' %>
+            </div>
+            <div>
+              <a href="/users/<%= application.applicant.id %>" style="color: white; font-weight: 700; font-size: 1.1rem; text-decoration: none;">
+                <%= application.applicant.first_name %> <%= application.applicant.last_name %>
+              </a>
+              <div style="color: var(--text-muted); font-size: 0.85rem;"><%= application.applicant.email %></div>
+            </div>
           </div>
           <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Email Address</span>
-            <span style="color: #38bdf8;"><%= application.applicant.email %></span>
+            <span style="color: var(--text-soft); display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Faculty / Department</span>
+            <span style="color: white; font-weight: 600;"><%= application.applicant.role %> &bull; <%= application.applicant.department || application.applicant.department_name || 'N/A' %></span>
           </div>
           <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Department & Role</span>
-            <span style="color: white;"><%= application.applicant.role %> &bull; <%= application.applicant.department || application.applicant.department_name || 'N/A' %></span>
-          </div>
-          <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Graduation Year</span>
-            <span style="color: white;"><%= application.applicant.graduation_year || 'N/A' %></span>
+            <span style="color: var(--text-soft); display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Graduation Year</span>
+            <span style="color: var(--primary-on-dark); font-family: 'JetBrains Mono', monospace; font-weight: 700;"><%= application.applicant.graduation_year || 'N/A' %></span>
           </div>
           <div style="margin-top: 8px;">
-            <a href="/users/<%= application.applicant.id %>" class="btn btn-outline btn-sm">View Candidate Profile &rarr;</a>
+            <a href="/users/<%= application.applicant.id %>" class="btn btn-utility btn-sm">Full Profile &rarr;</a>
           </div>
         </div>
       <% } else { %>
-        <p style="color: var(--text-muted);">User ID: <%= application.user_id %></p>
+        <p style="color: var(--text-muted);">Candidate ID: #<%= application.user_id %></p>
       <% } %>
     </div>
 
-    <!-- Job Card -->
-    <div class="card">
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px;">
-        <h3 style="font-size: 1.1rem; color: white;">Job Vacancy</h3>
-        <span class="badge badge-career">Position</span>
+    <!-- Targeted Job Requisition Card -->
+    <div class="card" style="box-shadow: var(--shadow-apple);">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 14px; margin-bottom: 16px;">
+        <h3 style="font-size: 1.15rem; color: white; font-weight: 700;">Targeted Vacancy</h3>
+        <span class="badge badge-career">Job Role</span>
       </div>
       <% if (application.job_posting) { %>
-        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.92rem;">
           <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Position Title</span>
-            <a href="/jobs/<%= application.job_posting.id %>" style="color: white; font-weight: 600; font-size: 1.05rem; text-decoration: none;">
+            <a href="/jobs/<%= application.job_posting.id %>" style="color: white; font-weight: 700; font-size: 1.1rem; text-decoration: none;">
               <%= application.job_posting.title %>
             </a>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 2px;">
+              🏢 <%= application.job_posting.company %> &bull; 📍 <%= application.job_posting.location || 'Remote' %>
+            </div>
           </div>
           <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Company & Location</span>
-            <span style="color: white;"><%= application.job_posting.company %> &bull; <%= application.job_posting.location %></span>
-          </div>
-          <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Employment Type</span>
+            <span style="color: var(--text-soft); display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Employment Model</span>
             <span class="badge badge-career"><%= application.job_posting.employment_type %></span>
           </div>
           <div>
-            <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Salary Range</span>
-            <span style="color: #38bdf8; font-family: monospace;"><%= application.job_posting.salary_range || 'Competitive' %></span>
+            <span style="color: var(--text-soft); display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 2px;">Target Salary</span>
+            <span style="color: #6ee7b7; font-family: 'JetBrains Mono', monospace; font-weight: 600;"><%= application.job_posting.salary_range || 'Competitive' %></span>
           </div>
           <div style="margin-top: 8px;">
-            <a href="/jobs/<%= application.job_posting.id %>" class="btn btn-outline btn-sm">View Full Job Description &rarr;</a>
+            <a href="/jobs/<%= application.job_posting.id %>" class="btn btn-utility btn-sm">Job Description &rarr;</a>
           </div>
         </div>
       <% } else { %>
-        <p style="color: var(--text-muted);">Job ID: <%= application.job_posting_id %></p>
+        <p style="color: var(--text-muted);">Job Vacancy ID: #<%= application.job_posting_id %></p>
       <% } %>
     </div>
   </div>
 
-  <!-- Application Materials Card -->
-  <div class="card" style="margin-bottom: 24px;">
-    <h3 style="font-size: 1.15rem; color: white; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
-      Application Materials & Documents
+  <!-- Application Materials & Cover Letter -->
+  <div class="card" style="margin-bottom: 28px;">
+    <h3 style="font-size: 1.2rem; color: white; font-weight: 700; margin-bottom: 18px; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 14px;">
+      Candidate Submission Materials
     </h3>
 
     <div style="margin-bottom: 24px;">
-      <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Curriculum Vitae / Resume</h4>
+      <h4 style="font-size: 0.8rem; color: var(--text-soft); margin-bottom: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em;">Curriculum Vitae / Portfolio</h4>
       <% if (application.resume_url) { %>
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-          <a href="<%= application.resume_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
-            &UpperRightArrow; Open Resume PDF (<%= application.resume_url %>)
+          <a href="<%= application.resume_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-pill btn-pill-primary btn-sm">
+            ↗ Open Resume Link (<%= application.resume_url %>)
           </a>
         </div>
       <% } else { %>
-        <span style="color: var(--text-muted); font-style: italic;">No resume URL attached to this application.</span>
+        <span style="color: var(--text-soft); font-style: italic;">No resume attachment URL provided.</span>
       <% } %>
     </div>
 
     <div>
-      <h4 style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Cover Letter / Motivation Statement</h4>
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: 8px; border: 1px solid var(--border); color: #e2e8f0; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap;">
-        <%= application.cover_letter || 'No cover letter was submitted with this application.' %>
+      <h4 style="font-size: 0.8rem; color: var(--text-soft); margin-bottom: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em;">Candidate Cover Note & Motivation</h4>
+      <div style="background: rgba(20, 12, 23, 0.55); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-muted); font-size: 0.96rem; line-height: 1.7; white-space: pre-wrap;">
+        <%= application.cover_letter || 'No custom cover letter was provided with this application submission.' %>
       </div>
     </div>
   </div>
 
-  <div style="display: flex; justify-content: space-between;">
-    <a href="/applications" class="btn btn-outline btn-sm">&larr; Back to All Applications</a>
-    <a href="/applications/<%= application.id %>/edit" class="btn btn-outline btn-sm">Edit Candidate Details</a>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <a href="/applications" class="btn btn-utility">&larr; Back to Applications Pipeline</a>
+    <a href="/applications/<%= application.id %>/edit" class="btn btn-pill btn-pill-primary btn-sm">Edit Submission Details &rarr;</a>
   </div>
 </div>
 

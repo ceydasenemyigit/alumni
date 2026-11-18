@@ -3,179 +3,494 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title : 'Alumni Tracking System' %></title>
+  <title><%= typeof title !== 'undefined' ? title + ' — Alumni Portal' : 'Alumni Tracking System' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --accent: #0ea5e9;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-hover: #273548;
-      --border: #334155;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --primary-focus: #fb7185;
+      --primary-on-dark: #fda4af;
+      --accent-magenta: #ec4899;
+      --bg: #140c17;
+      --surface-tile-1: #1a101e;
+      --surface-tile-2: #221428;
+      --surface-card: rgba(34, 20, 40, 0.72);
+      --surface-card-hover: rgba(45, 26, 52, 0.88);
+      --canvas-white: #ffffff;
+      --canvas-parchment: #fdf5f7;
+      --border-subtle: rgba(244, 63, 94, 0.22);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --text-white: #ffffff;
+      --text-muted: #d4b8c7;
+      --text-soft: #9f8496;
+      --shadow-apple: 0 4px 30px rgba(225, 29, 72, 0.18);
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 63, 94, 0.16);
       --success: #10b981;
-      --danger: #ef4444;
       --warning: #f59e0b;
+      --danger: #f43f5e;
+      --info: #0ea5e9;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: #0b0f19;
-      color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(244, 63, 94, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(236, 72, 153, 0.08), transparent);
+      color: var(--text-white);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    /* Global Header (44px) */
     header.site-header {
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      background: rgba(20, 12, 23, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
     }
+
     .nav-container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 16px 20px;
+      padding: 0 24px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
+
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
       text-decoration: none;
-      color: white;
+      color: var(--text-white);
       font-weight: 700;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
     }
+
     .brand-badge {
-      background: linear-gradient(135deg, #2563eb, #0ea5e9);
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, #f43f5e, #ec4899);
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: white;
+      box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
     }
+
     nav.nav-links {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 22px;
     }
+
     nav.nav-links a {
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-    nav.nav-links a:hover, nav.nav-links a.active {
-      color: white;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      text-decoration: none;
-      cursor: pointer;
-      border: 1px solid transparent;
+      font-size: 0.88rem;
       transition: all 0.2s;
     }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-outline { background: transparent; border-color: var(--border); color: var(--text); }
-    .btn-outline:hover { background: var(--surface-hover); border-color: #64748b; }
-    .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
-    .btn-danger:hover { background: #ef4444; color: white; }
-    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-    main.main-content {
-      flex: 1;
-      max-width: 1100px;
-      width: 100%;
-      margin: 32px auto;
-      padding: 0 20px;
+
+    nav.nav-links a:hover {
+      color: var(--primary-on-dark);
     }
-    .page-header {
+
+    nav.nav-links a.active {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+
+    /* Sub-Nav Bar (Frosted Sticky Bar) */
+    .sub-nav-frosted {
+      background: rgba(26, 16, 30, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 48px;
+      z-index: 990;
+    }
+
+    .sub-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
       gap: 16px;
     }
+
+    .sub-nav-crumbs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-white);
+      white-space: nowrap;
+    }
+
+    .sub-nav-crumbs a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .sub-nav-crumbs a:hover {
+      color: var(--primary-on-dark);
+    }
+
+    .sub-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Main Content Area */
+    main.main-content {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 28px auto 60px;
+      padding: 0 24px;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 18px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
     .page-title {
-      font-size: 1.75rem;
-      font-weight: 700;
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-white);
+      line-height: 1.15;
+    }
+
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 6px;
+      max-width: 650px;
+    }
+
+    /* Button Grammars: Signature Pill CTAs vs Compact Utility */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .btn-pill {
+      border-radius: 9999px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .btn-pill-primary, .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+    }
+
+    .btn-pill-primary:hover, .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(244, 63, 94, 0.45);
+    }
+
+    .btn-pill-ghost, .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-white);
+    }
+
+    .btn-pill-ghost:hover, .btn-outline:hover {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.45);
       color: white;
     }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      border-radius: 9999px;
     }
+
+    .btn-utility {
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-white);
+    }
+
+    .btn-utility:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(244, 63, 94, 0.35);
+    }
+
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fda4af;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+    }
+
+    .btn-danger:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Cards & Surfaces */
+    .card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(244, 63, 94, 0.35);
+    }
+
+    /* Badges */
     .badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       padding: 4px 10px;
       border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
-    .badge-alumni { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
-    .badge-student { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-admin { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-event { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-    .badge-career { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
-    .badge-academic { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
-    .badge-general { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.3); }
-    .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-reviewing { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
-    .badge-accepted { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .badge-withdrawn { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.3); }
-    .alert-error {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      padding: 12px 16px;
-      border-radius: 8px;
+
+    .badge-alumni { background: rgba(244, 63, 94, 0.18); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.35); }
+    .badge-student { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge-admin { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.35); }
+    .badge-event { background: rgba(236, 72, 153, 0.18); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.35); }
+    .badge-career { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.35); }
+    .badge-academic { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-general { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
+
+    /* Pipeline Status Badges */
+    .badge-pending { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-reviewing { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.35); }
+    .badge-accepted { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge-rejected { background: rgba(244, 63, 94, 0.18); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.35); }
+    .badge-withdrawn { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
+
+    /* Forms & Inputs */
+    .form-group {
       margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-white);
+      margin-bottom: 8px;
+    }
+
+    .form-label small {
+      color: var(--text-soft);
+      font-weight: 400;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(20, 12, 23, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      color: white;
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-focus);
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+      background: rgba(26, 16, 30, 0.95);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    /* Alerts */
+    .alert-error {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fecdd3;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-card);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
       font-size: 0.9rem;
+    }
+
+    table.data-table th {
+      padding: 14px 20px;
+      background: rgba(20, 12, 23, 0.8);
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 700;
+    }
+
+    table.data-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(244, 63, 94, 0.1);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    table.data-table tr:hover td {
+      background: rgba(244, 63, 94, 0.05);
+      color: white;
+    }
+
+    /* Stat Cards */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: white;
+      background: linear-gradient(135deg, #ffffff 60%, var(--primary-on-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
   </style>
 </head>
 <body>
+  <!-- Top 44px Navigation Bar -->
   <header class="site-header">
     <div class="nav-container">
       <a href="/" class="brand">
-        <span class="brand-badge">MVC</span>
-        Alumni Tracking System
+        <span class="brand-badge">🎓 ALUMNI</span>
+        <span>Alumni Tracking System</span>
       </a>
       <nav class="nav-links">
         <a href="/">Home</a>
         <a href="/users">Users</a>
-        <a href="/announcements">Announcements</a>
         <a href="/jobs">Jobs</a>
         <a href="/applications">Applications</a>
+        <a href="/announcements">Announcements</a>
         <a href="/about">About</a>
-        <a href="/api/swagger">Swagger UI</a>
-        <a href="/users/new" class="btn btn-outline btn-sm">+ User</a>
-        <a href="/jobs/new" class="btn btn-outline btn-sm">+ Job</a>
-        <a href="/applications/new" class="btn btn-primary btn-sm">+ Apply</a>
+        <a href="/api/swagger">Swagger</a>
       </nav>
     </div>
   </header>
+
+  <!-- Sticky Frosted Sub-Nav Bar -->
+  <div class="sub-nav-frosted">
+    <div class="sub-nav-inner">
+      <div class="sub-nav-crumbs">
+        <a href="/">Portal</a>
+        <span style="color: var(--text-soft);">&rsaquo;</span>
+        <span style="color: var(--primary-on-dark);"><%= typeof title !== 'undefined' ? title : 'Overview' %></span>
+      </div>
+      <div class="sub-nav-actions">
+        <a href="/users/new" class="btn btn-utility btn-sm">+ User</a>
+        <a href="/jobs/new" class="btn btn-utility btn-sm">+ Job</a>
+        <a href="/applications/new" class="btn btn-pill-primary btn-sm">+ Apply</a>
+      </div>
+    </div>
+  </div>
+
   <main class="main-content">

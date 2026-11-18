@@ -1,134 +1,137 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 680px; margin: 0 auto;">
+<div style="max-width: 760px; margin: 0 auto;">
   <div class="page-header">
     <div>
-      <h1 class="page-title">Edit Job Posting</h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update position details, requirements, or listing status.</p>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-career"><%= job.employment_type %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">REF #JOB-<%= job.id %></span>
+      </div>
+      <h1 class="page-title">Edit Job Requisition</h1>
+      <p class="page-subtitle">Update vacancy requirements, compensation details, or modify active recruitment status.</p>
     </div>
-    <a href="/jobs/<%= job.id %>" class="btn btn-outline btn-sm">← Back to Job</a>
+    <a href="/jobs/<%= job.id %>" class="btn btn-utility">&larr; Back to Job</a>
   </div>
 
   <% if (error) { %>
     <div class="alert-error">
-      <strong>Error:</strong> <%= error %>
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>Update Error:</strong> <%= error %>
+      </div>
     </div>
   <% } %>
 
-  <div class="card">
-    <form action="/jobs/<%= job.id %>" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+  <div class="card" style="box-shadow: var(--shadow-apple);">
+    <form action="/jobs/<%= job.id %>" method="POST">
       <input type="hidden" name="_method" value="PUT">
 
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Title * (Max 120 chars)</label>
+      <div class="form-group">
+        <label class="form-label">Position Title * <small>(Required, max 120 characters)</small></label>
         <input
           type="text"
           name="title"
           required
           maxlength="120"
           value="<%= job.title %>"
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+          class="form-control"
         >
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Company *</label>
+        <div class="form-group">
+          <label class="form-label">Company / Employer *</label>
           <input
             type="text"
             name="company"
             required
             value="<%= job.company %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Employment Type *</label>
-          <select
-            name="employment_type"
-            required
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
-          >
+        <div class="form-group">
+          <label class="form-label">Employment Type *</label>
+          <select name="employment_type" required class="form-control">
             <option value="Full-Time" <%= job.employment_type === 'Full-Time' ? 'selected' : '' %>>Full-Time</option>
             <option value="Part-Time" <%= job.employment_type === 'Part-Time' ? 'selected' : '' %>>Part-Time</option>
-            <option value="Contract" <%= job.employment_type === 'Contract' ? 'selected' : '' %>>Contract</option>
+            <option value="Contract" <%= job.employment_type === 'Contract' ? 'selected' : '' %>>Contract / Freelance</option>
             <option value="Internship" <%= job.employment_type === 'Internship' ? 'selected' : '' %>>Internship</option>
-            <option value="Remote" <%= job.employment_type === 'Remote' ? 'selected' : '' %>>Remote</option>
+            <option value="Remote" <%= job.employment_type === 'Remote' ? 'selected' : '' %>>Fully Remote</option>
           </select>
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">City / Location (Optional)</label>
+        <div class="form-group">
+          <label class="form-label">City / Location <small>(Optional)</small></label>
           <input
             type="text"
             name="location"
             value="<%= job.location || '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Salary Range</label>
+        <div class="form-group">
+          <label class="form-label">Salary Range</label>
           <input
             type="text"
             name="salary_range"
             value="<%= job.salary_range || '' %>"
-            placeholder="e.g. $60,000 - $80,000"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            placeholder="e.g. $80,000 - $110,000"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Job Description (Optional)</label>
+      <div class="form-group">
+        <label class="form-label">Job Description</label>
         <textarea
           name="description"
           rows="5"
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+          class="form-control"
         ><%= job.description || '' %></textarea>
       </div>
 
-      <div>
-        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Requirements</label>
+      <div class="form-group">
+        <label class="form-label">Requirements</label>
         <textarea
           name="requirements"
           rows="3"
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem; line-height: 1.5;"
+          class="form-control"
         ><%= job.requirements || '' %></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Application URL / Contact Email</label>
+        <div class="form-group">
+          <label class="form-label">Application URL / Contact Email</label>
           <input
             type="text"
             name="application_url"
             value="<%= job.application_url || '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Deadline Date</label>
+        <div class="form-group">
+          <label class="form-label">Deadline Date</label>
           <input
             type="date"
             name="deadline"
             value="<%= job.deadline ? job.deadline.slice(0, 10) : '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.95rem;"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer;">
-          <input type="checkbox" name="is_active" value="true" <%= job.is_active ? 'checked' : '' %>>
-          <span>Active Listing (visible to students and alumni)</span>
+      <div class="form-group" style="background: rgba(20, 12, 23, 0.5); padding: 14px 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06);">
+        <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.92rem; color: white; cursor: pointer;">
+          <input type="checkbox" name="is_active" value="true" <%= job.is_active ? 'checked' : '' %> style="accent-color: var(--primary); width: 18px; height: 18px;">
+          <span>Active Listing (Visible to candidates and accepting applications)</span>
         </label>
       </div>
 
-      <div style="display: flex; gap: 12px; margin-top: 10px;">
-        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
-        <a href="/jobs/<%= job.id %>" class="btn btn-outline">Cancel</a>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 14px; justify-content: flex-end; align-items: center;">
+        <a href="/jobs/<%= job.id %>" class="btn btn-utility">Cancel</a>
+        <button type="submit" class="btn btn-pill btn-pill-primary">Save Changes &rarr;</button>
       </div>
     </form>
   </div>

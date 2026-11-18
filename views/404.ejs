@@ -1,41 +1,44 @@
 <%- include('partials/header') %>
 
-<div style="max-width: 620px; margin: 60px auto; text-align: center;">
-  <div class="card" style="padding: 48px 36px; border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);">
-    <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 2.2rem; margin-bottom: 20px;">
+<div style="max-width: 680px; margin: 48px auto; text-align: center;">
+  <div class="card" style="padding: 56px 40px; box-shadow: var(--shadow-apple); border-color: rgba(244, 63, 94, 0.35);">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 9999px; background: rgba(244, 63, 94, 0.15); border: 2px solid rgba(244, 63, 94, 0.4); font-size: 2.5rem; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(244, 63, 94, 0.25);">
       🔍
     </div>
 
-    <div style="display: inline-block; padding: 4px 14px; border-radius: 9999px; background: rgba(239, 68, 68, 0.15); color: #fca5a5; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;">
-      HTTP 404 &bull; Not Found
+    <div style="margin-bottom: 14px;">
+      <span class="badge badge-rejected" style="font-size: 0.82rem; padding: 6px 14px;">
+        🛡️ 404 GUARDIAN &bull; RESOURCE NOT FOUND
+      </span>
     </div>
 
-    <h1 style="font-size: 2rem; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.02em;">
+    <h1 style="font-size: 2.4rem; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.03em;">
       <%= typeof title !== 'undefined' ? title : 'Page Not Found' %>
     </h1>
 
-    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 20px 0; text-align: left;">
-      <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 4px; font-weight: 600;">REASON:</div>
-      <div style="color: #fca5a5; font-size: 0.95rem; line-height: 1.5;">
-        <%= typeof reason !== 'undefined' ? reason : 'The requested resource or page does not exist on this server.' %>
+    <div style="background: rgba(20, 12, 23, 0.65); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 14px; padding: 18px 22px; margin: 24px 0; text-align: left;">
+      <div style="color: var(--text-soft); font-size: 0.76rem; margin-bottom: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">DIAGNOSTIC REASON:</div>
+      <div style="color: #fecdd3; font-size: 0.98rem; line-height: 1.6; font-weight: 500;">
+        <%= typeof reason !== 'undefined' ? reason : 'The requested resource or endpoint is not defined on this server.' %>
       </div>
       <% if (typeof path !== 'undefined' && path) { %>
-        <div style="margin-top: 8px; font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">
-          <span style="color: #94a3b8;">Requested Path:</span> <%= path %>
+        <div style="margin-top: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-soft); padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+          <span>Target URI:</span> <span style="color: var(--primary-on-dark);"><%= path %></span>
         </div>
       <% } %>
     </div>
 
-    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 28px;">
-      Please verify the address or use the quick links below to navigate through the platform:
+    <p style="color: var(--text-muted); font-size: 0.96rem; line-height: 1.7; margin-bottom: 32px;">
+      The route you attempted to access may have been moved, renamed, or is currently unavailable. Return to verified platform modules:
     </p>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-      <a href="/" class="btn btn-primary btn-sm">🏠 Home</a>
-      <a href="/users" class="btn btn-outline btn-sm">👥 Alumni Directory</a>
-      <a href="/jobs" class="btn btn-outline btn-sm">💼 Job Board</a>
-      <a href="/announcements" class="btn btn-outline btn-sm">📢 Announcements</a>
-      <a href="/api/swagger" class="btn btn-outline btn-sm" target="_blank">📚 API Docs</a>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+      <a href="/" class="btn btn-pill btn-pill-primary btn-sm">🏠 Home Portal</a>
+      <a href="/users" class="btn btn-utility btn-sm">👥 Alumni Directory</a>
+      <a href="/jobs" class="btn btn-utility btn-sm">💼 Job Board</a>
+      <a href="/applications" class="btn btn-utility btn-sm">📝 Applications</a>
+      <a href="/announcements" class="btn btn-utility btn-sm">📢 Announcements</a>
+      <a href="/api/swagger" class="btn btn-utility btn-sm" target="_blank">📚 Swagger API</a>
     </div>
   </div>
 </div>

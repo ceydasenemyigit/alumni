@@ -1,64 +1,78 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 680px; margin: 0 auto;">
+<div style="max-width: 820px; margin: 0 auto;">
   <div class="page-header">
     <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-<%= (user.role || 'alumni').toLowerCase() %>"><%= user.role %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">ID #<%= user.id %></span>
+      </div>
       <h1 class="page-title"><%= user.first_name %> <%= user.last_name %></h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">User Profile &bull; ID #<%= user.id %></p>
+      <p class="page-subtitle"><%= user.department || user.department_name || 'Academic Graduate' %> &bull; Class of <%= user.graduation_year || 'N/A' %></p>
     </div>
-    <a href="/users" class="btn btn-outline">&larr; Back to Users</a>
+    <div style="display: flex; gap: 10px;">
+      <a href="/users" class="btn btn-utility">&larr; Directory</a>
+      <a href="/users/<%= user.id %>/edit" class="btn btn-pill btn-pill-ghost btn-sm">Edit Profile</a>
+    </div>
   </div>
 
-  <div class="card">
-    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;">
-      <div style="display: flex; align-items: center; gap: 14px;">
-        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #0ea5e9); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 700; color: white;">
-          <%= user.first_name.charAt(0) %><%= user.last_name.charAt(0) %>
+  <!-- Profile Hero Artifact Card with Apple soft drop shadow -->
+  <div class="card" style="box-shadow: var(--shadow-apple); margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(244, 63, 94, 0.2); padding-bottom: 24px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="width: 72px; height: 72px; border-radius: 9999px; background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(236, 72, 153, 0.45)); border: 2px solid rgba(244, 63, 94, 0.6); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: white; box-shadow: 0 4px 20px rgba(244, 63, 94, 0.35);">
+          <%= user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U' %><%= user.last_name ? user.last_name.charAt(0).toUpperCase() : '' %>
         </div>
         <div>
-          <h2 style="font-size: 1.25rem; color: white; margin-bottom: 4px;"><%= user.first_name %> <%= user.last_name %></h2>
-          <span class="badge badge-<%= user.role.toLowerCase() %>"><%= user.role %></span>
+          <h2 style="font-size: 1.5rem; color: white; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px;">
+            <%= user.first_name %> <%= user.last_name %>
+          </h2>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--text-muted);">
+            <span><%= user.email %></span>
+            <span>&bull;</span>
+            <span style="color: <%= user.is_verified ? '#6ee7b7' : '#fcd34d' %>; font-weight: 600;">
+              <%= user.is_verified ? '✓ Verified Graduate' : '⏳ Pending Verification' %>
+            </span>
+          </div>
         </div>
       </div>
       <div>
-        <a href="/users/<%= user.id %>/edit" class="btn btn-outline btn-sm">Edit Profile</a>
+        <a href="/applications/new?user_id=<%= user.id %>" class="btn btn-pill btn-pill-primary btn-sm">Submit Application as User</a>
       </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem;">
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Email</span>
-        <span style="color: white; font-weight: 500;"><%= user.email %></span>
+    <!-- User Information Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; font-size: 0.95rem;">
+      <div style="background: rgba(20, 12, 23, 0.5); padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        <span style="display: block; color: var(--text-soft); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 6px;">Academic Faculty / Dept</span>
+        <span style="color: white; font-weight: 600; font-size: 1rem;"><%= user.department || user.department_name || 'General Academic' %></span>
       </div>
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Department</span>
-        <span style="color: white; font-weight: 500;"><%= user.department || 'Not specified' %></span>
+
+      <div style="background: rgba(20, 12, 23, 0.5); padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        <span style="display: block; color: var(--text-soft); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 6px;">Graduation Year</span>
+        <span style="color: var(--primary-on-dark); font-weight: 700; font-size: 1rem; font-family: 'JetBrains Mono', monospace;"><%= user.graduation_year || 'Not specified' %></span>
       </div>
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Graduation Year</span>
-        <span style="color: white; font-weight: 500;"><%= user.graduation_year || 'Not specified' %></span>
+
+      <div style="background: rgba(20, 12, 23, 0.5); padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        <span style="display: block; color: var(--text-soft); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 6px;">Member Record Since</span>
+        <span style="color: white; font-size: 0.92rem;"><%= user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Active Member' %></span>
       </div>
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Status</span>
-        <span style="color: #34d399; font-weight: 500;"><%= user.is_verified ? 'Verified' : 'Pending Verification' %></span>
-      </div>
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Member Since</span>
-        <span style="color: var(--text-muted); font-size: 0.85rem;"><%= new Date(user.created_at).toLocaleDateString() %></span>
-      </div>
-      <div>
-        <span style="display: block; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Last Updated</span>
-        <span style="color: var(--text-muted); font-size: 0.85rem;"><%= new Date(user.updated_at).toLocaleDateString() %></span>
+
+      <div style="background: rgba(20, 12, 23, 0.5); padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+        <span style="display: block; color: var(--text-soft); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 6px;">Account Role & Access</span>
+        <span class="badge badge-<%= (user.role || 'alumni').toLowerCase() %>" style="margin-top: 2px;"><%= user.role %> ACCESS</span>
       </div>
     </div>
 
-    <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-      <form action="/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('Permanently delete this user profile?');">
-        <button type="submit" class="btn btn-danger btn-sm">Delete Profile</button>
+    <!-- Relational Quick Action Bar -->
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <form action="/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('Permanently delete <%= user.first_name %> <%= user.last_name %>?');">
+        <button type="submit" class="btn btn-danger">Delete Profile Record</button>
       </form>
       <div style="display: flex; gap: 10px;">
-        <a href="/api/users/<%= user.id %>" class="btn btn-outline btn-sm" target="_blank">View JSON</a>
-        <a href="/users" class="btn btn-primary btn-sm">All Users</a>
+        <a href="/api/users/<%= user.id %>" class="btn btn-utility" target="_blank">Raw JSON Endpoint</a>
+        <a href="/api/users/<%= user.id %>/relations" class="btn btn-utility" target="_blank">Relations API</a>
+        <a href="/users" class="btn btn-pill btn-pill-primary btn-sm">All Profiles &rarr;</a>
       </div>
     </div>
   </div>

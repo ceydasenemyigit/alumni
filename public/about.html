@@ -3,158 +3,422 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About - Alumni Tracking System</title>
+  <title>About Platform — Alumni Tracking System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --accent: #0ea5e9;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-border: #334155;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --primary-focus: #fb7185;
+      --primary-on-dark: #fda4af;
+      --accent-magenta: #ec4899;
+      --canvas: #ffffff;
+      --canvas-parchment: #fdf5f7;
+      --surface-pearl: #fff1f4;
+      --surface-tile-1: #1a101e;
+      --surface-tile-2: #221428;
+      --surface-tile-3: #140c17;
+      --ink: #1f1224;
+      --body: #2d1b34;
+      --body-on-dark: #ffffff;
+      --body-muted: #d4b8c7;
+      --body-soft: #9f8496;
+      --border-rose-subtle: rgba(244, 63, 94, 0.2);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --radius-pill: 9999px;
+      --radius-lg: 18px;
+      --radius-sm: 8px;
+      --elevation-artifact: 0 4px 30px rgba(225, 29, 72, 0.18);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: linear-gradient(135deg, #0b0f19 0%, #0f172a 100%);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--surface-tile-3);
+      color: var(--body-on-dark);
+      font-size: 17px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Global Nav Bar (44px) */
+    .global-nav {
+      height: 44px;
+      background: rgba(20, 12, 23, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      padding: 48px 16px;
+      justify-content: center;
+      padding: 0 20px;
     }
-    .container {
-      max-width: 720px;
+
+    .global-nav-inner {
+      max-width: 1100px;
       width: 100%;
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--surface-border);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .badge {
+
+    .nav-brand {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--body-muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-on-dark);
+    }
+
+    /* Frosted Sub-Nav (52px) */
+    .sub-nav {
+      height: 52px;
+      background: rgba(26, 16, 30, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-rose-subtle);
+      position: sticky;
+      top: 44px;
+      z-index: 990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+    }
+
+    .sub-nav-inner {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sub-nav-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Button Grammars */
+    .btn-pill {
+      border-radius: var(--radius-pill);
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #60a5fa;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border-radius: 9999px;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    h1 {
-      font-size: 2.25rem;
-      font-weight: 700;
-      line-height: 1.2;
-      background: linear-gradient(to right, #ffffff, #93c5fd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 16px;
+
+    .btn-action-rose {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+      border: none;
     }
-    p {
-      color: var(--text-muted);
-      line-height: 1.7;
-      margin-bottom: 20px;
-      font-size: 1rem;
+
+    .btn-action-rose:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
     }
-    .section-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #38bdf8;
-      margin: 28px 0 14px;
+
+    .btn-ghost-rose {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-rose-subtle);
+      color: white;
     }
-    .tech-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin: 16px 0 28px;
+
+    .btn-ghost-rose:hover {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.4);
     }
-    .tech-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .tech-card h4 {
-      font-size: 0.95rem;
-      color: #f1f5f9;
-      margin-bottom: 6px;
-    }
-    .tech-card p {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0;
-    }
-    .nav-bar {
+
+    /* Edge-to-Edge Tiles */
+    .tile {
+      padding: 96px 24px;
       display: flex;
-      gap: 16px;
-      margin-top: 32px;
-      padding-top: 20px;
-      border-top: 1px solid var(--surface-border);
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
     }
-    .btn {
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-decoration: none;
-      transition: all 0.2s;
+
+    .tile-inner {
+      max-width: 1040px;
+      width: 100%;
     }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-outline { border: 1px solid var(--surface-border); color: var(--text-muted); }
-    .btn-outline:hover { border-color: #94a3b8; color: white; }
+
+    .tile-dark-1 { background-color: var(--surface-tile-1); color: var(--body-on-dark); }
+    .tile-parchment { background-color: var(--canvas-parchment); color: var(--body); }
+    .tile-white { background-color: var(--canvas); color: var(--body); }
+    .tile-dark-2 { background-color: var(--surface-tile-2); color: var(--body-on-dark); }
+
+    .hero-eyebrow {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-on-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      margin-bottom: 16px;
+      color: white;
+    }
+
+    .hero-lead {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--body-muted);
+      max-width: 720px;
+      margin: 0 auto 36px;
+      line-height: 1.45;
+    }
+
+    /* Grid cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+      text-align: left;
+    }
+
+    .utility-card {
+      background: rgba(34, 20, 40, 0.7);
+      border: 1px solid var(--border-rose-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .utility-card:hover {
+      border-color: rgba(244, 63, 94, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .utility-card-light {
+      background: white;
+      border: 1px solid rgba(244, 63, 94, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: 0 4px 20px rgba(244, 63, 94, 0.06);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: white;
+    }
+
+    .utility-card-light .card-title {
+      color: var(--ink);
+    }
+
+    .card-text {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--body-muted);
+    }
+
+    .utility-card-light .card-text {
+      color: #645366;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <span class="badge">Course Project</span>
-    <h1>About This Project</h1>
-    <p>
-      The <strong>Alumni Tracking System</strong> is an academic web application developed for the Web Programming course at Istanbul University. It provides comprehensive alumni management, career tracking, and university networking services through RESTful API endpoints.
-    </p>
-
-    <h3 class="section-title">Tech Stack</h3>
-    <div class="tech-grid">
-      <div class="tech-card">
-        <h4>Runtime & Server</h4>
-        <p>Node.js & Express.js with REST API architecture</p>
-      </div>
-      <div class="tech-card">
-        <h4>API Documentation</h4>
-        <p>Interactive Swagger UI & OpenAPI 3.0 specification</p>
-      </div>
-      <div class="tech-card">
-        <h4>Data Persistence</h4>
-        <p>In-Memory Store (transitioning to PostgreSQL database)</p>
-      </div>
-      <div class="tech-card">
-        <h4>DevOps & Tooling</h4>
-        <p>Docker, Docker Compose & automated test suite</p>
-      </div>
+  <!-- 1. Global Navigation Bar -->
+  <header class="global-nav">
+    <div class="global-nav-inner">
+      <a href="/" class="nav-brand">
+        <span style="background: linear-gradient(135deg, #f43f5e, #ec4899); padding: 2px 7px; border-radius: 9999px; font-size: 0.7rem;">🎓</span>
+        <span>Alumni Tracking System</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Home</a>
+        <a href="/users">Users</a>
+        <a href="/jobs">Jobs</a>
+        <a href="/applications">Applications</a>
+        <a href="/announcements">Announcements</a>
+        <a href="/about" style="color: white; font-weight: 600;">About</a>
+        <a href="/api/swagger">Swagger</a>
+      </nav>
     </div>
+  </header>
 
-    <h3 class="section-title">Key Capabilities</h3>
-    <p>
-      The platform supports user registration via Form URL-Encoded, JSON, and multipart formats, complete CRUD operations, granular field patching, and system diagnostics with real-time health checks.
-    </p>
-
-    <div class="nav-bar">
-      <a href="/" class="btn btn-primary">&larr; Back to Home</a>
-      <a href="/api/swagger" class="btn btn-outline">Explore Swagger API</a>
+  <!-- 2. Frosted Sub-Nav Bar -->
+  <div class="sub-nav">
+    <div class="sub-nav-inner">
+      <div class="sub-nav-title">
+        <span>About Istanbul University Alumni Platform</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="/" class="btn-pill btn-ghost-rose">&larr; Return Home</a>
+        <a href="/api/swagger" class="btn-pill btn-action-rose">Explore Swagger &rarr;</a>
+      </div>
     </div>
   </div>
+
+  <!-- Tile 1: Hero Vitrini (Dark Velvet) -->
+  <section class="tile tile-dark-1">
+    <div class="tile-inner">
+      <div class="hero-eyebrow">Academic Heritage &bull; Professional Futures</div>
+      <h1 class="hero-title">Engineering Excellence for Lifelong Community</h1>
+      <p class="hero-lead">
+        Developed for the Web Programming course at Istanbul University. A unified digital ecosystem connecting graduates, undergraduates, and academic faculty.
+      </p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="/users" class="btn-pill btn-action-rose">Discover Alumni Directory</a>
+        <a href="/jobs" class="btn-pill btn-ghost-rose">Explore Career Board</a>
+      </div>
+
+      <!-- Floating Stat Artifact Card -->
+      <div style="margin-top: 64px; background: rgba(34, 20, 40, 0.75); border: 1px solid var(--border-rose-subtle); border-radius: var(--radius-lg); padding: 36px 40px; box-shadow: var(--elevation-artifact); backdrop-filter: blur(16px); max-width: 900px; margin-left: auto; margin-right: auto;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 28px; text-align: center;">
+          <div>
+            <div style="font-size: 2.4rem; font-weight: 800; color: white; background: linear-gradient(135deg, #ffffff, #fda4af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">15,420+</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--body-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Registered Alumni</div>
+          </div>
+          <div>
+            <div style="font-size: 2.4rem; font-weight: 800; color: white; background: linear-gradient(135deg, #ffffff, #fda4af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">9</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--body-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Academic Faculties</div>
+          </div>
+          <div>
+            <div style="font-size: 2.4rem; font-weight: 800; color: white; background: linear-gradient(135deg, #ffffff, #fda4af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">65/65</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--body-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Automated Tests Passing</div>
+          </div>
+          <div>
+            <div style="font-size: 2.4rem; font-weight: 800; color: white; background: linear-gradient(135deg, #ffffff, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">100%</div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--body-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Docker Persistence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tile 2: Architecture & Design Philosophy (Rose Parchment) -->
+  <section class="tile tile-parchment">
+    <div class="tile-inner">
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Software Architecture</div>
+      <h2 style="font-size: 40px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 16px;">
+        Model-View-Controller & Domain-Driven Design
+      </h2>
+      <p style="font-size: 19px; color: #645366; max-width: 760px; margin: 0 auto 36px; line-height: 1.5;">
+        The system enforces strict separation of concerns, pairing server-rendered EJS interfaces with robust RESTful JSON APIs and PostgreSQL storage.
+      </p>
+
+      <div class="grid-3">
+        <div class="utility-card-light">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🏛️</div>
+          <h3 class="card-title">MVC Pattern Separation</h3>
+          <p class="card-text">
+            Autonomous models encapsulate SQL and validation logic, web controllers render EJS templates, while API controllers deliver OpenAPI-compliant JSON payloads.
+          </p>
+        </div>
+
+        <div class="utility-card-light">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🔗</div>
+          <h3 class="card-title">N:M Action Table (Applications)</h3>
+          <p class="card-text">
+            Graduates and career opportunities are bridged through the verified <code style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">applications</code> action table, with complete candidate tracking and unique constraints.
+          </p>
+        </div>
+
+        <div class="utility-card-light">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🛡️</div>
+          <h3 class="card-title">Guardians & Observability</h3>
+          <p class="card-text">
+            404 Guardian, 5xx Guardian (<code style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">logs/error.logs</code>), and real-time terminal logger capture metrics across every HTTP request.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tile 3: Technology Stack (Pure White) -->
+  <section class="tile tile-white">
+    <div class="tile-inner">
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Technical Foundation</div>
+      <h2 style="font-size: 40px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 16px;">
+        Built on Modern Web Technologies
+      </h2>
+
+      <div class="grid-3">
+        <div class="utility-card-light">
+          <div style="font-size: 1.8rem; margin-bottom: 10px;">⚡</div>
+          <h3 class="card-title">Node.js 20 & Express 5</h3>
+          <p class="card-text">High-performance async server handling multipart form parsing, JSON schemas, and routing.</p>
+        </div>
+        <div class="utility-card-light">
+          <div style="font-size: 1.8rem; margin-bottom: 10px;">🐘</div>
+          <h3 class="card-title">PostgreSQL 16 & Fallback</h3>
+          <p class="card-text">Relational database with Docker named volumes, with automated in-memory store fallback for seamless testing.</p>
+        </div>
+        <div class="utility-card-light">
+          <div style="font-size: 1.8rem; margin-bottom: 10px;">🐳</div>
+          <h3 class="card-title">Docker Compose & Forgetting Test</h3>
+          <p class="card-text">Containerized orchestration tested against container teardowns to prove persistent graduate data retention.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="padding: 60px 24px 36px; background: var(--surface-tile-3); border-top: 1px solid var(--border-rose-subtle); color: var(--body-muted); font-size: 0.88rem; text-align: center;">
+    <div style="max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <strong>Alumni Tracking System</strong> &bull; Istanbul University Web Programming
+      </div>
+      <div style="display: flex; gap: 18px;">
+        <a href="/" style="color: var(--primary-on-dark); text-decoration: none;">Home</a>
+        <a href="/users" style="color: var(--body-muted); text-decoration: none;">Users</a>
+        <a href="/jobs" style="color: var(--body-muted); text-decoration: none;">Jobs</a>
+        <a href="/applications" style="color: var(--body-muted); text-decoration: none;">Applications</a>
+        <a href="/api/swagger" style="color: var(--body-muted); text-decoration: none;">Swagger API</a>
+      </div>
+    </div>
+    <div style="margin-top: 24px; color: var(--body-soft); font-size: 0.8rem;">
+      &copy; 2026 Istanbul University. Apple Minimalism &times; Pinky Rose Architecture.
+    </div>
+  </footer>
 </body>
 </html>

@@ -1,29 +1,37 @@
 <%- include('partials/header') %>
 
-<div style="max-width: 580px; margin: 60px auto; text-align: center;">
-  <div class="card" style="padding: 48px 36px; border: 1px solid rgba(239, 68, 68, 0.25);">
-    <div style="font-size: 3rem; margin-bottom: 16px;">⚠️</div>
-    <div style="display: inline-block; padding: 4px 14px; border-radius: 9999px; background: rgba(239, 68, 68, 0.15); color: #fca5a5; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px;">
-      <%= typeof status !== 'undefined' ? status : 500 %> ERROR
+<div style="max-width: 640px; margin: 48px auto; text-align: center;">
+  <div class="card" style="padding: 52px 36px; box-shadow: var(--shadow-apple); border-color: rgba(244, 63, 94, 0.35);">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 76px; height: 76px; border-radius: 9999px; background: rgba(244, 63, 94, 0.15); border: 2px solid rgba(244, 63, 94, 0.4); font-size: 2.2rem; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(244, 63, 94, 0.25);">
+      🛡️
     </div>
-    <h1 style="font-size: 1.75rem; color: white; margin-bottom: 12px;">
-      <%= typeof title !== 'undefined' ? title : 'Error Occurred' %>
+
+    <div style="margin-bottom: 12px;">
+      <span class="badge badge-rejected" style="font-size: 0.82rem; padding: 6px 14px;">
+        STATUS <%= typeof status !== 'undefined' ? status : (typeof statusCode !== 'undefined' ? statusCode : 500) %> &bull; GUARDIAN ACTIVE
+      </span>
+    </div>
+
+    <h1 style="font-size: 2.1rem; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.02em;">
+      <%= typeof title !== 'undefined' ? title : 'Unexpected System Error' %>
     </h1>
-    <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 20px;">
-      <%= typeof message !== 'undefined' ? message : 'The requested resource could not be found or an unexpected error occurred.' %>
+
+    <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 24px;">
+      <%= typeof message !== 'undefined' ? message : 'The server encountered an error processing your request. The incident has been recorded.' %>
     </p>
 
     <% if (typeof reason !== 'undefined' && reason) { %>
-      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; text-align: left;">
-        <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Reason:</span>
-        <div style="color: #fca5a5; font-size: 0.95rem; margin-top: 4px;"><%= reason %></div>
+      <div style="background: rgba(20, 12, 23, 0.65); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; text-align: left;">
+        <span style="color: var(--text-soft); font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Error Details & Diagnostics:</span>
+        <div style="color: #fecdd3; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace;"><%= reason %></div>
       </div>
     <% } %>
 
     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-      <a href="/" class="btn btn-primary">&larr; Home</a>
-      <a href="/users" class="btn btn-outline">Users Directory</a>
-      <a href="/jobs" class="btn btn-outline">Job Board</a>
+      <a href="/" class="btn btn-pill btn-pill-primary btn-sm">&larr; Return Home</a>
+      <a href="/users" class="btn btn-utility btn-sm">Users Directory</a>
+      <a href="/jobs" class="btn btn-utility btn-sm">Job Board</a>
+      <a href="/applications" class="btn btn-utility btn-sm">Applications</a>
     </div>
   </div>
 </div>

@@ -1,92 +1,99 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 640px; margin: 0 auto;">
+<div style="max-width: 680px; margin: 0 auto;">
   <div class="page-header">
     <div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-<%= (user.role || 'alumni').toLowerCase() %>"><%= user.role %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">ID #<%= user.id %></span>
+      </div>
       <h1 class="page-title">Edit User #<%= user.id %></h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update details for <%= user.first_name %> <%= user.last_name %>.</p>
+      <p class="page-subtitle">Update account details, role clearance, or academic faculty for <%= user.first_name %> <%= user.last_name %>.</p>
     </div>
-    <a href="/users/<%= user.id %>" class="btn btn-outline">&larr; Back to Profile</a>
+    <a href="/users/<%= user.id %>" class="btn btn-utility">&larr; Profile</a>
   </div>
 
   <% if (error) { %>
     <div class="alert-error">
-      <strong>Error:</strong> <%= error %>
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>Update Error:</strong> <%= error %>
+      </div>
     </div>
   <% } %>
 
-  <div class="card">
-    <form action="/users/<%= user.id %>" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+  <div class="card" style="box-shadow: var(--shadow-apple);">
+    <form action="/users/<%= user.id %>" method="POST">
       <input type="hidden" name="_method" value="PUT">
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">First Name</label>
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
           <input
             type="text"
             name="first_name"
             value="<%= user.first_name || '' %>"
             required
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+            class="form-control"
           >
         </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Last Name</label>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
           <input
             type="text"
             name="last_name"
             value="<%= user.last_name || '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Email Address</label>
+      <div class="form-group">
+        <label class="form-label">Email Address *</label>
         <input
           type="email"
           name="email"
           value="<%= user.email || '' %>"
           required
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          class="form-control"
         >
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Role</label>
-          <select name="role" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;">
-            <option value="ALUMNI" <%= user.role === 'ALUMNI' ? 'selected' : '' %>>Alumni</option>
-            <option value="STUDENT" <%= user.role === 'STUDENT' ? 'selected' : '' %>>Student</option>
-            <option value="ADMIN" <%= user.role === 'ADMIN' ? 'selected' : '' %>>Admin</option>
+        <div class="form-group">
+          <label class="form-label">System Role</label>
+          <select name="role" class="form-control">
+            <option value="ALUMNI" <%= user.role === 'ALUMNI' ? 'selected' : '' %>>🎓 Alumni Graduate</option>
+            <option value="STUDENT" <%= user.role === 'STUDENT' ? 'selected' : '' %>>🎒 Undergraduate Student</option>
+            <option value="ADMIN" <%= user.role === 'ADMIN' ? 'selected' : '' %>>🛡️ Portal Administrator</option>
           </select>
         </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Graduation Year</label>
+        <div class="form-group">
+          <label class="form-label">Graduation Year</label>
           <input
             type="number"
             name="graduation_year"
             value="<%= user.graduation_year || '' %>"
             min="1950"
             max="2035"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Department</label>
+      <div class="form-group">
+        <label class="form-label">Department / Faculty Name</label>
         <input
           type="text"
           name="department"
           value="<%= user.department || '' %>"
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          class="form-control"
         >
       </div>
 
-      <div style="margin-top: 10px; display: flex; gap: 12px; justify-content: flex-end;">
-        <a href="/users/<%= user.id %>" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-primary">Update Profile</button>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+        <a href="/users/<%= user.id %>" class="btn btn-utility">Cancel</a>
+        <button type="submit" class="btn btn-pill btn-pill-primary">Save Changes &rarr;</button>
       </div>
     </form>
   </div>

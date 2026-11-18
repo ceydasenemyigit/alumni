@@ -1,69 +1,76 @@
 <%- include('../partials/header') %>
 
-<div style="max-width: 680px; margin: 0 auto;">
+<div style="max-width: 740px; margin: 0 auto;">
   <div class="page-header">
     <div>
-      <h1 class="page-title">Edit Announcement #<%= announcement.id %></h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Update details and content for this announcement.</p>
+      <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-<%= (announcement.category || 'general').toLowerCase() %>"><%= announcement.category %></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-soft);">REF #ANN-<%= announcement.id %></span>
+      </div>
+      <h1 class="page-title">Edit Announcement</h1>
+      <p class="page-subtitle">Update notice title, publishing category, or bulletin details.</p>
     </div>
-    <a href="/announcements/<%= announcement.id %>" class="btn btn-outline">&larr; Back to Announcement</a>
+    <a href="/announcements/<%= announcement.id %>" class="btn btn-utility">&larr; Back to Notice</a>
   </div>
 
   <% if (error) { %>
     <div class="alert-error">
-      <strong>Error:</strong> <%= error %>
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>Update Error:</strong> <%= error %>
+      </div>
     </div>
   <% } %>
 
-  <div class="card">
-    <form action="/announcements/<%= announcement.id %>" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
+  <div class="card" style="box-shadow: var(--shadow-apple);">
+    <form action="/announcements/<%= announcement.id %>" method="POST">
       <input type="hidden" name="_method" value="PUT">
 
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Announcement Title</label>
+      <div class="form-group">
+        <label class="form-label">Announcement Title *</label>
         <input
           type="text"
           name="title"
           value="<%= announcement.title || '' %>"
           required
-          style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+          class="form-control"
         >
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Category</label>
-          <select name="category" style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;">
-            <option value="Event" <%= (announcement.category === 'Event') ? 'selected' : '' %>>Event</option>
-            <option value="Career" <%= (announcement.category === 'Career') ? 'selected' : '' %>>Career</option>
-            <option value="Academic" <%= (announcement.category === 'Academic') ? 'selected' : '' %>>Academic</option>
-            <option value="General" <%= (announcement.category === 'General' || !announcement.category) ? 'selected' : '' %>>General</option>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-control">
+            <option value="Event" <%= (announcement.category === 'Event') ? 'selected' : '' %>>🎉 Event</option>
+            <option value="Career" <%= (announcement.category === 'Career') ? 'selected' : '' %>>💼 Career</option>
+            <option value="Academic" <%= (announcement.category === 'Academic') ? 'selected' : '' %>>🎓 Academic</option>
+            <option value="General" <%= (announcement.category === 'General' || !announcement.category) ? 'selected' : '' %>>📌 General</option>
           </select>
         </div>
-        <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Author / Organization</label>
+        <div class="form-group">
+          <label class="form-label">Author / Organization</label>
           <input
             type="text"
             name="author"
             value="<%= announcement.author || '' %>"
-            style="width: 100%; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white;"
+            class="form-control"
           >
         </div>
       </div>
 
-      <div>
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Announcement Content</label>
+      <div class="form-group">
+        <label class="form-label">Announcement Content *</label>
         <textarea
           name="content"
           rows="6"
           required
-          style="width: 100%; padding: 12px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; resize: vertical; font-family: inherit; line-height: 1.5;"
+          class="form-control"
         ><%= announcement.content || '' %></textarea>
       </div>
 
-      <div style="margin-top: 10px; display: flex; gap: 12px; justify-content: flex-end;">
-        <a href="/announcements/<%= announcement.id %>" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; gap: 14px; justify-content: flex-end; align-items: center;">
+        <a href="/announcements/<%= announcement.id %>" class="btn btn-utility">Cancel</a>
+        <button type="submit" class="btn btn-pill btn-pill-primary">Save Changes &rarr;</button>
       </div>
     </form>
   </div>

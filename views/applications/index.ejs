@@ -2,123 +2,138 @@
 
 <div class="page-header">
   <div>
-    <h1 class="page-title">Candidate Applications & Tracking</h1>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">Monitor candidate pipelines, review applicant resumes, and track recruitment progress.</p>
+    <h1 class="page-title">Job Applications & Candidate Pipeline</h1>
+    <p class="page-subtitle">Track recruitment flows, evaluate candidate submissions, and manage the N:M graduate-to-job matching pipeline.</p>
   </div>
-  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-    <a href="/jobs" class="btn btn-outline">&larr; Job Board</a>
-    <a href="/applications/new" class="btn btn-primary">+ Submit Application</a>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <a href="/jobs" class="btn btn-utility">&larr; Job Board</a>
+    <a href="/applications/new" class="btn btn-pill btn-pill-primary">+ Submit Application</a>
   </div>
 </div>
 
 <% if (typeof stats !== 'undefined' && stats) { %>
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px;">
-    <div class="card" style="padding: 14px 18px;">
-      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Submissions</div>
-      <div style="font-size: 1.6rem; font-weight: 700; color: white; margin-top: 4px;"><%= stats.total %></div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px;">
+    <div class="stat-card">
+      <div class="stat-label">Total Submissions</div>
+      <div class="stat-value"><%= stats.total %></div>
     </div>
-    <div class="card" style="padding: 14px 18px;">
-      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pending</div>
-      <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 4px;"><%= stats.pending %></div>
+    <div class="stat-card">
+      <div class="stat-label">Pending Review</div>
+      <div class="stat-value" style="background: linear-gradient(135deg, #fde68a, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= stats.pending %></div>
     </div>
-    <div class="card" style="padding: 14px 18px;">
-      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Under Review</div>
-      <div style="font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 4px;"><%= stats.reviewing %></div>
+    <div class="stat-card">
+      <div class="stat-label">Interview / In Review</div>
+      <div class="stat-value" style="background: linear-gradient(135deg, #7dd3fc, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= stats.reviewing %></div>
     </div>
-    <div class="card" style="padding: 14px 18px;">
-      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Accepted</div>
-      <div style="font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 4px;"><%= stats.accepted %></div>
+    <div class="stat-card">
+      <div class="stat-label">Accepted Offers</div>
+      <div class="stat-value" style="background: linear-gradient(135deg, #6ee7b7, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= stats.accepted %></div>
     </div>
-    <div class="card" style="padding: 14px 18px;">
-      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Rejected</div>
-      <div style="font-size: 1.6rem; font-weight: 700; color: #f87171; margin-top: 4px;"><%= stats.rejected %></div>
+    <div class="stat-card">
+      <div class="stat-label">Archived / Rejected</div>
+      <div class="stat-value" style="background: linear-gradient(135deg, #fecdd3, #f43f5e); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= stats.rejected %></div>
     </div>
   </div>
 <% } %>
 
-<div class="card" style="margin-bottom: 24px;">
-  <form action="/applications" method="GET" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-    <select name="status" style="flex: 1; min-width: 200px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
+<!-- Filter Bar -->
+<div class="card" style="margin-bottom: 28px; padding: 18px 24px;">
+  <form action="/applications" method="GET" style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center;">
+    <select name="status" class="form-control" style="flex: 1; min-width: 200px;">
       <option value="">All Application Statuses</option>
-      <option value="PENDING" <%= query && query.status === 'PENDING' ? 'selected' : '' %>>Pending</option>
-      <option value="REVIEWING" <%= query && query.status === 'REVIEWING' ? 'selected' : '' %>>Reviewing</option>
-      <option value="ACCEPTED" <%= query && query.status === 'ACCEPTED' ? 'selected' : '' %>>Accepted</option>
-      <option value="REJECTED" <%= query && query.status === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
-      <option value="WITHDRAWN" <%= query && query.status === 'WITHDRAWN' ? 'selected' : '' %>>Withdrawn</option>
+      <option value="PENDING" <%= query && query.status === 'PENDING' ? 'selected' : '' %>>⏳ PENDING</option>
+      <option value="REVIEWING" <%= query && query.status === 'REVIEWING' ? 'selected' : '' %>>🔍 REVIEWING</option>
+      <option value="ACCEPTED" <%= query && query.status === 'ACCEPTED' ? 'selected' : '' %>>✓ ACCEPTED</option>
+      <option value="REJECTED" <%= query && query.status === 'REJECTED' ? 'selected' : '' %>>✕ REJECTED</option>
+      <option value="WITHDRAWN" <%= query && query.status === 'WITHDRAWN' ? 'selected' : '' %>>↩ WITHDRAWN</option>
     </select>
 
     <% if (typeof jobs !== 'undefined' && jobs && jobs.length > 0) { %>
-      <select name="job_posting_id" style="flex: 1; min-width: 240px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.9rem;">
-        <option value="">All Job Opportunities</option>
+      <select name="job_posting_id" class="form-control" style="flex: 1.5; min-width: 240px;">
+        <option value="">All Career Opportunities</option>
         <% jobs.forEach(j => { %>
           <option value="<%= j.id %>" <%= query && String(query.job_posting_id) === String(j.id) ? 'selected' : '' %>>
-            <%= j.title %> (<%= j.company %>)
+            <%= j.title %> &bull; <%= j.company %>
           </option>
         <% }) %>
       </select>
     <% } %>
 
-    <button type="submit" class="btn btn-outline">Filter Applications</button>
+    <button type="submit" class="btn btn-utility">Filter Pipeline</button>
     <% if (query && (query.status || query.job_posting_id)) { %>
-      <a href="/applications" class="btn btn-outline" style="color: var(--text-muted);">Reset Filter</a>
+      <a href="/applications" class="btn btn-utility" style="color: var(--text-soft);">Reset</a>
     <% } %>
   </form>
 </div>
 
-<div class="card" style="padding: 0; overflow: hidden;">
+<!-- Applications Data Table -->
+<div class="table-container">
   <% if (!applications || applications.length === 0) { %>
-    <div style="padding: 48px 24px; text-align: center; color: var(--text-muted);">
-      <p style="font-size: 1.1rem; margin-bottom: 12px;">No applications found matching your criteria.</p>
-      <a href="/applications/new" class="btn btn-primary btn-sm">+ Submit the first application</a>
+    <div style="padding: 64px 24px; text-align: center; color: var(--text-muted);">
+      <div style="font-size: 3rem; margin-bottom: 12px; opacity: 0.7;">📝</div>
+      <h3 style="color: white; font-size: 1.3rem; margin-bottom: 6px;">No Applications In Pipeline</h3>
+      <p style="font-size: 0.95rem; margin-bottom: 20px; color: var(--text-soft);">Submit an application for any open career opportunity.</p>
+      <a href="/applications/new" class="btn btn-pill btn-pill-primary btn-sm">+ Submit New Application</a>
     </div>
   <% } else { %>
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+    <table class="data-table">
       <thead>
-        <tr style="border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.4); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-          <th style="padding: 14px 20px;">ID</th>
-          <th style="padding: 14px 20px;">Applicant (Candidate)</th>
-          <th style="padding: 14px 20px;">Position Applied</th>
-          <th style="padding: 14px 20px;">Review Status</th>
-          <th style="padding: 14px 20px;">Applied Date</th>
-          <th style="padding: 14px 20px; text-align: right;">Actions</th>
+        <tr>
+          <th>Application ID</th>
+          <th>Applicant (Candidate)</th>
+          <th>Position & Organization</th>
+          <th>Current Status</th>
+          <th>Submission Date</th>
+          <th style="text-align: right;">Actions</th>
         </tr>
       </thead>
       <tbody>
         <% applications.forEach(app => { %>
-          <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.4); transition: background 0.15s;" onmouseover="this.style.background='rgba(51,65,85,0.2)'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 16px 20px; color: var(--text-muted); font-family: monospace;">#<%= app.id %></td>
-            <td style="padding: 16px 20px;">
+          <tr>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--text-soft);">
+              #APP-<%= app.id %>
+            </td>
+            <td>
               <% if (app.applicant) { %>
-                <a href="/users/<%= app.applicant.id %>" style="color: white; font-weight: 600; text-decoration: none; display: block;">
-                  <%= app.applicant.first_name %> <%= app.applicant.last_name %>
-                </a>
-                <span style="font-size: 0.8rem; color: var(--text-muted);"><%= app.applicant.email %></span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 38px; height: 38px; border-radius: 9999px; background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.35); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 0.9rem; flex-shrink: 0;">
+                    <%= app.applicant.first_name ? app.applicant.first_name[0].toUpperCase() : 'U' %>
+                  </div>
+                  <div>
+                    <a href="/users/<%= app.applicant.id %>" style="color: white; font-weight: 700; text-decoration: none; font-size: 0.96rem; display: block;">
+                      <%= app.applicant.first_name %> <%= app.applicant.last_name %>
+                    </a>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);"><%= app.applicant.email %></span>
+                  </div>
+                </div>
               <% } else { %>
-                <span style="color: var(--text-muted);">User #<%= app.user_id %></span>
+                <span style="color: var(--text-muted);">Candidate #<%= app.user_id %></span>
               <% } %>
             </td>
-            <td style="padding: 16px 20px;">
+            <td>
               <% if (app.job_posting) { %>
-                <a href="/jobs/<%= app.job_posting.id %>" style="color: #38bdf8; text-decoration: none; font-weight: 500; display: block;">
-                  <%= app.job_posting.title %>
-                </a>
-                <span style="font-size: 0.8rem; color: var(--text-muted);"><%= app.job_posting.company %> &bull; <%= app.job_posting.location %></span>
+                <div>
+                  <a href="/jobs/<%= app.job_posting.id %>" style="color: var(--primary-on-dark); text-decoration: none; font-weight: 700; font-size: 0.96rem; display: block;">
+                    <%= app.job_posting.title %>
+                  </a>
+                  <span style="font-size: 0.82rem; color: var(--text-muted);"><%= app.job_posting.company %> &bull; <%= app.job_posting.location || 'Remote' %></span>
+                </div>
               <% } else { %>
-                <span style="color: var(--text-muted);">Job #<%= app.job_posting_id %></span>
+                <span style="color: var(--text-muted);">Job Vacancy #<%= app.job_posting_id %></span>
               <% } %>
             </td>
-            <td style="padding: 16px 20px;">
-              <span class="badge badge-<%= app.status.toLowerCase() %>"><%= app.status %></span>
+            <td>
+              <span class="badge badge-<%= (app.status || 'pending').toLowerCase() %>"><%= app.status %></span>
             </td>
-            <td style="padding: 16px 20px; color: var(--text-muted); font-size: 0.85rem;">
-              <%= new Date(app.applied_at).toLocaleDateString('tr-TR') %>
+            <td>
+              <span style="color: var(--text-muted); font-size: 0.85rem;"><%= new Date(app.applied_at).toLocaleDateString() %></span>
             </td>
-            <td style="padding: 16px 20px; text-align: right;">
-              <div style="display: inline-flex; gap: 8px;">
-                <a href="/applications/<%= app.id %>" class="btn btn-outline btn-sm">Review</a>
-                <a href="/applications/<%= app.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
-                <form action="/applications/<%= app.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to withdraw/delete this application?');">
-                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <a href="/applications/<%= app.id %>" class="btn btn-utility" style="padding: 5px 12px; font-size: 0.8rem;">Review</a>
+                <a href="/applications/<%= app.id %>/edit" class="btn btn-utility" style="padding: 5px 12px; font-size: 0.8rem;">Edit</a>
+                <form action="/applications/<%= app.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to withdraw or delete this application?');">
+                  <button type="submit" class="btn btn-danger">Withdraw</button>
                 </form>
               </div>
             </td>

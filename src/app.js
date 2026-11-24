@@ -87,6 +87,11 @@ app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'about.html'));
 });
 
+// GET /brand - Brand guidelines page
+app.get('/brand', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'brand.html'));
+});
+
 // GET /home - Temporary main page
 app.get('/home', (req, res) => {
   if (req.accepts('html')) {

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brand Identity & Design Guidelines — Alumni Tracking System</title>
+  <meta name="description" content="Official brand identity, emblem architecture, color system, and design guidelines for the Alumni Tracking System.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Brand Pinky Interactive */
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --primary-focus: #fb7185;
+      --primary-on-dark: #fda4af;
+      --accent-magenta: #ec4899;
+
+      /* Surfaces & Canvases */
+      --canvas-white: #ffffff;
+      --canvas-parchment: #fdf5f7;
+      --surface-pearl: #fff1f4;
+      --surface-tile-1: #1a101e;
+      --surface-tile-2: #221428;
+      --surface-tile-3: #140c17;
+
+      /* Borders & Hairlines */
+      --border-rose-subtle: rgba(244, 63, 94, 0.20);
+      --border-light: rgba(225, 29, 72, 0.14);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+
+      /* Typography */
+      --ink: #1f1224;
+      --body: #2d1b34;
+      --body-on-dark: #ffffff;
+      --body-muted: #d4b8c7;
+      --body-soft: #9f8496;
+
+      /* Apple Pill & Radius */
+      --radius-pill: 9999px;
+      --radius-lg: 18px;
+      --radius-sm: 8px;
+      --elevation-artifact: 0 4px 30px rgba(225, 29, 72, 0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--surface-tile-3);
+      color: var(--body-on-dark);
+      font-size: 17px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Global Nav (44px) */
+    .global-nav {
+      height: 44px;
+      background: rgba(20, 12, 23, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+    }
+
+    .global-nav-inner {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--body-muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--primary-on-dark);
+    }
+
+    /* Frosted Sub-Nav (52px) */
+    .sub-nav {
+      height: 52px;
+      background: rgba(26, 16, 30, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-rose-subtle);
+      position: sticky;
+      top: 44px;
+      z-index: 990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+    }
+
+    .sub-nav-inner {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sub-nav-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn-pill {
+      border-radius: var(--radius-pill);
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action-rose {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+      border: none;
+    }
+
+    .btn-action-rose:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost-rose {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-rose-subtle);
+      color: white;
+    }
+
+    .btn-ghost-rose:hover {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.4);
+    }
+
+    /* Full-Bleed Tiles */
+    .tile {
+      padding: 96px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .tile-inner {
+      max-width: 1040px;
+      width: 100%;
+    }
+
+    .tile-dark-1 { background-color: var(--surface-tile-1); color: var(--body-on-dark); }
+    .tile-parchment { background-color: var(--canvas-parchment); color: var(--body); }
+    .tile-white { background-color: var(--canvas); color: var(--body); }
+    .tile-dark-2 { background-color: var(--surface-tile-2); color: var(--body-on-dark); }
+
+    .hero-eyebrow {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-on-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      margin-bottom: 16px;
+      color: white;
+    }
+
+    .hero-lead {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--body-muted);
+      max-width: 740px;
+      margin: 0 auto 36px;
+      line-height: 1.45;
+    }
+
+    /* Cards */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .utility-card {
+      background: rgba(34, 20, 40, 0.7);
+      border: 1px solid var(--border-rose-subtle);
+      border-radius: var(--radius-lg);
+      padding: 30px 26px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .utility-card:hover {
+      border-color: rgba(244, 63, 94, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .utility-card-light {
+      background: white;
+      border: 1px solid rgba(244, 63, 94, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 30px 26px;
+      box-shadow: 0 4px 20px rgba(244, 63, 94, 0.06);
+    }
+
+    .swatch-card {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      background: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      text-align: left;
+    }
+
+    .swatch-color {
+      height: 100px;
+      width: 100%;
+    }
+
+    .swatch-info {
+      padding: 16px;
+      font-size: 0.85rem;
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .swatch-hex {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. Global Navigation Bar -->
+  <header class="global-nav">
+    <div class="global-nav-inner">
+      <a href="/" class="nav-brand">
+        <span style="background: linear-gradient(135deg, #f43f5e, #ec4899); padding: 2px 7px; border-radius: 9999px; font-size: 0.7rem;">🎓</span>
+        <span>Alumni Tracking System</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Home</a>
+        <a href="/users">Users</a>
+        <a href="/jobs">Jobs</a>
+        <a href="/applications">Applications</a>
+        <a href="/announcements">Announcements</a>
+        <a href="/brand" class="active" style="color: white; font-weight: 600;">Brand Guide</a>
+        <a href="/about">About</a>
+        <a href="/api/swagger">Swagger</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 2. Frosted Sub-Nav Bar -->
+  <div class="sub-nav">
+    <div class="sub-nav-inner">
+      <div class="sub-nav-title">
+        <span>Brand Identity Guidelines (brand.md)</span>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="/" class="btn-pill btn-ghost-rose">&larr; Return Home</a>
+        <a href="/users" class="btn-pill btn-action-rose">Explore Directory &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tile 1: Hero Vitrini (Dark Velvet) -->
+  <section class="tile tile-dark-1">
+    <div class="tile-inner">
+      <div class="hero-eyebrow">Core Brand Philosophy & Identity</div>
+      <h1 class="hero-title">Bridging Academic Heritage with Professional Futures</h1>
+      <p class="hero-lead">
+        Akademik Mirası Profesyonel Gelecekle Buluşturuyoruz. A unified identity uniting prestigious university tradition with modern digital career empowerment.
+      </p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="#values" class="btn-pill btn-action-rose">Brand Values</a>
+        <a href="#emblem" class="btn-pill btn-ghost-rose">Emblem Architecture</a>
+        <a href="#palette" class="btn-pill btn-ghost-rose">Color System</a>
+      </div>
+
+      <!-- Core Brand Values Grid -->
+      <div class="grid-4" id="values">
+        <div class="utility-card">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🏛️</div>
+          <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Academic Trust</h3>
+          <p style="color: var(--body-muted); font-size: 0.9rem; line-height: 1.6;">
+            Grounded in Istanbul University heritage with dependable, transparent information architectures and verified alumni credentials.
+          </p>
+        </div>
+
+        <div class="utility-card">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🤝</div>
+          <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Lifelong Community</h3>
+          <p style="color: var(--body-muted); font-size: 0.9rem; line-height: 1.6;">
+            Fostering lasting bonds between accomplished graduates, mentor alumni, and ambitious undergraduate students.
+          </p>
+        </div>
+
+        <div class="utility-card">
+          <div style="font-size: 2rem; margin-bottom: 12px;">🚀</div>
+          <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Career Empowerment</h3>
+          <p style="color: var(--body-muted); font-size: 0.9rem; line-height: 1.6;">
+            Accelerating career mobility through verified job postings, direct candidate applications, and industry networking.
+          </p>
+        </div>
+
+        <div class="utility-card">
+          <div style="font-size: 2rem; margin-bottom: 12px;">✨</div>
+          <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;">Minimalist Utility</h3>
+          <p style="color: var(--body-muted); font-size: 0.9rem; line-height: 1.6;">
+            Delivering high performance, clutter-free user experiences, and responsive Apple-grade dark-mode aesthetics.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tile 2: Logo & Emblem Architecture (Rose Parchment) -->
+  <section class="tile tile-parchment" id="emblem">
+    <div class="tile-inner">
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Brand Mark & Visual Symbol</div>
+      <h2 style="font-size: 40px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 16px;">
+        Logo & Emblem Architecture
+      </h2>
+      <p style="font-size: 19px; color: #645366; max-width: 760px; margin: 0 auto 36px; line-height: 1.5;">
+        The brandmark combines the iconic Academic Graduation Cap (<code style="color: var(--primary); font-size: 1.1rem;">🎓</code>) with an interconnected network pill badge, symbolizing the continuous web of alumni distributed across the global workforce.
+      </p>
+
+      <div class="grid-2">
+        <div class="utility-card-light" style="display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; padding: 48px 32px;">
+          <div style="display: inline-flex; align-items: center; gap: 14px; background: #140c17; padding: 18px 28px; border-radius: var(--radius-lg); border: 1px solid var(--border-rose-subtle); box-shadow: var(--elevation-artifact);">
+            <span style="background: linear-gradient(135deg, #f43f5e, #ec4899); padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 800; color: white; letter-spacing: 0.06em;">🎓 ALUMNI</span>
+            <span style="color: white; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em;">Alumni Tracking System</span>
+          </div>
+          <div style="margin-top: 24px; font-size: 0.88rem; color: #645366;">
+            <strong>Primary Mark:</strong> High-contrast gradient badge paired with Plus Jakarta Sans bold logotype wordmark.
+          </div>
+        </div>
+
+        <div class="utility-card-light">
+          <h3 style="color: var(--ink); font-size: 1.2rem; font-weight: 700; margin-bottom: 14px;">Emblem Rules & Specifications</h3>
+          <ul style="list-style: none; padding: 0; line-height: 1.8; font-size: 0.95rem; color: #645366;">
+            <li>✅ <strong>Corner Radius:</strong> 9999px pill geometry for the gradient badge.</li>
+            <li>✅ <strong>Clearance Zone:</strong> Minimum margin of 16px on all sides when placed alongside third-party marks.</li>
+            <li>✅ <strong>Dark Canvas Display:</strong> Optimized for deep velvet plum (<code style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">#1a101e</code>) and pure black surfaces.</li>
+            <li>❌ <strong>No Distortions:</strong> Never alter the core brand colors or invert gradient directions.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tile 3: Color Palette (Pure White) -->
+  <section class="tile tile-white" id="palette">
+    <div class="tile-inner">
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">Chromatic System</div>
+      <h2 style="font-size: 40px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 16px;">
+        Pinky Rose & Velvet Plum Color Palette
+      </h2>
+      <p style="font-size: 19px; color: #645366; max-width: 760px; margin: 0 auto 36px; line-height: 1.5;">
+        A high-contrast luxury aesthetic combining deep velvet undertones with vibrant electric rose accents for WCAG AAA accessibility.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #f43f5e;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Action Rose</div>
+            <div class="swatch-hex">#f43f5e</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Primary CTA, active states</div>
+          </div>
+        </div>
+
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #e11d48;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Crimson Rose</div>
+            <div class="swatch-hex">#e11d48</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Hover & active click</div>
+          </div>
+        </div>
+
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #fb7185;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Fuchsia Glow</div>
+            <div class="swatch-hex">#fb7185</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Focus rings, chip borders</div>
+          </div>
+        </div>
+
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #1a101e;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Dark Velvet 1</div>
+            <div class="swatch-hex">#1a101e</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Primary dark tile</div>
+          </div>
+        </div>
+
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #221428;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Dark Velvet 2</div>
+            <div class="swatch-hex">#221428</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Secondary dark tile</div>
+          </div>
+        </div>
+
+        <div class="swatch-card">
+          <div class="swatch-color" style="background: #fdf5f7;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Rose Parchment</div>
+            <div class="swatch-hex">#fdf5f7</div>
+            <div style="color: #645366; font-size: 0.78rem; margin-top: 4px;">Apple off-white canvas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tile 4: Typography & Editorial System (Dark Velvet 2) -->
+  <section class="tile tile-dark-2">
+    <div class="tile-inner">
+      <div class="hero-eyebrow">Voice & Typography</div>
+      <h2 style="font-size: 40px; font-weight: 800; letter-spacing: -0.025em; color: white; margin-bottom: 16px;">
+        Plus Jakarta Sans & 17px Editorial Pace
+      </h2>
+      <p style="font-size: 19px; color: var(--body-muted); max-width: 760px; margin: 0 auto 36px; line-height: 1.5;">
+        Tight display tracking for headlines paired with relaxed, legible body reading pace.
+      </p>
+
+      <div class="grid-2">
+        <div class="utility-card">
+          <div style="font-size: 0.76rem; color: var(--primary-on-dark); font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Display Headline Standard</div>
+          <div style="font-size: 32px; font-weight: 800; letter-spacing: -0.035em; color: white; line-height: 1.15; margin-bottom: 12px;">
+            The Signature "Apple-Tight" Voice
+          </div>
+          <p style="color: var(--body-muted); font-size: 0.92rem; line-height: 1.6;">
+            Used for hero banners, tile headers, and modal titles. Characterized by negative letter-spacing for confident authority.
+          </p>
+        </div>
+
+        <div class="utility-card">
+          <div style="font-size: 0.76rem; color: var(--primary-on-dark); font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">17px Body Reading Pace</div>
+          <div style="font-size: 17px; font-weight: 400; color: white; line-height: 1.5; margin-bottom: 12px;">
+            Default paragraphs are tuned to exactly 17px with 1.47–1.5 line height for maximum scanning comfort across mobile and desktop.
+          </div>
+          <p style="color: var(--body-muted); font-size: 0.92rem; line-height: 1.6;">
+            Technical tags and ID numbers rely on JetBrains Mono for unambiguous character distinction.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="padding: 60px 24px 36px; background: var(--surface-tile-3); border-top: 1px solid var(--border-rose-subtle); color: var(--body-muted); font-size: 0.88rem; text-align: center;">
+    <div style="max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <strong>Alumni Tracking System</strong> &bull; Istanbul University Web Programming
+      </div>
+      <div style="display: flex; gap: 18px;">
+        <a href="/" style="color: var(--primary-on-dark); text-decoration: none;">Home</a>
+        <a href="/users" style="color: var(--body-muted); text-decoration: none;">Users</a>
+        <a href="/jobs" style="color: var(--body-muted); text-decoration: none;">Jobs</a>
+        <a href="/applications" style="color: var(--body-muted); text-decoration: none;">Applications</a>
+        <a href="/brand" style="color: white; font-weight: 600; text-decoration: none;">Brand Guide</a>
+        <a href="/api/swagger" style="color: var(--body-muted); text-decoration: none;">Swagger API</a>
+      </div>
+    </div>
+    <div style="margin-top: 24px; color: var(--body-soft); font-size: 0.8rem;">
+      &copy; 2026 Istanbul University. Apple Minimalism &times; Pinky Rose Architecture.
+    </div>
+  </footer>
+</body>
+</html>

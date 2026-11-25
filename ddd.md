@@ -698,4 +698,34 @@ The **Executive Admin Panel** ([`/admin`](file:///c:/Users/BusraSeyma/Documents/
 | **Announcements** | Publish Campus Broadcast, Delete Announcement | `POST /admin/announcements`<br>`POST /admin/announcements/:id/delete` | `POST /api/announcements`<br>`DELETE /api/announcements/:id` |
 | **Telemetry** | Cross-Entity Telemetry Aggregation & Real-time Metrics | `GET /admin` | `GET /api/admin/stats` |
 
+---
+
+## 🧭 12. Dynamic Role-Based Navigation Architecture
+
+### 12.1. Architectural Overview
+The portal's navigation subsystem ([`src/utils/navigation.js`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/utils/navigation.js) & [`views/partials/header.ejs`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/partials/header.ejs)) dynamically personalizes menu items, action triggers, and badges based on the user's authenticated role.
+
+```mermaid
+flowchart TD
+    Req[Incoming Web Request] --> SessionMW[sessionMiddleware / Hydrator]
+    SessionMW --> AuthCheck{User Identity Authenticated?}
+    
+    AuthCheck -->|No| GuestNav[GUEST Navigation]
+    AuthCheck -->|Yes| RoleSwitch{req.user.role}
+    
+    RoleSwitch -->|STUDENT| StudentNav[STUDENT Navigation: My Applications, Apply, Student Badge]
+    RoleSwitch -->|ALUMNI| AlumniNav[ALUMNI Navigation: Network, + Post Job, Alumni Badge]
+    RoleSwitch -->|ADMIN| AdminNav[ADMIN Navigation: Executive Dashboard, Users Governance, Moderation]
+```
+
+### 12.2. Role-Based Navigation Matrix
+
+| Role Tier | Primary Navbar Links | Contextual Quick Action Buttons | User Badge & Controls |
+|---|---|---|---|
+| **`GUEST`** (Unauthenticated) | Home (`/`), Directory (`/users`), Job Board (`/jobs`), Announcements (`/announcements`), Brand (`/brand`), About (`/about`), Swagger (`/api/swagger`) | `Sign In` (`/login`), `✨ Register` (`/register`), `+ Apply` (`/applications/new`), `🛡️ Admin Claim` (`/admin/claim`) | `Sign In` & `Register` links |
+| **`STUDENT`** | Home (`/`), Alumni Directory (`/users`), Job Board (`/jobs`), My Applications (`/applications`), Announcements (`/announcements`), About (`/about`), Swagger (`/api/swagger`) | `✨ + Apply to Job` (`/applications/new`), `⚡ Claim Admin` (`/admin/claim`) | `🎓 STUDENT` badge, `👤 [Name]`, `Sign Out` |
+| **`ALUMNI`** | Home (`/`), Alumni Network (`/users`), Job Board (`/jobs`), Applications (`/applications`), Announcements (`/announcements`), About (`/about`), Swagger (`/api/swagger`) | `+ Post Job` (`/jobs/new`), `+ Apply` (`/applications/new`), `⚡ Claim Admin` (`/admin/claim`) | `💼 ALUMNI` badge, `👤 [Name]`, `Sign Out` |
+| **`ADMIN`** | `🛡️ Dashboard` (`/admin`), `Users Governance` (`/admin/users`), `Job Moderation` (`/admin/jobs`), `Candidate Pipeline` (`/admin/applications`), `Broadcasts` (`/admin/announcements`), `Public Portal` (`/`), `Swagger` (`/api/swagger`) | `🛡️ Admin Panel` (`/admin`), `+ Post Vacancy` (`/jobs/new`), `+ Broadcast` (`/admin/announcements`) | `🛡️ ADMIN` badge, Glowing `🛡️ Admin` pill, `👤 [Name]`, `Sign Out` |
+
+
 

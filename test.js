@@ -967,7 +967,75 @@ async function runTests() {
       assert.strictEqual(resAdminDeleteApp.json.success, true);
       console.log('✓ DELETE /api/admin/applications/2 -> 200 JSON (Application removed by Admin)');
 
-      console.log('\n🎉 ALL 100+ TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out, Auth Middleware & Admin Control Panel Verified.\n');
+      // 15. Dynamic Role-Based Navigation (Menu Items by Role)
+      console.log('\n--- 15. Dynamic Role-Based Navigation (Menu Items by User Role) ---');
+
+      // 15.1. Guest Navigation (Unauthenticated)
+      const resGuestNav = await request({ path: '/users' });
+      assert.strictEqual(resGuestNav.statusCode, 200);
+      assert.ok(resGuestNav.body.includes('Sign In'));
+      assert.ok(resGuestNav.body.includes('Register'));
+      assert.ok(resGuestNav.body.includes('Directory'));
+      assert.ok(resGuestNav.body.includes('Job Board'));
+      assert.ok(!resGuestNav.body.includes('Sign Out'));
+      assert.ok(!resGuestNav.body.includes('🛡️ Dashboard'));
+      console.log('✓ Dynamic Navigation (GUEST): displays public links (Sign In, Register, Directory) without privileged items');
+
+      // 15.2. Student Navigation
+      const studentNavToken = generateToken({
+        id: 77,
+        email: 'student.zeynep@alumni.istanbul.edu.tr',
+        role: 'STUDENT',
+        first_name: 'Zeynep',
+        last_name: 'Demir'
+      });
+      const resStudentNav = await request({
+        path: '/users',
+        headers: { Cookie: `auth_token=${studentNavToken}` }
+      });
+      assert.strictEqual(resStudentNav.statusCode, 200);
+      assert.ok(resStudentNav.body.includes('STUDENT'));
+      assert.ok(resStudentNav.body.includes('My Applications'));
+      assert.ok(resStudentNav.body.includes('Apply to Job'));
+      assert.ok(resStudentNav.body.includes('Sign Out'));
+      assert.ok(!resStudentNav.body.includes('🛡️ Dashboard'));
+      assert.ok(!resStudentNav.body.includes('Users Governance'));
+      console.log('✓ Dynamic Navigation (STUDENT): renders student-tailored menu (My Applications, + Apply to Job, STUDENT badge)');
+
+      // 15.3. Alumni Navigation
+      const alumniNavToken = generateToken({
+        id: 78,
+        email: 'alumni.burak@alumni.istanbul.edu.tr',
+        role: 'ALUMNI',
+        first_name: 'Burak',
+        last_name: 'Kaya'
+      });
+      const resAlumniNav = await request({
+        path: '/users',
+        headers: { Cookie: `auth_token=${alumniNavToken}` }
+      });
+      assert.strictEqual(resAlumniNav.statusCode, 200);
+      assert.ok(resAlumniNav.body.includes('ALUMNI'));
+      assert.ok(resAlumniNav.body.includes('Alumni Network'));
+      assert.ok(resAlumniNav.body.includes('Post Job'));
+      assert.ok(resAlumniNav.body.includes('Sign Out'));
+      assert.ok(!resAlumniNav.body.includes('🛡️ Dashboard'));
+      console.log('✓ Dynamic Navigation (ALUMNI): renders alumni network menu (+ Post Job, ALUMNI badge, Sign Out)');
+
+      // 15.4. Admin Navigation
+      const resAdminNav = await request({
+        path: '/users',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminNav.statusCode, 200);
+      assert.ok(resAdminNav.body.includes('ADMIN'));
+      assert.ok(resAdminNav.body.includes('🛡️ Dashboard'));
+      assert.ok(resAdminNav.body.includes('Users Governance'));
+      assert.ok(resAdminNav.body.includes('Admin Panel'));
+      assert.ok(resAdminNav.body.includes('Sign Out'));
+      console.log('✓ Dynamic Navigation (ADMIN): renders executive control links (Dashboard, Users Governance, Admin Panel)');
+
+      console.log('\n🎉 ALL 110+ TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out, Auth Middleware, Admin Panel & Dynamic Role-Based Navigation Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

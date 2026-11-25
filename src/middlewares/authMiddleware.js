@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const userModel = require('../models/userModel');
+const { getNavigation } = require('../utils/navigation');
 
 const SECRET = process.env.SESSION_SECRET || 'alumni_jwt_hmac_secret_2026';
 
@@ -102,18 +103,32 @@ async function sessionMiddleware(req, res, next) {
     }
   }
 
+  // Intercept res.render to ensure dynamic navigation is always computed fresh
+  const originalRender = res.render;
+  res.render = function (view, options, callback) {
+    const cleanPath = req.originalUrl || req.path || '/';
+    res.locals.currentPath = cleanPath;
+    res.locals.currentUser = req.user || res.locals.currentUser || null;
+    res.locals.nav = getNavigation(res.locals.currentUser, cleanPath);
+    return originalRender.call(this, view, options, callback);
+  };
+
   if (token) {
     const payload = verifyToken(token);
     if (payload && payload.id) {
       const user = await userModel.findById(payload.id);
       req.user = user || payload;
       res.locals.currentUser = req.user;
+      res.locals.currentPath = req.originalUrl || req.path || '/';
+      res.locals.nav = getNavigation(req.user, res.locals.currentPath);
       return next();
     }
   }
 
   req.user = null;
   res.locals.currentUser = null;
+  res.locals.currentPath = req.originalUrl || req.path || '/';
+  res.locals.nav = getNavigation(null, res.locals.currentPath);
   next();
 }
 

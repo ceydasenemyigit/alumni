@@ -1,11 +1,12 @@
 const userModel = require('../models/userModel');
 const alumniProfileModel = require('../models/alumniProfileModel');
 const departmentModel = require('../models/departmentModel');
+const { generateToken } = require('../middlewares/authMiddleware');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * AuthController - Handles user registration and authentication workflows
+ * AuthController - Handles user registration, login, logout and session state
  */
 
 // GET /register - Render the registration page
@@ -155,6 +156,12 @@ exports.postRegister = async (req, res) => {
       }
     }
 
+    // Automatically log in the newly registered user via cookie
+    const token = generateToken(newUser);
+    if (res.setAuthCookie) {
+      res.setAuthCookie(token);
+    }
+
     // Redirect to profile with welcome flag
     res.redirect(`/users/${newUser.id}?registered=true`);
   } catch (err) {
@@ -209,9 +216,15 @@ exports.apiRegister = async (req, res) => {
       }
     }
 
+    const token = generateToken(newUser);
+    if (res.setAuthCookie) {
+      res.setAuthCookie(token);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Account registered successfully!',
+      token,
       data: {
         user: newUser,
         profile: profile
@@ -226,11 +239,159 @@ exports.apiRegister = async (req, res) => {
   }
 };
 
-// GET /login - Simple companion login page
+// GET /login - Render login page
 exports.getLogin = (req, res) => {
+  if (req.user) {
+    return res.redirect('/users/' + req.user.id);
+  }
+
   res.render('auth/login', {
     title: 'Sign In — Alumni Portal',
     error: null,
-    registered: req.query.registered === 'true'
+    registered: req.query.registered === 'true',
+    logged_out: req.query.logged_out === 'true',
+    redirect: req.query.redirect || ''
+  });
+};
+
+// POST /login - Process Web Form Login
+exports.postLogin = async (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const password = (req.body.password || '').trim();
+  const redirectTarget = req.body.redirect || req.query.redirect || '';
+
+  if (!email || !password) {
+    return res.status(400).render('auth/login', {
+      title: 'Sign In — Alumni Portal',
+      error: 'Please enter both email address and password.',
+      registered: false,
+      logged_out: false,
+      redirect: redirectTarget
+    });
+  }
+
+  try {
+    const user = await userModel.findByEmail(email);
+    if (!user || !userModel.verifyPassword(user, password)) {
+      return res.status(401).render('auth/login', {
+        title: 'Sign In — Alumni Portal',
+        error: 'Invalid email address or password. Please try again.',
+        registered: false,
+        logged_out: false,
+        redirect: redirectTarget
+      });
+    }
+
+    // Generate token and issue HTTP-only auth cookie
+    const token = generateToken(user);
+    if (res.setAuthCookie) {
+      res.setAuthCookie(token);
+    }
+
+    // Redirect to requested page or user profile
+    const safeRedirect = redirectTarget && redirectTarget.startsWith('/') ? redirectTarget : `/users/${user.id}`;
+    res.redirect(safeRedirect);
+  } catch (err) {
+    res.status(500).render('auth/login', {
+      title: 'Sign In — Alumni Portal',
+      error: 'Authentication error: ' + err.message,
+      registered: false,
+      logged_out: false,
+      redirect: redirectTarget
+    });
+  }
+};
+
+// POST /logout or GET /logout - Web Form Logout
+exports.postLogout = (req, res) => {
+  if (res.clearAuthCookie) {
+    res.clearAuthCookie();
+  }
+  res.redirect('/login?logged_out=true');
+};
+
+exports.getLogout = (req, res) => {
+  if (res.clearAuthCookie) {
+    res.clearAuthCookie();
+  }
+  res.redirect('/login?logged_out=true');
+};
+
+// POST /api/auth/login or /api/login - REST API Login
+exports.apiLogin = async (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const password = (req.body.password || '').trim();
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation Error',
+      message: 'Email and password are required.'
+    });
+  }
+
+  try {
+    const user = await userModel.findByEmail(email);
+    if (!user || !userModel.verifyPassword(user, password)) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+        message: 'Invalid email address or password.'
+      });
+    }
+
+    const token = generateToken(user);
+    if (res.setAuthCookie) {
+      res.setAuthCookie(token);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful.',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+        department: user.department || user.department_name,
+        graduation_year: user.graduation_year,
+        is_verified: user.is_verified
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+      message: err.message
+    });
+  }
+};
+
+// POST /api/auth/logout or /api/logout - REST API Logout
+exports.apiLogout = (req, res) => {
+  if (res.clearAuthCookie) {
+    res.clearAuthCookie();
+  }
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully.'
+  });
+};
+
+// GET /api/auth/me or /api/me - REST API Current Authenticated User
+exports.apiMe = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized',
+      message: 'Not authenticated. Please provide a valid Bearer token or cookie.'
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    user: req.user
   });
 };

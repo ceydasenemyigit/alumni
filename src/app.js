@@ -21,7 +21,8 @@ const apiAuthRoutes = require('./routes/apiAuthRoutes');
 const {
   loggerMiddleware,
   notFoundGuardian,
-  errorGuardian
+  errorGuardian,
+  sessionMiddleware
 } = require('./middlewares');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.use(sessionMiddleware);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Template Engine (EJS for MVC Views)

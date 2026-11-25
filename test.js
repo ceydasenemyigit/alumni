@@ -656,7 +656,98 @@ async function runTests() {
       assert.ok(resGetLogin.body.includes('Register Now'));
       console.log('✓ GET /login -> 200 HTML Sign In Page Rendered');
 
-      console.log('\n🎉 ALL 72 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians & Registration Verified.\n');
+      // 12. Authentication Lifecycle (Log In, Log Out & Token State)
+      console.log('\n--- 12. Authentication Lifecycle (Log In, Log Out & Token State) ---');
+
+      // POST /login - Fails on missing credentials (Web Form)
+      const resWebLoginEmpty = await request({
+        path: '/login',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, 'email=&password=');
+      assert.strictEqual(resWebLoginEmpty.statusCode, 400);
+      assert.ok(resWebLoginEmpty.body.includes('Please enter both email address and password'));
+      console.log('✓ Validation: Web login rejects missing credentials (400 Bad Request)');
+
+      // POST /login - Fails on invalid credentials
+      const resWebLoginInvalid = await request({
+        path: '/login',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, 'email=emre%40example.com&password=WrongPassword999');
+      assert.strictEqual(resWebLoginInvalid.statusCode, 401);
+      assert.ok(resWebLoginInvalid.body.includes('Invalid email address or password'));
+      console.log('✓ Authentication: Web login rejects invalid password (401 Unauthorized)');
+
+      // POST /login - Successful Web Sign In
+      const resWebLoginSuccess = await request({
+        path: '/login',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, 'email=emre%40example.com&password=password');
+      assert.strictEqual(resWebLoginSuccess.statusCode, 302);
+      assert.ok(resWebLoginSuccess.headers.location.includes('/users/1'));
+      assert.ok(resWebLoginSuccess.headers['set-cookie']);
+      const webCookie = resWebLoginSuccess.headers['set-cookie'][0];
+      assert.ok(webCookie.includes('auth_token='));
+      console.log('✓ POST /login -> 302 Redirect & issues HTTP-only auth cookie (Login Successful)');
+
+      // GET /logout - Web Sign Out
+      const resWebLogout = await request({ path: '/logout' });
+      assert.strictEqual(resWebLogout.statusCode, 302);
+      assert.ok(resWebLogout.headers.location.includes('/login?logged_out=true'));
+      const clearCookie = resWebLogout.headers['set-cookie'][0];
+      assert.ok(clearCookie.includes('auth_token=;') || clearCookie.includes('Max-Age=0'));
+      console.log('✓ GET /logout -> 302 Redirect & clears auth cookie (Sign Out Successful)');
+
+      // POST /api/auth/login - REST API Validation
+      const resApiLoginEmpty = await request({ path: '/api/auth/login', method: 'POST' }, {});
+      assert.strictEqual(resApiLoginEmpty.statusCode, 400);
+      assert.strictEqual(resApiLoginEmpty.json.success, false);
+      console.log('✓ Validation: API login rejects empty credentials (400 Bad Request)');
+
+      const resApiLoginInvalid = await request({
+        path: '/api/auth/login',
+        method: 'POST'
+      }, { email: 'ceyda@example.com', password: 'incorrect_pass' });
+      assert.strictEqual(resApiLoginInvalid.statusCode, 401);
+      assert.strictEqual(resApiLoginInvalid.json.success, false);
+      console.log('✓ Authentication: API login rejects incorrect credentials (401 Unauthorized)');
+
+      // POST /api/auth/login - REST API Success
+      const resApiLoginSuccess = await request({
+        path: '/api/auth/login',
+        method: 'POST'
+      }, { email: 'ceyda@example.com', password: 'password' });
+      assert.strictEqual(resApiLoginSuccess.statusCode, 200);
+      assert.strictEqual(resApiLoginSuccess.json.success, true);
+      assert.ok(resApiLoginSuccess.json.token);
+      assert.strictEqual(resApiLoginSuccess.json.user.email, 'ceyda@example.com');
+      const apiToken = resApiLoginSuccess.json.token;
+      console.log('✓ POST /api/auth/login -> 200 JSON Token & User returned (API Login Successful)');
+
+      // GET /api/auth/me - Protected user verification
+      const resMeUnauth = await request({ path: '/api/auth/me' });
+      assert.strictEqual(resMeUnauth.statusCode, 401);
+      console.log('✓ Protected Route: GET /api/auth/me rejects unauthenticated request (401 Unauthorized)');
+
+      const resMeAuth = await request({
+        path: '/api/auth/me',
+        headers: { Authorization: `Bearer ${apiToken}` }
+      });
+      assert.strictEqual(resMeAuth.statusCode, 200);
+      assert.strictEqual(resMeAuth.json.success, true);
+      assert.strictEqual(resMeAuth.json.user.email, 'ceyda@example.com');
+      console.log('✓ Protected Route: GET /api/auth/me returns authenticated user with Bearer token (200 OK)');
+
+      // POST /api/auth/logout - REST API Logout
+      const resApiLogout = await request({ path: '/api/auth/logout', method: 'POST' });
+      assert.strictEqual(resApiLogout.statusCode, 200);
+      assert.strictEqual(resApiLogout.json.success, true);
+      assert.ok(resApiLogout.json.message.includes('Logged out'));
+      console.log('✓ POST /api/auth/logout -> 200 JSON Sign Out Successful');
+
+      console.log('\n🎉 ALL 80 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In & Log Out Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

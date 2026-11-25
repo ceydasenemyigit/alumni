@@ -1,0 +1,404 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 820px; margin: 0 auto; padding-bottom: 40px;">
+  <!-- Header / Hero section -->
+  <div style="text-align: center; margin-bottom: 32px;">
+    <span class="badge badge-alumni" style="font-size: 0.8rem; padding: 6px 14px; margin-bottom: 14px;">
+      ✨ OFFICIAL PORTAL REGISTRATION
+    </span>
+    <h1 style="font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; color: white;">
+      Create Your Account
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 580px; margin: 0 auto;">
+      Connect with over 12,000+ university alumni, explore exclusive career openings, and foster meaningful mentorship.
+    </p>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert-error" style="margin-bottom: 24px; animation: fadeIn 0.3s ease;">
+      <span style="font-size: 1.4rem;">⚠️</span>
+      <div>
+        <strong>Registration Notice:</strong> <%= error %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Registration Card -->
+  <div class="card" style="box-shadow: var(--shadow-apple); border: 1px solid var(--border-subtle); padding: 36px 32px;">
+    <form action="/register" method="POST" id="registerForm">
+      
+      <!-- Step 1: Role Selection Cards -->
+      <div style="margin-bottom: 28px;">
+        <label class="form-label" style="font-size: 0.95rem; margin-bottom: 12px; display: block;">
+          1. Select Your Community Affiliation *
+        </label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <!-- Alumni Card Option -->
+          <label id="roleCardAlumni" style="cursor: pointer; position: relative;">
+            <input type="radio" name="role" value="ALUMNI" id="roleAlumni" style="position: absolute; opacity: 0;" <%= (!formData.role || formData.role === 'ALUMNI') ? 'checked' : '' %>>
+            <div class="role-selector-box active" id="boxAlumni">
+              <div style="font-size: 1.8rem; margin-bottom: 8px;">🎓</div>
+              <div style="font-weight: 700; font-size: 1.05rem; color: white; margin-bottom: 4px;">Alumni Graduate</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                Completed university degree. Expand professional network, post jobs, and mentor students.
+              </div>
+            </div>
+          </label>
+
+          <!-- Student Card Option -->
+          <label id="roleCardStudent" style="cursor: pointer; position: relative;">
+            <input type="radio" name="role" value="STUDENT" id="roleStudent" style="position: absolute; opacity: 0;" <%= (formData.role === 'STUDENT') ? 'checked' : '' %>>
+            <div class="role-selector-box" id="boxStudent">
+              <div style="font-size: 1.8rem; margin-bottom: 8px;">🎒</div>
+              <div style="font-weight: 700; font-size: 1.05rem; color: white; margin-bottom: 4px;">Current Student</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                Currently enrolled undergraduate/graduate. Discover internships and connect with graduates.
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Step 2: Personal Identity -->
+      <div style="margin-bottom: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <label class="form-label" style="font-size: 0.95rem; margin-bottom: 14px; display: block;">
+          2. Personal Information & Identity *
+        </label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="first_name">First Name (Ad) *</label>
+            <input
+              type="text"
+              id="first_name"
+              name="first_name"
+              value="<%= formData.first_name || '' %>"
+              placeholder="e.g. Sude"
+              required
+              class="form-control"
+            >
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="last_name">Last Name (Soyad) *</label>
+            <input
+              type="text"
+              id="last_name"
+              name="last_name"
+              value="<%= formData.last_name || '' %>"
+              placeholder="e.g. Demir"
+              required
+              class="form-control"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Account Credentials & Email -->
+      <div style="margin-bottom: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <label class="form-label" style="font-size: 0.95rem; margin-bottom: 14px; display: block;">
+          3. Account Credentials & Security *
+        </label>
+        
+        <div class="form-group">
+          <label class="form-label" for="email">Institutional or Personal Email *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= formData.email || '' %>"
+            placeholder="sude.demir@alumni.istanbul.edu.tr"
+            required
+            class="form-control"
+          >
+          <small style="color: var(--text-soft); display: block; margin-top: 5px;">
+            We will send account notices and career updates to this address.
+          </small>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="password">Password *</label>
+            <div style="position: relative;">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="At least 6 characters"
+                required
+                minlength="6"
+                class="form-control"
+                style="padding-right: 42px;"
+              >
+              <button type="button" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem;">
+                👁️
+              </button>
+            </div>
+            <div id="passwordStrength" style="height: 4px; border-radius: 2px; margin-top: 6px; background: rgba(255,255,255,0.1); transition: all 0.3s;"></div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="confirm_password">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirm_password"
+              name="confirm_password"
+              placeholder="Re-type your password"
+              required
+              minlength="6"
+              class="form-control"
+            >
+            <div id="passwordMatchText" style="font-size: 0.76rem; margin-top: 5px; color: var(--text-soft);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Academic Affiliation -->
+      <div style="margin-bottom: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <label class="form-label" style="font-size: 0.95rem; margin-bottom: 14px; display: block;">
+          4. Academic Affiliation & Department *
+        </label>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="department">Academic Department *</label>
+            <select id="department" name="department" class="form-control" required>
+              <option value="" disabled <%= !formData.department ? 'selected' : '' %>>Select your department...</option>
+              <% if (typeof departments !== 'undefined' && departments && departments.length) { %>
+                <% departments.forEach(dept => { %>
+                  <option value="<%= dept.name %>" <%= formData.department === dept.name ? 'selected' : '' %>>
+                    <%= dept.name %> (<%= dept.faculty %>)
+                  </option>
+                <% }); %>
+              <% } else { %>
+                <option value="Computer Engineering">Computer Engineering</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="Electrical & Electronics Engineering">Electrical & Electronics Engineering</option>
+                <option value="Industrial Engineering">Industrial Engineering</option>
+                <option value="Business Administration">Business Administration</option>
+              <% } %>
+              <option value="Other / Interdisciplinary" <%= formData.department === 'Other / Interdisciplinary' ? 'selected' : '' %>>Other / Interdisciplinary</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="graduation_year">
+              <span id="gradYearLabel">Graduation Year</span> <small>*</small>
+            </label>
+            <input
+              type="number"
+              id="graduation_year"
+              name="graduation_year"
+              value="<%= formData.graduation_year || '' %>"
+              placeholder="e.g. 2024"
+              min="1950"
+              max="2035"
+              required
+              class="form-control"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Professional & Profile Details (Dynamic for Alumni) -->
+      <div id="alumniProfileSection" style="margin-bottom: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+          <label class="form-label" style="font-size: 0.95rem; margin-bottom: 0;">
+            5. Professional Experience <small>(Recommended for Alumni)</small>
+          </label>
+          <span class="badge badge-alumni" style="font-size: 0.7rem;">Alumni Spotlight</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="current_company">Current Organization / Employer</label>
+            <input
+              type="text"
+              id="current_company"
+              name="current_company"
+              value="<%= formData.current_company || '' %>"
+              placeholder="e.g. Google, Trendyol, Aselsan"
+              class="form-control"
+            >
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="current_title">Job Title / Position</label>
+            <input
+              type="text"
+              id="current_title"
+              name="current_title"
+              value="<%= formData.current_title || '' %>"
+              placeholder="e.g. Senior Software Engineer"
+              class="form-control"
+            >
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="linkedin_url">LinkedIn Profile URL</label>
+          <input
+            type="url"
+            id="linkedin_url"
+            name="linkedin_url"
+            value="<%= formData.linkedin_url || '' %>"
+            placeholder="https://linkedin.com/in/username"
+            class="form-control"
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="bio">Professional Bio & Mentorship Note</label>
+          <textarea
+            id="bio"
+            name="bio"
+            placeholder="Share a brief introduction about your career journey, expertise, or advice for students..."
+            class="form-control"
+            rows="3"
+            style="min-height: 80px;"
+          ><%= formData.bio || '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Step 6: Agreements & Consents -->
+      <div style="margin-bottom: 30px; padding: 18px 20px; background: rgba(20, 12, 23, 0.55); border-radius: 14px; border: 1px solid var(--border-subtle);">
+        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin-bottom: 12px;">
+          <input
+            type="checkbox"
+            name="terms_accepted"
+            id="terms_accepted"
+            style="margin-top: 3px; accent-color: var(--primary);"
+            required
+            <%= formData.terms_accepted ? 'checked' : '' %>
+          >
+          <span style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+            I confirm that I am an affiliated student or graduate of the university and accept the <strong style="color: white;">Alumni Network Code of Conduct</strong> and <strong style="color: white;">Privacy Policy</strong>. *
+          </span>
+        </label>
+
+        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+          <input
+            type="checkbox"
+            name="newsletter_opt_in"
+            id="newsletter_opt_in"
+            style="margin-top: 3px; accent-color: var(--primary);"
+            <%= formData.newsletter_opt_in ? 'checked' : '' %>
+          >
+          <span style="font-size: 0.88rem; color: var(--text-soft); line-height: 1.5;">
+            Keep me informed about university reunions, alumni awards, and career networking seminars.
+          </span>
+        </label>
+      </div>
+
+      <!-- Submit & Action Controls -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="font-size: 0.88rem; color: var(--text-muted);">
+          Already registered? <a href="/users" style="color: var(--primary-on-dark); font-weight: 600; text-decoration: none;">Explore Directory &rarr;</a>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <a href="/" class="btn btn-utility">Cancel</a>
+          <button type="submit" class="btn btn-pill btn-pill-primary" style="padding: 12px 28px; font-size: 0.96rem;">
+            Create My Account &rarr;
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .role-selector-box {
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(20, 12, 23, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.25s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .role-selector-box:hover {
+    border-color: rgba(244, 63, 94, 0.4);
+    background: rgba(34, 20, 40, 0.8);
+  }
+  .role-selector-box.active {
+    border-color: var(--primary);
+    background: rgba(244, 63, 94, 0.12);
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
+  }
+</style>
+
+<script>
+  // Dynamic Role Selection
+  const roleAlumni = document.getElementById('roleAlumni');
+  const roleStudent = document.getElementById('roleStudent');
+  const boxAlumni = document.getElementById('boxAlumni');
+  const boxStudent = document.getElementById('boxStudent');
+  const gradYearLabel = document.getElementById('gradYearLabel');
+  const alumniProfileSection = document.getElementById('alumniProfileSection');
+
+  function updateRoleUI() {
+    if (roleStudent.checked) {
+      boxStudent.classList.add('active');
+      boxAlumni.classList.remove('active');
+      gradYearLabel.textContent = 'Expected Graduation Year';
+      alumniProfileSection.style.opacity = '0.5';
+    } else {
+      boxAlumni.classList.add('active');
+      boxStudent.classList.remove('active');
+      gradYearLabel.textContent = 'Graduation Year';
+      alumniProfileSection.style.opacity = '1';
+    }
+  }
+
+  roleAlumni.addEventListener('change', updateRoleUI);
+  roleStudent.addEventListener('change', updateRoleUI);
+  updateRoleUI();
+
+  // Password Visibility Toggle
+  const toggleBtn = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+  toggleBtn.addEventListener('click', () => {
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    toggleBtn.textContent = isPassword ? '🔒' : '👁️';
+  });
+
+  // Password Strength & Match Indicator
+  const confirmInput = document.getElementById('confirm_password');
+  const matchText = document.getElementById('passwordMatchText');
+  const strengthBar = document.getElementById('passwordStrength');
+
+  passwordInput.addEventListener('input', () => {
+    const val = passwordInput.value;
+    if (val.length === 0) {
+      strengthBar.style.width = '0%';
+      strengthBar.style.background = 'transparent';
+    } else if (val.length < 6) {
+      strengthBar.style.width = '30%';
+      strengthBar.style.background = '#f43f5e';
+    } else if (val.length < 10) {
+      strengthBar.style.width = '70%';
+      strengthBar.style.background = '#f59e0b';
+    } else {
+      strengthBar.style.width = '100%';
+      strengthBar.style.background = '#10b981';
+    }
+    checkMatch();
+  });
+
+  function checkMatch() {
+    if (!confirmInput.value) {
+      matchText.textContent = '';
+      return;
+    }
+    if (passwordInput.value === confirmInput.value) {
+      matchText.textContent = '✓ Passwords match';
+      matchText.style.color = '#10b981';
+    } else {
+      matchText.textContent = '✗ Passwords do not match';
+      matchText.style.color = '#f43f5e';
+    }
+  }
+
+  confirmInput.addEventListener('input', checkMatch);
+</script>
+
+<%- include('../partials/footer') %>

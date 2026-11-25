@@ -569,7 +569,94 @@ async function runTests() {
       assert.ok(errorLogContent.includes('Simulated 500 server exception') || errorLogContent.includes('deadlock'));
       console.log('✓ Error Logging: verified error entries successfully written to logs/error.logs');
 
-      console.log('\n🎉 ALL 65 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, 404 Guardian, 5xx Guardian & error.logs Verified.\n');
+      // 11. Registration Page & Functionality (/register & /api/auth/register)
+      console.log('\n--- 11. Registration Page & Functionality (/register & /api/auth/register) ---');
+
+      // GET /register - HTML Registration Form View
+      const resGetRegister = await request({ path: '/register', headers: { Accept: 'text/html' } });
+      assert.strictEqual(resGetRegister.statusCode, 200);
+      assert.ok(resGetRegister.body.includes('Create Your Account'));
+      assert.ok(resGetRegister.body.includes('Alumni Graduate'));
+      assert.ok(resGetRegister.body.includes('Current Student'));
+      assert.ok(resGetRegister.body.includes('Academic Department'));
+      console.log('✓ GET /register -> 200 HTML Registration Page Rendered');
+
+      // POST /register - Fails when terms are not accepted (Web Form)
+      const resRegNoTerms = await request({
+        path: '/register',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, 'first_name=Ali&last_name=Can&email=ali.can%40example.com&password=Secret123&confirm_password=Secret123&role=ALUMNI');
+      assert.strictEqual(resRegNoTerms.statusCode, 400);
+      assert.ok(resRegNoTerms.body.includes('Terms of Service') || resRegNoTerms.body.includes('Honor Code'));
+      console.log('✓ Validation: Web registration rejects missing Terms of Service acceptance (400 Bad Request)');
+
+      // POST /register - Fails when passwords do not match
+      const resRegMismatchPass = await request({
+        path: '/register',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, 'first_name=Ali&last_name=Can&email=ali.can%40example.com&password=Secret123&confirm_password=Different123&terms_accepted=on');
+      assert.strictEqual(resRegMismatchPass.statusCode, 400);
+      assert.ok(resRegMismatchPass.body.includes('Passwords do not match'));
+      console.log('✓ Validation: Web registration rejects mismatched passwords (400 Bad Request)');
+
+      // POST /register - Successful Web Form Registration (creates User and 1:1 Profile)
+      const validWebPayload = 'first_name=Sude&last_name=Demir&email=sude.demir%40alumni.istanbul.edu.tr&password=Password123&confirm_password=Password123&role=ALUMNI&department=Computer+Engineering&graduation_year=2024&terms_accepted=on&current_company=Trendyol&current_title=Backend+Engineer';
+      const resRegWebSuccess = await request({
+        path: '/register',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }, validWebPayload);
+      assert.strictEqual(resRegWebSuccess.statusCode, 302);
+      assert.ok(resRegWebSuccess.headers.location.includes('/users/'));
+      assert.ok(resRegWebSuccess.headers.location.includes('registered=true'));
+      console.log('✓ POST /register -> 302 Redirect to user profile (User & Profile Created)');
+
+      // POST /api/auth/register - REST API Student Registration
+      const resRegApiStudent = await request({
+        path: '/api/auth/register',
+        method: 'POST'
+      }, {
+        first_name: 'Berk',
+        last_name: 'Yilmaz',
+        email: 'berk.yilmaz@student.istanbul.edu.tr',
+        password: 'SecurePassword123',
+        confirm_password: 'SecurePassword123',
+        role: 'STUDENT',
+        department: 'Software Engineering',
+        graduation_year: 2026
+      });
+      assert.strictEqual(resRegApiStudent.statusCode, 201);
+      assert.strictEqual(resRegApiStudent.json.success, true);
+      assert.strictEqual(resRegApiStudent.json.data.user.email, 'berk.yilmaz@student.istanbul.edu.tr');
+      assert.strictEqual(resRegApiStudent.json.data.user.role, 'STUDENT');
+      console.log('✓ POST /api/auth/register -> 201 JSON Student Account Registered');
+
+      // POST /api/auth/register - Duplicate Email Rejection (409 Conflict)
+      const resRegApiDuplicate = await request({
+        path: '/api/auth/register',
+        method: 'POST'
+      }, {
+        first_name: 'Duplicate',
+        last_name: 'User',
+        email: 'berk.yilmaz@student.istanbul.edu.tr',
+        password: 'Password123456',
+        role: 'STUDENT'
+      });
+      assert.strictEqual(resRegApiDuplicate.statusCode, 409);
+      assert.strictEqual(resRegApiDuplicate.json.success, false);
+      assert.ok(resRegApiDuplicate.json.message.includes('already registered'));
+      console.log('✓ Conflict: API rejects registration with existing email (409 Conflict)');
+
+      // GET /login - Companion Sign In Page
+      const resGetLogin = await request({ path: '/login', headers: { Accept: 'text/html' } });
+      assert.strictEqual(resGetLogin.statusCode, 200);
+      assert.ok(resGetLogin.body.includes('Welcome Back'));
+      assert.ok(resGetLogin.body.includes('Register Now'));
+      console.log('✓ GET /login -> 200 HTML Sign In Page Rendered');
+
+      console.log('\n🎉 ALL 72 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians & Registration Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

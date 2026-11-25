@@ -15,6 +15,8 @@ const applicationRoutes = require('./routes/applicationRoutes');
 const apiApplicationRoutes = require('./routes/apiApplicationRoutes');
 const apiDepartmentRoutes = require('./routes/apiDepartmentRoutes');
 const healthRoutes = require('./routes/healthRoutes');
+const authRoutes = require('./routes/authRoutes');
+const apiAuthRoutes = require('./routes/apiAuthRoutes');
 
 const {
   loggerMiddleware,
@@ -42,6 +44,9 @@ app.get('/api/swagger.json', (req, res) => {
   res.json(swaggerDocument);
 });
 
+// Authentication Web Routes (/register, /login)
+app.use('/', authRoutes);
+
 // MVC Web Routes (HTML Views)
 app.use('/users', userRoutes);
 app.use('/announcements', announcementRoutes);
@@ -49,6 +54,8 @@ app.use('/jobs', jobRoutes);
 app.use('/applications', applicationRoutes);
 
 // RESTful JSON API Routes
+app.use('/api', apiAuthRoutes);
+app.use('/api/auth', apiAuthRoutes);
 app.use('/api/users', apiUserRoutes);
 app.use('/api/announcements', apiAnnouncementRoutes);
 app.use('/api/jobs', apiJobRoutes);

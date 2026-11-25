@@ -19,7 +19,7 @@ The **Alumni Tracking System** maintains comprehensive academic, professional, a
 The domain model revolves around six core business entities:
 
 1. **Departments (`departments`)**: Represents academic departments and faculties under the university.
-2. **Users (`users`)**: Represents registered system actors categorized into `STUDENT`, `ALUMNI`, or `ADMIN`.
+2. **Users (`users`)**: Represents registered system actors governed by a 3-tier Role-Based Access Control (RBAC) model: **`STUDENT`** (enrolled students seeking careers/mentorship), **`ALUMNI`** (verified graduates offering jobs/profiles), and **`ADMIN`** (career center superuser governance). *(See [Section 4.2.1](#421-system-actor-roles--personas-sistem-rolleri-ve-aktör-sorumlulukları) for exhaustive personas, RBAC permission matrix, and lifecycle rules)*.
 3. **Alumni Profiles (`alumni_profiles`)**: Detailed career, employment, and biographical information linked 1:1 to an alumnus.
 4. **Announcements (`announcements`)**: Broadcasted university notices, homecoming events, and campus updates published for alumni.
 5. **Job Postings (`job_postings`)**: Career opportunities, internships, and job openings posted by alumni and administrators to connect graduates and students with employment prospects.
@@ -145,6 +145,150 @@ Core user entity managing identity, roles, and academic status.
 | `is_verified` | `BOOLEAN` | `DEFAULT TRUE` | Verification flag |
 | `created_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Creation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | `DEFAULT CURRENT_TIMESTAMP` | Last updated timestamp |
+
+#### 4.2.1. System Actor Roles & Personas (Sistem Rolleri ve Aktör Sorumlulukları)
+
+The system enforces a strict 3-tier Role-Based Access Control (RBAC) model defining distinct system personas:
+
+1. **`STUDENT` (Öğrenci - Enrolled Undergraduate / Graduate Student)**:
+   - **Primary Objective**: Career preparation, exploring verified graduate networks, seeking mentorship, and applying to internships and entry-level positions.
+   - **Core Capabilities**:
+     - View verified alumni directory, graduate profiles, and academic departments.
+     - Browse, search, and filter active job postings and internship listings (`job_postings`).
+     - Submit applications (`applications`) with CV link and personalized cover letter.
+     - Track, monitor, and withdraw (`WITHDRAWN`) submitted applications.
+     - Read university broadcasts and career announcements (`announcements`).
+     - Manage personal contact details and academic status.
+   - **Domain Restrictions**: Cannot publish job postings, post public announcements, modify academic departments, or access administrative audit logs. Not eligible to create an `alumni_profiles` record until graduation status is attained.
+
+2. **`ALUMNI` (Mezun - Verified University Graduate)**:
+   - **Primary Objective**: Lifelong networking, peer connection, mentoring enrolled students, and offering employment/internship opportunities within their organizations.
+   - **Core Capabilities**:
+     - Inherits all read and application capabilities of the `STUDENT` role.
+     - **Profile Ownership**: Manage a dedicated **Alumni Profile (`alumni_profiles`)** containing current employer, job title, industry classification, city, country, LinkedIn/GitHub links, and biographical statement.
+     - **Recruitment & Job Posting**: Author and publish new job vacancies (`job_postings`) on behalf of their company or hiring team.
+     - **Application Evaluation**: Review incoming candidate applications submitted to their own job postings, inspect resumes/cover letters, and transition candidate statuses (`PENDING` → `REVIEWING` → `ACCEPTED` / `REJECTED`).
+     - Update or close (`is_active = false`) their own job postings.
+   - **Domain Restrictions**: Cannot modify or delete job listings or candidate applications belonging to other alumni. Cannot manage university departments or issue institutional announcements.
+
+3. **`ADMIN` (Yönetici - Career Center & System Administrator)**:
+   - **Primary Objective**: Institutional oversight, platform governance, academic data integrity, user verification, and community communication.
+   - **Core Capabilities**:
+     - **Superuser Access**: Unrestricted CRUD permissions across all system entities (`departments`, `users`, `alumni_profiles`, `job_postings`, `applications`, `announcements`).
+     - **Role Governance**: Elevate or reassign user roles (`STUDENT` ↔ `ALUMNI` ↔ `ADMIN`).
+     - **Account Verification**: Toggle user verification flags (`is_verified = true/false`) and approve alumni registrations.
+     - **Content Moderation**: Moderate or remove inappropriate job postings, applications, or profile contents.
+     - **Institutional Announcements**: Author, edit, categorize (`Event`, `Career`, `Academic`, `General`), and delete broadcast announcements.
+     - **System Auditing**: Access error logs (`logs/error.log`), request metrics, and database lifecycle tools.
+
+---
+
+#### 4.2.2. Role-Based Access Control (RBAC) Permission Matrix
+
+The following matrix formally specifies CRUD (`Create`, `Read`, `Update`, `Delete`) authorization rules per role across every domain entity:
+
+| Domain Entity | Operation | `STUDENT` | `ALUMNI` | `ADMIN` | Authorization Constraints & Business Logic |
+|---|---|:---:|:---:|:---:|---|
+| **`departments`** | Read | ✅ | ✅ | ✅ | Publicly visible to all authenticated and visiting actors |
+| | Create / Update / Delete | ❌ | ❌ | ✅ | Restricted exclusively to institutional administrators |
+| **`users`** | Read Directory | ✅ | ✅ | ✅ | Publicly visible graduate & student directory |
+| | Create (Register) | ✅ | ✅ | ✅ | Open self-registration or batch administrative seeding |
+| | Update Profile | 🔒 Own | 🔒 Own | ✅ Any | Users can update their own data; Admin can update any user and change roles |
+| | Delete User | ❌ | ❌ | ✅ | Hard or soft deletion reserved for administrative governance |
+| **`alumni_profiles`** | Read | ✅ | ✅ | ✅ | Full visibility across network |
+| | Create / Update | ❌ | 🔒 Own | ✅ Any | Only verified alumni can author their 1:1 career profile |
+| | Delete | ❌ | 🔒 Own | ✅ Any | Profile reset or deletion |
+| **`job_postings`** | Read (Active) | ✅ | ✅ | ✅ | All users can discover published career listings |
+| | Create | ❌ | ✅ | ✅ | Verified alumni and admins can publish vacancies |
+| | Update / Close | ❌ | 🔒 Own | ✅ Any | Posters can edit/close own listings; Admin can moderate any listing |
+| | Delete | ❌ | 🔒 Own | ✅ Any | Hard delete by posting owner or admin |
+| **`applications`** | Submit (Create) | ✅ | ✅ | ✅ | Candidates can submit at most 1 application per vacancy (`UNIQUE(user_id, job_posting_id)`) |
+| | Read Own Applications | 🔒 Own | 🔒 Own | ✅ Any | Candidates can view their own application history |
+| | Read Received Applications | ❌ | 🔒 Posted Jobs | ✅ Any | Job posters can inspect candidates applying to their postings |
+| | Update Status | ❌ | 🔒 Posted Jobs | ✅ Any | Posters update status (`REVIEWING`, `ACCEPTED`, `REJECTED`) |
+| | Withdraw Application | 🔒 Own | 🔒 Own | ✅ Any | Applicant can withdraw pending application (`WITHDRAWN`) |
+| **`announcements`** | Read | ✅ | ✅ | ✅ | Broadcast feed visible to all platform actors |
+| | Create / Update / Delete | ❌ | ❌ | ✅ | Institutional notice publishing reserved for Admin |
+| **`logs & system`** | Read / Manage | ❌ | ❌ | ✅ | Server logs (`logs/error.log`) and migration tools reserved for Admin |
+
+---
+
+#### 4.2.3. User Domain Validation & Business Rules
+
+* **Email Specification (`email`)**:
+  - **Required** (`NOT NULL`), strictly validated against RFC 5322 regex: `^[^\s@]+@[^\s@]+\.[^\s@]+$`.
+  - Normalized to lowercase upon persistence (`LOWER(email)`).
+  - Enforced by a system-wide database unique constraint (`UNIQUE`). Duplicate submission triggers `409 Conflict`.
+* **Role Integrity (`role`)**:
+  - Constrained by database check: `CHECK (role IN ('STUDENT', 'ALUMNI', 'ADMIN'))`.
+  - Default value is `'ALUMNI'`.
+  - Invalid role payload automatically rejected with `400 Bad Request`.
+* **Name Fields (`first_name`, `last_name`)**:
+  - **Required** (`NOT NULL`), maximum 80 characters.
+  - Automatically trimmed of leading and trailing whitespace.
+* **Graduation Year Semantics (`graduation_year`)**:
+  - Bounded by check constraint: `CHECK (graduation_year BETWEEN 1950 AND 2035)`.
+  - **For `ALUMNI`**: Represents historical graduation year ($\le \text{Current Academic Year}$).
+  - **For `STUDENT`**: Represents expected future completion year ($\ge \text{Current Academic Year}$).
+* **Account Verification (`is_verified`)**:
+  - Boolean flag indicating credential verification or email ownership confirmation.
+  - Defaults to `TRUE` (in test/seeder environments) and togglable by administrators.
+* **Referential Integrity & Cascading Policies**:
+  - `departments` deletion &rarr; sets `users.department_id` to `NULL` (`ON DELETE SET NULL`), while cached `department_name` preserves historical continuity.
+  - `users` deletion &rarr; cascades deletion to linked `alumni_profiles` (`ON DELETE CASCADE`) and candidate `applications` (`ON DELETE CASCADE`).
+  - `users` deletion &rarr; updates authored `job_postings.posted_by_user_id` to `NULL` (`ON DELETE SET NULL`) so open recruitment opportunities remain available to applicants without causing broken foreign keys.
+
+---
+
+#### 4.2.4. User Lifecycle & State Machine
+
+The following state diagram illustrates user progression through registration, role activation, academic graduation, and administrative governance:
+
+```mermaid
+stateDiagram-v2
+    [*] --> RegistrationPending : User Submits Registration Form
+    
+    RegistrationPending --> ActiveStudent : Role is STUDENT & Verified
+    RegistrationPending --> ActiveAlumni : Role is ALUMNI & Verified
+    RegistrationPending --> UnverifiedAccount : Email Verification Required
+
+    UnverifiedAccount --> ActiveStudent : Verification Confirmed
+    UnverifiedAccount --> ActiveAlumni : Verification Confirmed
+
+    state ActiveStudent {
+        [*] --> BrowsingOpportunities
+        BrowsingOpportunities --> SubmittingApplication : Find Vacancy
+        SubmittingApplication --> ApplicationUnderReview : Candidate Applies
+        ApplicationUnderReview --> BrowsingOpportunities : Application Concluded
+    }
+
+    state ActiveAlumni {
+        [*] --> ProfileIncomplete
+        ProfileIncomplete --> ProfileActive : Create Alumni Profile
+        ProfileActive --> AuthoringJobPosting : Post Vacancy
+        AuthoringJobPosting --> ReviewingCandidates : Receive Applications
+        ReviewingCandidates --> ProfileActive : Close Vacancy
+    }
+
+    ActiveStudent --> GraduationMilestone : Academic Degree Conferred
+    GraduationMilestone --> ActiveAlumni : Upgrade Role to 'ALUMNI'
+
+    ActiveAlumni --> AdminPrivileges : Elevated by Superuser
+    ActiveStudent --> AdminPrivileges : Elevated by Superuser
+
+    state AdminPrivileges {
+        [*] --> FullSystemGovernance
+        FullSystemGovernance --> ContentModeration
+        FullSystemGovernance --> AnnouncementPublishing
+        FullSystemGovernance --> AuditLogInspection
+    }
+
+    ActiveStudent --> Deactivated : Account Deletion or Suspension
+    ActiveAlumni --> Deactivated : Account Deletion or Suspension
+    AdminPrivileges --> Deactivated : Role Revocation
+
+    Deactivated --> [*]
+```
 
 ### 4.3. Table: `alumni_profiles`
 Extended graduate profile details (1-to-1 relationship with `users`).

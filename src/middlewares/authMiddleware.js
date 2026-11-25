@@ -71,8 +71,9 @@ function parseCookies(header) {
 }
 
 /**
- * Session Middleware
- * Hydrates req.user and res.locals.currentUser from cookies or Authorization Bearer header
+ * Session Middleware (Global Hydrator)
+ * Runs globally in app.use() to populate req.user & res.locals.currentUser if token/cookie is present.
+ * Does not block unauthenticated requests.
  */
 async function sessionMiddleware(req, res, next) {
   // Attach cookie management helpers to res
@@ -104,13 +105,10 @@ async function sessionMiddleware(req, res, next) {
   if (token) {
     const payload = verifyToken(token);
     if (payload && payload.id) {
-      // Fetch fresh user or use token payload
       const user = await userModel.findById(payload.id);
-      if (user) {
-        req.user = user;
-        res.locals.currentUser = user;
-        return next();
-      }
+      req.user = user || payload;
+      res.locals.currentUser = req.user;
+      return next();
     }
   }
 
@@ -120,19 +118,53 @@ async function sessionMiddleware(req, res, next) {
 }
 
 /**
- * Route Guard: Require authenticated user
+ * Auth Middleware (Route Guard)
+ * Strictly verifies authentication credentials (Bearer token or auth_token cookie).
+ * If valid: passes to next().
+ * If missing or invalid:
+ *   - API (JSON): returns structured 401 Unauthorized with explicit reason.
+ *   - Web (HTML): redirects to /login with originalUrl return redirect.
  */
-function requireAuth(req, res, next) {
+async function authMiddleware(req, res, next) {
+  // If user is already authenticated by sessionMiddleware
   if (req.user) {
     return next();
   }
 
-  const isApi = req.path.startsWith('/api') || !req.accepts('html');
+  // Fallback: Check token in request headers/cookies directly
+  let token = null;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else if (req.headers.cookie) {
+    const cookies = parseCookies(req.headers.cookie);
+    if (cookies.auth_token) {
+      token = cookies.auth_token;
+    }
+  }
+
+  if (token) {
+    const payload = verifyToken(token);
+    if (payload && payload.id) {
+      const user = await userModel.findById(payload.id);
+      req.user = user || payload;
+      res.locals.currentUser = req.user;
+      return next();
+    }
+  }
+
+  // Request is unauthenticated
+  const isApi = req.path.startsWith('/api') || !req.accepts('html') || (req.headers['accept'] && req.headers['accept'].includes('application/json'));
+
   if (isApi) {
     return res.status(401).json({
       success: false,
+      status: 401,
       error: 'Unauthorized',
-      message: 'You must be signed in to perform this operation.'
+      reason: 'Missing, expired, or invalid authentication token. Please authenticate via /api/auth/login or supply a valid Authorization: Bearer <token> header.',
+      path: req.originalUrl || req.url,
+      method: req.method,
+      timestamp: new Date().toISOString()
     });
   }
 
@@ -140,37 +172,58 @@ function requireAuth(req, res, next) {
 }
 
 /**
- * Route Guard: Require specific roles
+ * Role-Based Access Control (RBAC) Guard Middleware
+ * Ensures the authenticated user possesses one of the required roles (e.g. 'ADMIN', 'ALUMNI').
+ * Returns structured 403 Forbidden with reason if unauthorized.
  */
-function requireRole(...roles) {
+function requireRole(...allowedRoles) {
   return (req, res, next) => {
+    // If not authenticated yet, invoke authMiddleware first
     if (!req.user) {
-      const isApi = req.path.startsWith('/api') || !req.accepts('html');
-      if (isApi) {
-        return res.status(401).json({ success: false, error: 'Unauthorized', message: 'Sign in required.' });
-      }
-      return res.redirect('/login');
-    }
-
-    if (!roles.includes(req.user.role)) {
-      const isApi = req.path.startsWith('/api') || !req.accepts('html');
-      if (isApi) {
-        return res.status(403).json({ success: false, error: 'Forbidden', message: `Requires one of roles: ${roles.join(', ')}` });
-      }
-      return res.status(403).render('error', {
-        title: 'Access Restricted',
-        message: 'Your account clearance does not permit access to this section.'
+      return authMiddleware(req, res, () => {
+        validateRole(req, res, next, allowedRoles);
       });
     }
-
-    next();
+    validateRole(req, res, next, allowedRoles);
   };
 }
 
-module.exports = {
-  generateToken,
-  verifyToken,
-  sessionMiddleware,
-  requireAuth,
-  requireRole
-};
+function validateRole(req, res, next, allowedRoles) {
+  const userRole = (req.user && req.user.role) ? req.user.role : '';
+
+  if (!allowedRoles.includes(userRole)) {
+    const isApi = req.path.startsWith('/api') || !req.accepts('html');
+    const reason = `Access denied. Your role '${userRole || 'UNKNOWN'}' does not possess required clearance. Allowed role(s): ${allowedRoles.join(', ')}.`;
+
+    if (isApi) {
+      return res.status(403).json({
+        success: false,
+        status: 403,
+        error: 'Forbidden',
+        reason,
+        path: req.originalUrl || req.url,
+        method: req.method,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    return res.status(403).render('error', {
+      title: '403 - Forbidden',
+      message: reason
+    });
+  }
+
+  next();
+}
+
+// Attach sub-methods for both functional and object-style usage
+authMiddleware.authMiddleware = authMiddleware;
+authMiddleware.requireAuth = authMiddleware;
+authMiddleware.requireRole = requireRole;
+authMiddleware.role = requireRole;
+authMiddleware.sessionMiddleware = sessionMiddleware;
+authMiddleware.generateToken = generateToken;
+authMiddleware.verifyToken = verifyToken;
+authMiddleware.parseCookies = parseCookies;
+
+module.exports = authMiddleware;

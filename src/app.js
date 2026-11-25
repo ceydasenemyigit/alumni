@@ -22,7 +22,9 @@ const {
   loggerMiddleware,
   notFoundGuardian,
   errorGuardian,
-  sessionMiddleware
+  sessionMiddleware,
+  authMiddleware,
+  requireRole
 } = require('./middlewares');
 
 const app = express();
@@ -132,6 +134,31 @@ app.get('/sum/:number1/:number2', (req, res) => {
 
   const sum = num1 + num2;
   res.send(`toplam= ${sum}`);
+});
+
+// Protected route endpoints demonstrating authMiddleware and RBAC requireRole
+app.get('/api/protected', authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Access granted to protected resource.',
+    user: req.user
+  });
+});
+
+app.get('/api/admin-only', authMiddleware, requireRole('ADMIN'), (req, res) => {
+  res.json({
+    success: true,
+    message: 'Admin clearance verified.',
+    user: req.user
+  });
+});
+
+app.get('/api/alumni-only', authMiddleware, requireRole('ALUMNI', 'ADMIN'), (req, res) => {
+  res.json({
+    success: true,
+    message: 'Alumni access verified.',
+    user: req.user
+  });
 });
 
 // Test route for 5xx Guardian & error log testing

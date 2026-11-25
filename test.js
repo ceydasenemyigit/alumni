@@ -1,6 +1,7 @@
 const http = require('http');
 const assert = require('assert');
 const app = require('./src/app');
+const { generateToken } = require('./src/middlewares/authMiddleware');
 
 const server = http.createServer(app);
 
@@ -747,7 +748,89 @@ async function runTests() {
       assert.ok(resApiLogout.json.message.includes('Logged out'));
       console.log('✓ POST /api/auth/logout -> 200 JSON Sign Out Successful');
 
-      console.log('\n🎉 ALL 80 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In & Log Out Verified.\n');
+      // 13. Auth Middleware & RBAC Route Protection (/api/protected, /api/admin-only)
+      console.log('\n--- 13. Auth Middleware & RBAC Route Protection ---');
+
+      // 13.1. Protected API rejects unauthenticated request with structured 401 & reason
+      const resProtNoAuth = await request({ path: '/api/protected' });
+      assert.strictEqual(resProtNoAuth.statusCode, 401);
+      assert.strictEqual(resProtNoAuth.json.success, false);
+      assert.strictEqual(resProtNoAuth.json.error, 'Unauthorized');
+      assert.ok(resProtNoAuth.json.reason);
+      assert.ok(resProtNoAuth.json.reason.includes('Missing, expired, or invalid authentication token'));
+      console.log('✓ Auth Middleware: rejects missing token with structured 401 & reason');
+
+      // 13.2. Protected API rejects tampered/invalid token
+      const resProtTampered = await request({
+        path: '/api/protected',
+        headers: { Authorization: 'Bearer invalid.tampered.token.payload' }
+      });
+      assert.strictEqual(resProtTampered.statusCode, 401);
+      assert.strictEqual(resProtTampered.json.error, 'Unauthorized');
+      console.log('✓ Auth Middleware: rejects forged/tampered token (401 Unauthorized)');
+
+      // 13.3. Protected API grants access with valid Bearer token
+      const resProtBearer = await request({
+        path: '/api/protected',
+        headers: { Authorization: `Bearer ${apiToken}` }
+      });
+      assert.strictEqual(resProtBearer.statusCode, 200);
+      assert.strictEqual(resProtBearer.json.success, true);
+      assert.ok(resProtBearer.json.message.includes('Access granted'));
+      assert.strictEqual(resProtBearer.json.user.email, 'ceyda@example.com');
+      console.log('✓ Auth Middleware: grants access with valid Bearer header (200 OK)');
+
+      // 13.4. Protected API grants access with valid auth_token cookie
+      const resProtCookie = await request({
+        path: '/api/protected',
+        headers: { Cookie: `auth_token=${apiToken}` }
+      });
+      assert.strictEqual(resProtCookie.statusCode, 200);
+      assert.strictEqual(resProtCookie.json.success, true);
+      console.log('✓ Auth Middleware: grants access with valid auth_token cookie (200 OK)');
+
+      // 13.5. RBAC requireRole rejects insufficient role with structured 403 & reason
+      // ceyda@example.com is 'ALUMNI', attempting to access ADMIN-only endpoint
+      const resAdminForbidden = await request({
+        path: '/api/admin-only',
+        headers: { Authorization: `Bearer ${apiToken}` }
+      });
+      assert.strictEqual(resAdminForbidden.statusCode, 403);
+      assert.strictEqual(resAdminForbidden.json.success, false);
+      assert.strictEqual(resAdminForbidden.json.error, 'Forbidden');
+      assert.ok(resAdminForbidden.json.reason);
+      assert.ok(resAdminForbidden.json.reason.includes("Your role 'ALUMNI' does not possess required clearance"));
+      console.log('✓ RBAC Guard (requireRole): rejects ALUMNI on ADMIN-only route with 403 & reason');
+
+      // 13.6. RBAC requireRole grants access to user with matching ADMIN role
+      const adminToken = generateToken({
+        id: 99,
+        email: 'admin@alumni.istanbul.edu.tr',
+        role: 'ADMIN',
+        first_name: 'Admin',
+        last_name: 'System'
+      });
+
+      const resAdminSuccess = await request({
+        path: '/api/admin-only',
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      assert.strictEqual(resAdminSuccess.statusCode, 200);
+      assert.strictEqual(resAdminSuccess.json.success, true);
+      assert.ok(resAdminSuccess.json.message.includes('Admin clearance verified'));
+      console.log('✓ RBAC Guard (requireRole): grants access to user with matching ADMIN role (200 OK)');
+
+      // 13.7. Multi-role RBAC: ALUMNI accessing route requiring ALUMNI or ADMIN
+      const resAlumniSuccess = await request({
+        path: '/api/alumni-only',
+        headers: { Authorization: `Bearer ${apiToken}` }
+      });
+      assert.strictEqual(resAlumniSuccess.statusCode, 200);
+      assert.strictEqual(resAlumniSuccess.json.success, true);
+      assert.ok(resAlumniSuccess.json.message.includes('Alumni access verified'));
+      console.log('✓ RBAC Guard (requireRole): grants access for multi-role permitted endpoint (200 OK)');
+
+      console.log('\n🎉 ALL 87 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out & Auth Middleware Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

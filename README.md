@@ -587,7 +587,7 @@ Handled by `apiDepartmentController.js`:
    ```bash
    npm test
    ```
-   Executes 65 integration tests verifying all introductory routes, Swagger, Users, Announcements, Job Postings, Applications (N:M), Database Migrations, Seeders, Logger Middleware, 404 Guardian, 5xx Guardian, and `logs/error.logs`.
+   Executes 87 integration tests verifying all introductory routes, Swagger, Users, Announcements, Job Postings, Applications (N:M), Database Migrations, Seeders, Logger Middleware, 404 Guardian, 5xx Guardian, Registration, Log In & Log Out, and Auth Middleware (RBAC).
 
 ---
 
@@ -644,6 +644,43 @@ Catches uncaught exceptions or server errors (status $\ge$ 500):
   IP: ::1
   --------------------------------------------------------------------------------
   ```
+
+### 4. Auth Middleware & Role-Based Access Control (`src/middlewares/authMiddleware.js`)
+Protects sensitive routes, manages dual-channel session state (Bearer token & HTTP-only cookies), and validates user role clearance:
+* **Zero-Dependency HMAC-SHA256 Tokenization**: Signs payload with a secure secret key, eliminating third-party JWT vulnerabilities while remaining completely tamper-proof.
+* **Dual-Channel Authentication**:
+  - `Authorization: Bearer <token>` header (REST API clients, Postman, mobile apps)
+  - `Cookie: auth_token=<token>` (Web browsers and session management)
+* **Explicit 401 Unauthorized Response (API)**:
+  ```json
+  {
+    "success": false,
+    "status": 401,
+    "error": "Unauthorized",
+    "reason": "Missing, expired, or invalid authentication token. Please authenticate via /api/auth/login or supply a valid Authorization: Bearer <token> header.",
+    "path": "/api/protected",
+    "method": "GET",
+    "timestamp": "2026-11-25T23:12:38.000Z"
+  }
+  ```
+* **Web Redirection**: Unauthenticated browser requests are gracefully redirected to `/login?redirect={path}`.
+* **Role-Based Access Control (`requireRole(...allowedRoles)`)**:
+  Restricts endpoint execution to specific roles (`STUDENT`, `ALUMNI`, `ADMIN`). If clearance is insufficient, returns a structured `403 Forbidden` response with an explicit reason:
+  ```json
+  {
+    "success": false,
+    "status": 403,
+    "error": "Forbidden",
+    "reason": "Access denied. Your role 'ALUMNI' does not possess required clearance. Allowed role(s): ADMIN.",
+    "path": "/api/admin-only",
+    "method": "GET",
+    "timestamp": "2026-11-25T23:12:38.000Z"
+  }
+  ```
+* **Demonstration Endpoints**:
+  - `GET /api/protected` &mdash; Requires any valid authenticated session (`200 OK` or `401 Unauthorized`).
+  - `GET /api/admin-only` &mdash; Protected by `requireRole('ADMIN')` (`200 OK`, `401 Unauthorized`, or `403 Forbidden`).
+  - `GET /api/alumni-only` &mdash; Protected by `requireRole('ALUMNI', 'ADMIN')`.
 
 ---
 

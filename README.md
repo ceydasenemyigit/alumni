@@ -4,6 +4,7 @@
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016-blue.svg)](https://www.postgresql.org/)
 [![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Ready-2496ED.svg)](#-docker-setup--the-forgetting-test)
+[![Authentication](https://img.shields.io/badge/Auth-HMAC--SHA256%20%26%20RBAC-success.svg)](#-authentication-authorization--user-workspaces-auth-subsystem)
 [![Data Design](https://img.shields.io/badge/Documentation-DDD%20Data%20Design-orange.svg)](ddd.md)
 [![Brand Guide](https://img.shields.io/badge/Brand%20Guide-Core%20Identity-2563eb.svg)](brand.md)
 [![Design Spec](https://img.shields.io/badge/Design%20Spec-Pinky%20Rose%20System-f43f5e.svg)](design.md)
@@ -21,6 +22,7 @@ The **Alumni Tracking System** is a web-based platform designed to maintain acad
 - 📘 [**Data Design Documentation (`ddd.md`)**](ddd.md) — Comprehensive entity relationships, normalization proofs, constraints, and data dictionary.
 - 🎨 [**Brand Guidelines & Core Identity (`brand.md`)**](brand.md) — Brand philosophy, academic cap emblem architecture (`🎓`), Dark Slate & Cobalt visual hierarchy, and typography guidelines.
 - 🌸 [**Visual Design System (`design.md`)**](design.md) — Apple-grade full-bleed tile architecture, Pinky Rose & Velvet Plum palette, dual button grammars (`rounded.pill`), and responsive UI specifications.
+- 🔐 [**Authentication & Role Governance (`#auth`)**](#-authentication-authorization--user-workspaces-auth-subsystem) — Zero-dependency HMAC-SHA256 dual-channel tokenization, RBAC route guards (`requireRole`), Admin Control Panel, dynamic role navigation, and user-specific workspaces.
 
 ---
 
@@ -269,7 +271,7 @@ alumni/
 ├── package.json                      # Project dependencies, scripts, and metadata
 ├── package-lock.json                 # Dependency tree lockfile
 ├── swagger.json                      # OpenAPI 3.0.3 specification for Swagger UI
-├── test.js                           # Automated test suite (30 unit/integration tests)
+├── test.js                           # Automated test suite (125+ integration & RBAC tests)
 ├── .gitignore                        # Git exclusion configuration
 ├── README.md                         # Project documentation
 │
@@ -316,6 +318,17 @@ alumni/
 │   │       ├── jobPostingSeeder.js
 │   │       └── databaseSeeder.js     # Master database seeder orchestrator
 │   │
+│   ├── middlewares/                  # MIDDLEWARE & SECURITY LAYER
+│   │   ├── index.js                  # Central middleware export registry
+│   │   ├── loggerMiddleware.js       # Real-time console terminal request logger
+│   │   ├── notFoundGuardian.js       # 404 Guardian with structured JSON/HTML reason
+│   │   ├── errorGuardian.js          # 5xx Guardian persisting to logs/error.logs
+│   │   ├── sessionMiddleware.js      # Session hydrator, cookies & dynamic nav injector
+│   │   └── authMiddleware.js         # Token generator/verifier & requireRole RBAC guard
+│   │
+│   ├── utils/                        # SHARED UTILITIES
+│   │   └── navigation.js             # Role-aware dynamic menu & badge resolver
+│   │
 │   ├── models/                       # [M] MODEL LAYER (PostgreSQL + In-Memory Fallback)
 │   │   ├── index.js                  # Central registry & relationship definitions
 │   │   ├── userModel.js              # User model with CRUD & relational helpers
@@ -335,6 +348,9 @@ alumni/
 │   │   ├── applicationController.js  # Web Controller rendering EJS views for /applications
 │   │   ├── apiApplicationController.js # API Controller serving JSON for /api/applications
 │   │   ├── apiDepartmentController.js# API Controller serving JSON for /api/departments
+│   │   ├── authController.js         # Web & API Controller for /register, /login, /logout
+│   │   ├── adminController.js        # Executive Admin Controller & role claim / elevation
+│   │   ├── portalController.js       # Dedicated Student, Alumni & Telemetry portal controller
 │   │   └── healthController.js       # System health check controller
 │   │
 │   ├── routes/                       # ROUTING LAYER
@@ -347,6 +363,12 @@ alumni/
 │   │   ├── applicationRoutes.js      # Maps /applications to applicationController (Views)
 │   │   ├── apiApplicationRoutes.js   # Maps /api/applications to apiApplicationController (REST API)
 │   │   ├── apiDepartmentRoutes.js    # Maps /api/departments to apiDepartmentController (REST API)
+│   │   ├── authRoutes.js             # Maps /register, /login, /logout (Web Views)
+│   │   ├── apiAuthRoutes.js          # Maps /api/auth/* endpoints (REST API)
+│   │   ├── adminRoutes.js            # Maps /admin/* governance views
+│   │   ├── apiAdminRoutes.js         # Maps /api/admin/* telemetry & mutation API
+│   │   ├── portalRoutes.js           # Maps /dashboard, /student, /alumni, /my/*, /profile
+│   │   ├── apiPortalRoutes.js        # Maps /api/me/* user telemetry REST API
 │   │   └── healthRoutes.js           # Maps /api/health to healthController
 │   │
 │   └── docs/                         # DOCUMENTATION & SPECS
@@ -355,8 +377,27 @@ alumni/
 └── views/                            # [V] VIEW LAYER (EJS Templates)
     ├── error.ejs                     # User-friendly error display template
     ├── partials/                     # Reusable view components
-    │   ├── header.ejs                # Navigation bar, category badges, styles, head
+    │   ├── header.ejs                # Dynamic role-aware navigation bar, badges, styles
     │   └── footer.ejs                # Layout footer and quick links
+    │
+    ├── auth/                         # Authentication view templates
+    │   ├── register.ejs              # Account creation form (Student / Alumni)
+    │   └── login.ejs                 # Credential sign-in form with redirect support
+    │
+    ├── admin/                        # Executive Admin view templates
+    │   ├── index.ejs                 # Administrative dashboard & domain KPI summary
+    │   ├── users.ejs                 # User governance, role elevation & verification
+    │   ├── jobs.ejs                  # Job posting moderation & status toggle
+    │   ├── applications.ejs          # Cross-entity candidate pipeline reviewer
+    │   ├── announcements.ejs         # Campus broadcast publisher
+    │   └── claim.ejs                 # One-click Admin role elevation portal
+    │
+    ├── portal/                       # Role-specific user workspaces
+    │   ├── student.ejs               # Student portal, live tracker & recommended jobs
+    │   ├── alumni.ejs                # Alumni talent workspace & candidate pipeline
+    │   ├── my-applications.ejs       # Candidate submitted applications board
+    │   ├── my-jobs.ejs               # Alumnus posted job vacancies manager
+    │   └── profile.ejs               # Unified account & professional profile editor
     │
     ├── users/                        # User MVC view templates
     │   ├── index.ejs                 # User listing table view
@@ -532,6 +573,169 @@ Handled by `apiDepartmentController.js`:
 | `GET` | `/hello/:name` | Parameterized greeting | `text/plain` (`"Hello {Name}!"`) |
 | `GET` | `/sum/:number1/:number2` | Arithmetic addition | `text/plain` (`"toplam= {sum}"`) |
 
+### 11. Authentication & Onboarding Routes (`/register`, `/login`, `/logout`, `/api/auth/*`)
+
+| Method | URL Route | Description | Clearance | Format |
+|---|---|---|---|---|
+| `GET` | `/register` | Render account self-registration form | Public | HTML |
+| `POST` | `/register` | Process web self-registration (Student / Alumni) | Public | Form / Redirect |
+| `GET` | `/login` | Render login form (supports `?redirect=` deep-linking) | Public | HTML |
+| `POST` | `/login` | Authenticate web session (sets HTTP-only cookie) | Public | Form / Redirect |
+| `GET` | `/logout` | Terminate session & clear authentication cookie | Authenticated | Redirect |
+| `POST` | `/api/auth/register` | Register student / alumni account via REST API | Public | JSON |
+| `POST` | `/api/auth/login` | Authenticate credentials and receive Bearer token | Public | JSON |
+| `POST` | `/api/auth/logout` | Terminate API session | Authenticated | JSON |
+| `GET` | `/api/auth/me` | Fetch active authenticated identity payload | Authenticated | JSON |
+
+### 12. User Workspaces & Personal Portals (`/dashboard`, `/student`, `/alumni`, `/my/*`, `/profile`, `/api/me/*`)
+
+| Method | URL Route | Description | Clearance | Format |
+|---|---|---|---|---|
+| `GET` | `/dashboard` | Universal Smart Dispatcher (dispatches by role) | Authenticated | Redirect |
+| `GET` | `/student` | Student Portal, active applications & tailored jobs | `STUDENT`, `ADMIN` | HTML |
+| `GET` | `/alumni` | Alumni Talent Workspace, posted jobs & candidate pipeline | `ALUMNI`, `ADMIN` | HTML |
+| `GET` | `/my/applications` | Candidate submitted applications tracker | Authenticated | HTML |
+| `GET` | `/my/jobs` | Alumnus posted job vacancies manager | `ALUMNI`, `ADMIN` | HTML |
+| `POST` | `/portal/applications/:id/withdraw` | Withdraw candidate application submission | Candidate / Admin | Form / Redirect |
+| `POST` | `/alumni/applications/:id/status` | Update candidate recruitment status in talent pipeline | Job Poster / Admin | Form / Redirect |
+| `GET` | `/profile` or `/me` | Unified account credentials and profile editor | Authenticated | HTML |
+| `POST` | `/profile` | Update account identity and alumni profile metadata | Authenticated | Form / Redirect |
+| `GET` | `/api/me` | Complete user telemetry (identity, profile, apps, jobs) | Authenticated | JSON |
+| `GET` | `/api/me/applications` | Candidate application history list | Authenticated | JSON |
+| `GET` | `/api/me/jobs` | Alumnus published job opportunities list | Authenticated | JSON |
+| `PUT` | `/api/me/profile` | Update user credentials and alumni profile | Authenticated | JSON |
+
+### 13. Executive Admin Panel Routes (`/admin/*`, `/api/admin/*`)
+
+| Method | URL Route | Description | Clearance | Format |
+|---|---|---|---|---|
+| `GET` | `/admin` | Executive Dashboard with domain KPIs & telemetry | `ADMIN` | HTML |
+| `GET` | `/admin/claim` | One-click Administrator role elevation portal | Public / Dev | HTML |
+| `POST` | `/api/admin/claim` | Establish Antigravity superuser / elevate role | Public / Dev | JSON |
+| `GET` | `/api/admin/stats` | Domain-wide cross-entity telemetry metrics | `ADMIN` | JSON |
+| `GET` | `/admin/users` | User management & governance table | `ADMIN` | HTML |
+| `PATCH` | `/api/admin/users/:id/role` | Elevate / modify user role (`STUDENT`, `ALUMNI`, `ADMIN`) | `ADMIN` | JSON |
+| `PATCH` | `/api/admin/users/:id/verify` | Toggle user verification flag | `ADMIN` | JSON |
+| `DELETE` | `/api/admin/users/:id` | Remove user record | `ADMIN` | JSON |
+| `GET` | `/admin/jobs` | Job moderation and visibility management | `ADMIN` | HTML |
+| `PATCH` | `/api/admin/jobs/:id/status` | Toggle job listing active visibility status | `ADMIN` | JSON |
+| `DELETE` | `/api/admin/jobs/:id` | Remove job vacancy | `ADMIN` | JSON |
+| `GET` | `/admin/applications` | Global candidate recruitment pipeline board | `ADMIN` | HTML |
+| `PATCH` | `/api/admin/applications/:id/status` | Transition application pipeline stage | `ADMIN` | JSON |
+| `DELETE` | `/api/admin/applications/:id` | Remove application record | `ADMIN` | JSON |
+| `GET` | `/admin/announcements` | Campus announcements publisher and manager | `ADMIN` | HTML |
+
+---
+
+## 🔐 Authentication, Authorization & User Workspaces (Auth Subsystem)
+
+The Alumni Tracking System incorporates an enterprise-grade, zero-external-dependency authentication, authorization, and personal workspace subsystem developed following Domain-Driven Design (DDD) principles:
+
+```mermaid
+flowchart TD
+    Client([Web Browser / REST Client]) --> Session[sessionMiddleware & Token Hydration]
+    Session --> AuthMW[authMiddleware: Dual-Channel Verification]
+    
+    AuthMW -->|Missing / Invalid Token| UnauthDecision{Client Type?}
+    UnauthDecision -->|Web Browser| LoginRedirect["Redirect to /login?redirect=path"]
+    UnauthDecision -->|REST API| Json401["401 Unauthorized with Explicit Reason"]
+    
+    AuthMW -->|Valid Token| RoleGuard{requireRole Clearance}
+    RoleGuard -->|Insufficient Clearance| Json403["403 Forbidden with Allowed Roles"]
+    RoleGuard -->|Authorized Clearance| TargetHandler[Target Controller Action]
+    
+    TargetHandler --> Workspaces{Target Workspace}
+    Workspaces -->|/dashboard| Dispatcher[Universal Dashboard Dispatcher]
+    Dispatcher -->|STUDENT| StudentPortal[Student Portal: /student]
+    Dispatcher -->|ALUMNI| AlumniWorkspace[Alumni Workspace: /alumni]
+    Dispatcher -->|ADMIN| AdminPanel[Admin Executive Panel: /admin]
+```
+
+### 1. Dual-Channel Tokenization & Security Architecture
+- **Zero-Dependency HMAC-SHA256 Tokenization**: Cryptographically signs user identity (`id`, `email`, `role`, `first_name`) with a secret key (`JWT_SECRET` / secure fallback) without external library bloat or third-party JWT vulnerabilities.
+- **Dual-Channel Ingestion**:
+  1. `Authorization: Bearer <token>` header for REST API clients, Swagger, mobile apps, and Postman.
+  2. `Cookie: auth_token=<token>` (HTTP-only, `SameSite=Lax`, 7-day expiration) for browser navigation and Server-Side Rendered (SSR) views.
+- **Unified Diagnostic Reason Handling**:
+  - Missing/forged token: returns structured `401 Unauthorized` detailing exact failure cause.
+  - Browser requests are seamlessly redirected to `/login?redirect={targetUrl}`.
+
+### 2. User Registration & Onboarding (`/register` & `/api/auth/register`)
+- **Self-Registration Workflow**:
+  - Allows new users to register as either **`STUDENT`** (current student) or **`ALUMNI`** (university graduate).
+  - Collects first name, last name, email, password, password confirmation, academic department, and graduation year.
+  - Enforces mandatory acceptance of the Academic Honor Code and Terms of Service (`terms_accepted`).
+  - Automatic graduate profile creation: when role is `ALUMNI`, an associated record is automatically created in `alumni_profiles`.
+  - Automatic session provisioning: users receive an authenticated session immediately upon registration.
+
+### 3. Authentication Lifecycle: Log In & Log Out
+- **Log In (`/login` & `/api/auth/login`)**:
+  - Validates credentials against stored database records.
+  - Supports deep linking through the `redirect` query parameter (e.g. attempting to access `/dashboard` or `/student` while unauthenticated redirects back after successful login).
+  - Sets HTTP-only authentication cookie and returns JSON payload with user identity and token.
+- **Log Out (`/logout` & `/api/auth/logout`)**:
+  - Clears `auth_token` cookie and invalidates client session state.
+- **Session Telemetry (`GET /api/auth/me`)**:
+  - Verifies the authenticated caller and returns decoded user profile.
+
+### 4. Role-Based Access Control (RBAC with `requireRole`)
+- Protects administrative and persona-specific endpoints using the `requireRole(...allowedRoles)` middleware.
+- **Defined Role Hierarchy**:
+  - `GUEST`: Public access to Directory, Job Board, Announcements, Brand, and About pages.
+  - `STUDENT`: Access to `/student`, `/my/applications`, job application submission, withdrawal, and profile settings.
+  - `ALUMNI`: Access to `/alumni`, `/my/jobs`, job posting creation, candidate pipeline review, and profile settings.
+  - `ADMIN`: Unrestricted executive governance across all modules, moderation, role elevation, and cross-domain data manipulation.
+- **Structured 403 Forbidden Response**:
+  ```json
+  {
+    "success": false,
+    "status": 403,
+    "error": "Forbidden",
+    "reason": "Access denied. Your role 'STUDENT' does not possess required clearance. Allowed role(s): ALUMNI, ADMIN.",
+    "path": "/alumni",
+    "method": "GET",
+    "timestamp": "2026-11-25T23:50:00.000Z"
+  }
+  ```
+
+### 5. Executive Admin Subsystem & Role Elevation
+- **Dedicated Admin Control Panel (`/admin`)**:
+  - Aggregated KPI cards: Total registered users, active job vacancies, candidate applications, and campus announcements.
+  - Comprehensive management interfaces:
+    - **Users Governance (`/admin/users`)**: Elevate roles (`STUDENT` &rarr; `ALUMNI` &rarr; `ADMIN`), toggle student/alumnus verification status, and delete accounts.
+    - **Job Moderation (`/admin/jobs`)**: Moderate job vacancies and toggle active recruitment status.
+    - **Candidate Pipeline (`/admin/applications`)**: Review and transition candidate applications (`PENDING`, `REVIEWING`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`).
+    - **Campus Broadcasts (`/admin/announcements`)**: Publish university announcements and delete obsolete notices.
+- **One-Click Role Elevation & Antigravity Superuser**:
+  - Web: [`/admin/claim`](views/admin/claim.ejs) enables immediate developer elevation to `ADMIN` or login as the pre-configured Antigravity Superuser (`admin@alumni.istanbul.edu.tr` / `adminpassword`).
+  - API: `POST /api/admin/claim` provisions instant superuser JWT tokens for CLI and automated testing.
+
+### 6. Dynamic Role-Based Navigation System
+- Centralized navigation resolver ([`src/utils/navigation.js`](src/utils/navigation.js)) dynamically constructs menu links and action buttons based on `req.user.role`:
+  - **`GUEST`**: Links to Sign In, Register, Directory, Job Board, Announcements, Brand, and Swagger.
+  - **`STUDENT`**: Highlights `🎓 Student Portal`, `My Applications`, `+ Apply to Job`, and displays `🎓 STUDENT` badge.
+  - **`ALUMNI`**: Highlights `💼 Alumni Workspace`, `My Posted Vacancies`, `+ Post Job`, and displays `💼 ALUMNI` badge.
+  - **`ADMIN`**: Highlights `🛡️ Dashboard`, `Student Portal`, `Alumni Workspace`, `Users Governance`, `Job Moderation`, and glowing `🛡️ ADMIN` badge.
+
+### 7. User-Specific Workspaces & Telemetry
+- **Universal Dashboard Dispatcher (`GET /dashboard`)**: Smart redirector routing users directly to their tailored persona workspace.
+- **Student Portal (`GET /student`)**:
+  - Live candidate application tracking table with recruitment status badges.
+  - Academic profile overview with department and graduation year.
+  - One-click application withdrawal (`POST /portal/applications/:id/withdraw`).
+  - Recommended career opportunities matching the student's department.
+- **Alumni Workspace (`GET /alumni`)**:
+  - Professional summary card (Current company, title, industry, LinkedIn, GitHub).
+  - Posted vacancies manager with applicant counts.
+  - Candidate talent pipeline review board to advance applicants through recruitment stages (`POST /alumni/applications/:id/status`).
+- **Account & Profile Editor (`GET /profile`, `POST /profile`, `GET /me`)**:
+  - Unified configuration surface updating core user credentials and upserting alumni profile metadata into database.
+- **Programmatic Telemetry API (`/api/me`)**:
+  - `GET /api/me`: Returns complete user identity, profile, submitted applications, and posted jobs.
+  - `GET /api/me/applications`: Candidate application history list.
+  - `GET /api/me/jobs`: Alumnus posted job vacancies list.
+  - `PUT /api/me/profile`: Update user credentials and alumni profile.
+
 ---
 
 ## 🛠️ Getting Started & Installation
@@ -587,7 +791,7 @@ Handled by `apiDepartmentController.js`:
    ```bash
    npm test
    ```
-   Executes 87 integration tests verifying all introductory routes, Swagger, Users, Announcements, Job Postings, Applications (N:M), Database Migrations, Seeders, Logger Middleware, 404 Guardian, 5xx Guardian, Registration, Log In & Log Out, and Auth Middleware (RBAC).
+   Executes 125+ automated integration tests verifying all introductory routes, Swagger, Users, Announcements, Job Postings, Applications (N:M), Database Migrations, Seeders, Logger Middleware, 404 Guardian, 5xx Guardian, Registration, Log In & Log Out, Auth Middleware (RBAC), Admin Panel, Dynamic Role Navigation, and User-Specific Workspaces.
 
 ---
 
@@ -752,6 +956,13 @@ npm run db:setup
 Once the server is running, navigate to:
 - **Swagger UI**: [http://localhost:3000/api/swagger](http://localhost:3000/api/swagger)
 - **OpenAPI JSON**: [http://localhost:3000/api/swagger.json](http://localhost:3000/api/swagger.json)
+- **Universal Dashboard**: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
+- **Student Career Portal**: [http://localhost:3000/student](http://localhost:3000/student)
+- **Alumni Talent Workspace**: [http://localhost:3000/alumni](http://localhost:3000/alumni)
+- **Executive Admin Panel**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **Account & Profile Settings**: [http://localhost:3000/profile](http://localhost:3000/profile)
+- **Account Registration**: [http://localhost:3000/register](http://localhost:3000/register)
+- **Sign In Portal**: [http://localhost:3000/login](http://localhost:3000/login)
 - **Web UI Directory**: [http://localhost:3000/users](http://localhost:3000/users)
 - **Announcements Board**: [http://localhost:3000/announcements](http://localhost:3000/announcements)
 - **Job Board**: [http://localhost:3000/jobs](http://localhost:3000/jobs)

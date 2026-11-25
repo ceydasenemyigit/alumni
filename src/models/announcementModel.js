@@ -314,6 +314,14 @@ class AnnouncementModel {
       return deleted;
     }
   }
+
+  async findAll(query = {}) {
+    return await this.getAll(query);
+  }
+
+  async findById(id) {
+    return await this.getById(id);
+  }
 }
 
 module.exports = new AnnouncementModel();

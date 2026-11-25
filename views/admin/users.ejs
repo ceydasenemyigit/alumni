@@ -1,0 +1,104 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/admin" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Admin Dashboard</a>
+    </div>
+    <h1 class="page-title">User Management & Role Governance</h1>
+    <p class="page-subtitle">Inspect alumni & student accounts, elevate permissions, toggle verification, and manipulate user records.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/users/new" class="btn btn-pill-primary btn-sm">+ New User</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<!-- Filter Pills -->
+<div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
+  <a href="/admin/users" class="btn btn-utility btn-sm <%= !roleFilter ? 'btn-active' : '' %>">All Accounts (<%= users.length %>)</a>
+  <a href="/admin/users?role=ADMIN" class="btn btn-utility btn-sm <%= roleFilter === 'ADMIN' ? 'btn-active' : '' %>">Admins</a>
+  <a href="/admin/users?role=ALUMNI" class="btn btn-utility btn-sm <%= roleFilter === 'ALUMNI' ? 'btn-active' : '' %>">Alumni</a>
+  <a href="/admin/users?role=STUDENT" class="btn btn-utility btn-sm <%= roleFilter === 'STUDENT' ? 'btn-active' : '' %>">Students</a>
+</div>
+
+<!-- Users Table Card -->
+<div class="card" style="padding: 24px;">
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+          <th style="padding: 12px 14px;">ID</th>
+          <th style="padding: 12px 14px;">User Profile</th>
+          <th style="padding: 12px 14px;">Department / Grad Year</th>
+          <th style="padding: 12px 14px;">Assigned Role</th>
+          <th style="padding: 12px 14px;">Verification Status</th>
+          <th style="padding: 12px 14px; text-align: right;">Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% 
+          const filtered = roleFilter ? users.filter(u => u.role === roleFilter) : users;
+          filtered.forEach(u => { 
+        %>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+            <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+              #<%= u.id %>
+            </td>
+            <td style="padding: 14px;">
+              <div style="font-weight: 700; color: white;"><%= u.first_name %> <%= u.last_name %></div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);"><%= u.email %></div>
+            </td>
+            <td style="padding: 14px; font-size: 0.84rem; color: var(--text-muted);">
+              <div><%= u.department || u.department_name || 'General' %></div>
+              <div style="font-size: 0.76rem; color: var(--text-soft);"><%= u.graduation_year ? 'Class of ' + u.graduation_year : 'N/A' %></div>
+            </td>
+            <td style="padding: 14px;">
+              <form action="/admin/users/<%= u.id %>/role" method="POST" style="display: inline-flex; align-items: center; gap: 6px;">
+                <select name="role" onchange="this.form.submit()" style="background: rgba(20, 12, 23, 0.8); border: 1px solid rgba(244, 63, 94, 0.25); color: white; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                  <option value="STUDENT" <%= u.role === 'STUDENT' ? 'selected' : '' %>>STUDENT</option>
+                  <option value="ALUMNI" <%= u.role === 'ALUMNI' ? 'selected' : '' %>>ALUMNI</option>
+                  <option value="ADMIN" <%= u.role === 'ADMIN' ? 'selected' : '' %>>ADMIN</option>
+                </select>
+                <button type="submit" class="btn btn-utility btn-sm" style="padding: 3px 6px; font-size: 0.72rem;">Save</button>
+              </form>
+            </td>
+            <td style="padding: 14px;">
+              <form action="/admin/users/<%= u.id %>/toggle-verify" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem; border-color: <%= u.is_verified ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.4)' %>;">
+                  <% if (u.is_verified) { %>
+                    <span style="color: #10b981;">✓ Verified</span>
+                  <% } else { %>
+                    <span style="color: #f43f5e;">✗ Unverified</span>
+                  <% } %>
+                </button>
+              </form>
+            </td>
+            <td style="padding: 14px; text-align: right;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <a href="/users/<%= u.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">View</a>
+                <% if (u.id !== 99) { %>
+                  <form action="/admin/users/<%= u.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Permanently delete user #<%= u.id %>?')">
+                    <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);" title="Delete User">
+                      🗑️
+                    </button>
+                  </form>
+                <% } else { %>
+                  <span style="font-size: 0.75rem; color: var(--text-soft); font-style: italic;">Protected</span>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

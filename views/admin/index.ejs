@@ -1,0 +1,284 @@
+<%- include('../partials/header') %>
+
+<!-- Admin Header Bar -->
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+      <span class="badge badge-admin" style="font-size: 0.8rem; padding: 4px 12px; letter-spacing: 0.04em;">
+        🛡️ SYSTEM ADMINISTRATION
+      </span>
+      <span style="color: var(--text-soft); font-size: 0.85rem;">Root Clearance</span>
+    </div>
+    <h1 class="page-title">Executive Control Center</h1>
+    <p class="page-subtitle">Real-time system telemetry, cross-entity governance, and domain data manipulation.</p>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="/admin/users" class="btn btn-utility btn-sm">👥 Manage Users</a>
+    <a href="/admin/jobs" class="btn btn-utility btn-sm">💼 Manage Jobs</a>
+    <a href="/admin/applications" class="btn btn-utility btn-sm">📄 Applications</a>
+    <a href="/admin/announcements" class="btn btn-utility btn-sm">📢 Broadcasts</a>
+  </div>
+</div>
+
+<% if (typeof claimed !== 'undefined' && claimed) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 14px 20px; border-radius: 14px; margin-bottom: 24px; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 1.5rem;">🎉</span>
+      <div>
+        <strong style="color: white;">Admin Role Successfully Assigned!</strong>
+        <div style="font-size: 0.86rem; color: #a7f3d0;">Your identity is authenticated with full administrative and data manipulation privileges.</div>
+      </div>
+    </div>
+    <span class="badge badge-admin">ADMIN CLEARANCE</span>
+  </div>
+<% } %>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.4); color: #7dd3fc; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>⚡</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<!-- 4 Telemetry KPI Metric Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px;">
+  <!-- Total Users -->
+  <div class="card" style="padding: 22px; position: relative; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <span class="stat-label">Total Users</span>
+      <span style="font-size: 1.4rem;">👥</span>
+    </div>
+    <div class="stat-value" style="margin-bottom: 8px;"><%= stats.totalUsers %></div>
+    <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap;">
+      <span style="color: var(--primary-on-dark); font-weight: 600;"><%= stats.admins %> Admin</span> &bull;
+      <span><%= stats.alumni %> Alumni</span> &bull;
+      <span><%= stats.students %> Student</span>
+    </div>
+    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.78rem; color: var(--text-soft);"><%= stats.verifiedUsers %> Verified</span>
+      <a href="/admin/users" style="font-size: 0.8rem; color: var(--primary-on-dark); text-decoration: none; font-weight: 600;">Manage &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Job Postings -->
+  <div class="card" style="padding: 22px; position: relative; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <span class="stat-label">Job Postings</span>
+      <span style="font-size: 1.4rem;">💼</span>
+    </div>
+    <div class="stat-value" style="margin-bottom: 8px;"><%= stats.totalJobs %></div>
+    <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap;">
+      <span style="color: #6ee7b7; font-weight: 600;"><%= stats.activeJobs %> Active</span> &bull;
+      <span style="color: #fda4af;"><%= stats.inactiveJobs %> Inactive</span>
+    </div>
+    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.78rem; color: var(--text-soft);">Career Vacancies</span>
+      <a href="/admin/jobs" style="font-size: 0.8rem; color: var(--primary-on-dark); text-decoration: none; font-weight: 600;">Manage &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Candidate Applications -->
+  <div class="card" style="padding: 22px; position: relative; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <span class="stat-label">Applications</span>
+      <span style="font-size: 1.4rem;">📄</span>
+    </div>
+    <div class="stat-value" style="margin-bottom: 8px;"><%= stats.totalApplications %></div>
+    <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap;">
+      <span style="color: #fde047;"><%= stats.pendingApps %> Pending</span> &bull;
+      <span style="color: #93c5fd;"><%= stats.reviewingApps %> Reviewing</span> &bull;
+      <span style="color: #86efac;"><%= stats.acceptedApps %> Accepted</span>
+    </div>
+    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.78rem; color: var(--text-soft);">Pipeline Conversion</span>
+      <a href="/admin/applications" style="font-size: 0.8rem; color: var(--primary-on-dark); text-decoration: none; font-weight: 600;">Manage &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Broadcasts & Announcements -->
+  <div class="card" style="padding: 22px; position: relative; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+      <span class="stat-label">Announcements</span>
+      <span style="font-size: 1.4rem;">📢</span>
+    </div>
+    <div class="stat-value" style="margin-bottom: 8px;"><%= stats.totalAnnouncements %></div>
+    <div style="font-size: 0.82rem; color: var(--text-muted);">
+      Published system notices & community news
+    </div>
+    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.78rem; color: var(--text-soft);">Live Feeds</span>
+      <a href="/admin/announcements" style="font-size: 0.8rem; color: var(--primary-on-dark); text-decoration: none; font-weight: 600;">Broadcast &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- Main Control Panels Grid -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+  <!-- Panel 1: User Governance Quick Table -->
+  <div class="card" style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+      <div>
+        <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">User Governance & Roles</h3>
+        <p style="color: var(--text-muted); font-size: 0.82rem;">Manipulate user roles and verification statuses in real-time.</p>
+      </div>
+      <a href="/admin/users" class="btn btn-utility btn-sm">View All Users</a>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 8px 10px;">User</th>
+            <th style="padding: 8px 10px;">Role</th>
+            <th style="padding: 8px 10px;">Verified</th>
+            <th style="padding: 8px 10px; text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(u => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 10px;">
+                <div style="font-weight: 600; color: white;"><%= u.first_name %> <%= u.last_name %></div>
+                <div style="font-size: 0.76rem; color: var(--text-soft);"><%= u.email %></div>
+              </td>
+              <td style="padding: 10px;">
+                <form action="/admin/users/<%= u.id %>/role" method="POST" style="display: inline-flex; align-items: center; gap: 4px;">
+                  <select name="role" onchange="this.form.submit()" style="background: rgba(20, 12, 23, 0.8); border: 1px solid rgba(244, 63, 94, 0.25); color: white; border-radius: 6px; padding: 3px 6px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
+                    <option value="STUDENT" <%= u.role === 'STUDENT' ? 'selected' : '' %>>STUDENT</option>
+                    <option value="ALUMNI" <%= u.role === 'ALUMNI' ? 'selected' : '' %>>ALUMNI</option>
+                    <option value="ADMIN" <%= u.role === 'ADMIN' ? 'selected' : '' %>>ADMIN</option>
+                  </select>
+                </form>
+              </td>
+              <td style="padding: 10px;">
+                <form action="/admin/users/<%= u.id %>/toggle-verify" method="POST" style="display: inline;">
+                  <button type="submit" style="background: none; border: none; cursor: pointer;" title="Click to toggle verification">
+                    <% if (u.is_verified) { %>
+                      <span style="color: #10b981; font-size: 0.82rem; font-weight: 600;">✓ Verified</span>
+                    <% } else { %>
+                      <span style="color: #f43f5e; font-size: 0.82rem; font-weight: 600;">✗ Unverified</span>
+                    <% } %>
+                  </button>
+                </form>
+              </td>
+              <td style="padding: 10px; text-align: right;">
+                <a href="/users/<%= u.id %>" class="btn btn-utility btn-sm" style="padding: 2px 8px; font-size: 0.74rem;">Profile</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Panel 2: Job Postings Moderation -->
+  <div class="card" style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+      <div>
+        <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">Job Postings Moderation</h3>
+        <p style="color: var(--text-muted); font-size: 0.82rem;">Toggle visibility and moderate published career listings.</p>
+      </div>
+      <a href="/admin/jobs" class="btn btn-utility btn-sm">View All Jobs</a>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 8px 10px;">Listing</th>
+            <th style="padding: 8px 10px;">Type</th>
+            <th style="padding: 8px 10px;">Status</th>
+            <th style="padding: 8px 10px; text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% jobs.forEach(j => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 10px;">
+                <div style="font-weight: 600; color: white;"><%= j.title %></div>
+                <div style="font-size: 0.76rem; color: var(--text-soft);"><%= j.company %></div>
+              </td>
+              <td style="padding: 10px;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);"><%= j.employment_type %></span>
+              </td>
+              <td style="padding: 10px;">
+                <form action="/admin/jobs/<%= j.id %>/toggle-status" method="POST" style="display: inline;">
+                  <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    <% if (j.is_active) { %>
+                      <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.72rem;">Active</span>
+                    <% } else { %>
+                      <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); font-size: 0.72rem;">Inactive</span>
+                    <% } %>
+                  </button>
+                </form>
+              </td>
+              <td style="padding: 10px; text-align: right;">
+                <form action="/admin/jobs/<%= j.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete job posting?')">
+                  <button type="submit" style="background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 0.8rem;" title="Delete">🗑️</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Panel 3: Applications Pipeline Moderation -->
+<div class="card" style="padding: 24px; margin-bottom: 32px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+    <div>
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">Candidate Applications Pipeline</h3>
+      <p style="color: var(--text-muted); font-size: 0.82rem;">Inspect and advance applicant statuses across the recruitment pipeline.</p>
+    </div>
+    <a href="/admin/applications" class="btn btn-utility btn-sm">Full Pipeline View</a>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+          <th style="padding: 8px 10px;">Applicant ID</th>
+          <th style="padding: 8px 10px;">Job ID</th>
+          <th style="padding: 8px 10px;">Status Pipeline</th>
+          <th style="padding: 8px 10px;">Applied Date</th>
+          <th style="padding: 8px 10px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% applications.forEach(a => { %>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+            <td style="padding: 10px; font-weight: 600; color: white;">
+              Candidate #<%= a.user_id %>
+            </td>
+            <td style="padding: 10px; color: var(--primary-on-dark);">
+              Job #<%= a.job_posting_id %>
+            </td>
+            <td style="padding: 10px;">
+              <form action="/admin/applications/<%= a.id %>/status" method="POST" style="display: inline-flex; align-items: center; gap: 4px;">
+                <select name="status" onchange="this.form.submit()" style="background: rgba(20, 12, 23, 0.8); border: 1px solid rgba(244, 63, 94, 0.25); color: white; border-radius: 6px; padding: 3px 6px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
+                  <option value="PENDING" <%= a.status === 'PENDING' ? 'selected' : '' %>>PENDING</option>
+                  <option value="REVIEWING" <%= a.status === 'REVIEWING' ? 'selected' : '' %>>REVIEWING</option>
+                  <option value="ACCEPTED" <%= a.status === 'ACCEPTED' ? 'selected' : '' %>>ACCEPTED</option>
+                  <option value="REJECTED" <%= a.status === 'REJECTED' ? 'selected' : '' %>>REJECTED</option>
+                  <option value="WITHDRAWN" <%= a.status === 'WITHDRAWN' ? 'selected' : '' %>>WITHDRAWN</option>
+                </select>
+              </form>
+            </td>
+            <td style="padding: 10px; font-size: 0.78rem; color: var(--text-soft);">
+              <%= new Date(a.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            </td>
+            <td style="padding: 10px; text-align: right;">
+              <form action="/admin/applications/<%= a.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete application?')">
+                <button type="submit" style="background: none; border: none; color: #f43f5e; cursor: pointer; font-size: 0.8rem;" title="Delete">🗑️</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

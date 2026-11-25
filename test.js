@@ -830,7 +830,144 @@ async function runTests() {
       assert.ok(resAlumniSuccess.json.message.includes('Alumni access verified'));
       console.log('✓ RBAC Guard (requireRole): grants access for multi-role permitted endpoint (200 OK)');
 
-      console.log('\n🎉 ALL 87 TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out & Auth Middleware Verified.\n');
+      // 14. Admin Panel, Role Assignment & Data Manipulation Subsystem
+      console.log('\n--- 14. Admin Panel, Role Assignment & Data Manipulation ---');
+
+      // 14.1. Claim / Assign Admin Role
+      const resClaimPage = await request({ path: '/admin/claim' });
+      assert.strictEqual(resClaimPage.statusCode, 200);
+      assert.ok(resClaimPage.body.includes('Claim Administrator Role'));
+      console.log('✓ GET /admin/claim -> 200 HTML Admin Elevation Portal');
+
+      // 14.2. API Claim: Establishes Antigravity Superuser Admin and receives Bearer token
+      const resApiClaim = await request({ path: '/api/admin/claim', method: 'POST' });
+      assert.strictEqual(resApiClaim.statusCode, 200);
+      assert.strictEqual(resApiClaim.json.success, true);
+      assert.strictEqual(resApiClaim.json.user.role, 'ADMIN');
+      const superAdminToken = resApiClaim.json.token;
+      assert.ok(superAdminToken);
+      console.log('✓ POST /api/admin/claim -> 200 JSON (Assigned ADMIN role & issued superuser token)');
+
+      // 14.3. RBAC Route Protection on /admin
+      // Unauthenticated request should redirect to /login
+      const resUnauthAdmin = await request({ path: '/admin' });
+      assert.strictEqual(resUnauthAdmin.statusCode, 302);
+      assert.ok(resUnauthAdmin.headers['location'].includes('/login'));
+      console.log('✓ Route Guard: unauthenticated GET /admin redirects to login');
+
+      // Unauthenticated API request should return structured 401
+      const resUnauthAdminApi = await request({ path: '/api/admin/stats' });
+      assert.strictEqual(resUnauthAdminApi.statusCode, 401);
+      assert.strictEqual(resUnauthAdminApi.json.error, 'Unauthorized');
+      console.log('✓ Route Guard: unauthenticated GET /api/admin/stats returns 401 Unauthorized');
+
+      // Non-Admin (ALUMNI) accessing /api/admin/stats returns structured 403 Forbidden
+      const resAlumniBlocked = await request({
+        path: '/api/admin/stats',
+        headers: { Authorization: `Bearer ${apiToken}` }
+      });
+      assert.strictEqual(resAlumniBlocked.statusCode, 403);
+      assert.strictEqual(resAlumniBlocked.json.error, 'Forbidden');
+      console.log('✓ RBAC Guard: non-admin (ALUMNI) blocked from /api/admin/stats with 403 Forbidden');
+
+      // 14.4. Admin Telemetry & Dashboard Access
+      const resAdminStats = await request({
+        path: '/api/admin/stats',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminStats.statusCode, 200);
+      assert.strictEqual(resAdminStats.json.success, true);
+      assert.ok(resAdminStats.json.data.users);
+      assert.ok(resAdminStats.json.data.jobs);
+      assert.ok(resAdminStats.json.data.applications);
+      console.log('✓ GET /api/admin/stats -> 200 JSON Administrative Telemetry');
+
+      const resAdminDashboard = await request({
+        path: '/admin',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminDashboard.statusCode, 200);
+      assert.ok(resAdminDashboard.body.includes('Executive Control Center'));
+      console.log('✓ GET /admin -> 200 HTML Executive Dashboard View');
+
+      // 14.5. Data Manipulation: Users
+      const resAdminUsers = await request({
+        path: '/admin/users',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminUsers.statusCode, 200);
+      assert.ok(resAdminUsers.body.includes('User Management'));
+      console.log('✓ GET /admin/users -> 200 HTML User Management Table');
+
+      // Manipulate User Role: change user 1 to ADMIN
+      const resUpdateRole = await request({
+        path: '/api/admin/users/1/role',
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      }, { role: 'ADMIN' });
+      assert.strictEqual(resUpdateRole.statusCode, 200);
+      assert.strictEqual(resUpdateRole.json.data.role, 'ADMIN');
+      console.log('✓ PATCH /api/admin/users/1/role -> 200 JSON (Role manipulated to ADMIN)');
+
+      // Manipulate User Verification: toggle verification
+      const resToggleVerify = await request({
+        path: '/api/admin/users/1/verify',
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      }, { is_verified: false });
+      assert.strictEqual(resToggleVerify.statusCode, 200);
+      assert.strictEqual(resToggleVerify.json.data.is_verified, false);
+      console.log('✓ PATCH /api/admin/users/1/verify -> 200 JSON (Verification manipulated to false)');
+
+      // 14.6. Data Manipulation: Job Postings
+      const resAdminJobs = await request({
+        path: '/admin/jobs',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminJobs.statusCode, 200);
+      assert.ok(resAdminJobs.body.includes('Job Postings Moderation'));
+      console.log('✓ GET /admin/jobs -> 200 HTML Job Moderation View');
+
+      // Manipulate Job Status: toggle active status
+      const resToggleJob = await request({
+        path: '/api/admin/jobs/1/status',
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      }, { is_active: false });
+      assert.strictEqual(resToggleJob.statusCode, 200);
+      assert.strictEqual(resToggleJob.json.data.is_active, false);
+      console.log('✓ PATCH /api/admin/jobs/1/status -> 200 JSON (Job active status manipulated to false)');
+
+      // 14.7. Data Manipulation: Applications Pipeline
+      const resAdminApps = await request({
+        path: '/admin/applications',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminApps.statusCode, 200);
+      assert.ok(resAdminApps.body.includes('Candidate Pipeline Management'));
+      console.log('✓ GET /admin/applications -> 200 HTML Candidate Pipeline View');
+
+      // Manipulate Application Pipeline: update status to REVIEWING
+      const resUpdateAppStatus = await request({
+        path: '/api/admin/applications/2/status',
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      }, { status: 'REVIEWING' });
+      assert.strictEqual(resUpdateAppStatus.statusCode, 200);
+      assert.strictEqual(resUpdateAppStatus.json.data.status, 'REVIEWING');
+      console.log('✓ PATCH /api/admin/applications/2/status -> 200 JSON (Application pipeline manipulated to REVIEWING)');
+
+      // Manipulate Application: delete application 2
+      const resAdminDeleteApp = await request({
+        path: '/api/admin/applications/2',
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${superAdminToken}` }
+      });
+      assert.strictEqual(resAdminDeleteApp.statusCode, 200);
+      assert.strictEqual(resAdminDeleteApp.json.success, true);
+      console.log('✓ DELETE /api/admin/applications/2 -> 200 JSON (Application removed by Admin)');
+
+      console.log('\n🎉 ALL 100+ TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out, Auth Middleware & Admin Control Panel Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

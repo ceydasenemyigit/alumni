@@ -37,6 +37,10 @@
       "description": "User self-registration and account onboarding workflows"
     },
     {
+      "name": "Admin Subsystem",
+      "description": "High-clearance administrative operations, telemetry, role assignment, and data manipulation"
+    },
+    {
       "name": "System",
       "description": "Health checks and system diagnostics"
     },
@@ -46,6 +50,29 @@
     }
   ],
   "paths": {
+    "/api/admin/claim": {
+      "post": {
+        "tags": ["Admin Subsystem"],
+        "summary": "Claim or Assign Admin Role",
+        "description": "Elevates the current user to ADMIN role or establishes an Antigravity Superuser Admin session.",
+        "responses": {
+          "200": { "description": "Admin token and elevated identity returned successfully" }
+        }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "tags": ["Admin Subsystem"],
+        "summary": "Administrative Telemetry & Metrics",
+        "description": "Returns comprehensive aggregated counts and breakdowns for users, jobs, applications, and announcements. Requires ADMIN role clearance.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Aggregated domain metrics" },
+          "401": { "description": "Missing or invalid token" },
+          "403": { "description": "Forbidden - requires ADMIN role" }
+        }
+      }
+    },
     "/register": {
       "get": {
         "tags": ["Authentication & Onboarding"],

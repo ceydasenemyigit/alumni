@@ -154,7 +154,8 @@ async function authMiddleware(req, res, next) {
   }
 
   // Request is unauthenticated
-  const isApi = req.path.startsWith('/api') || !req.accepts('html') || (req.headers['accept'] && req.headers['accept'].includes('application/json'));
+  const currentUrl = req.originalUrl || req.url || '';
+  const isApi = currentUrl.startsWith('/api') || (req.baseUrl && req.baseUrl.startsWith('/api')) || req.path.startsWith('/api') || !req.accepts('html') || (req.headers['accept'] && req.headers['accept'].includes('application/json'));
 
   if (isApi) {
     return res.status(401).json({
@@ -192,7 +193,8 @@ function validateRole(req, res, next, allowedRoles) {
   const userRole = (req.user && req.user.role) ? req.user.role : '';
 
   if (!allowedRoles.includes(userRole)) {
-    const isApi = req.path.startsWith('/api') || !req.accepts('html');
+    const currentUrl = req.originalUrl || req.url || '';
+    const isApi = currentUrl.startsWith('/api') || (req.baseUrl && req.baseUrl.startsWith('/api')) || req.path.startsWith('/api') || !req.accepts('html') || (req.headers['accept'] && req.headers['accept'].includes('application/json'));
     const reason = `Access denied. Your role '${userRole || 'UNKNOWN'}' does not possess required clearance. Allowed role(s): ${allowedRoles.join(', ')}.`;
 
     if (isApi) {

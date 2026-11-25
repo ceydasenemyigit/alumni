@@ -474,6 +474,9 @@
         <a href="/brand">Brand</a>
         <a href="/about">About</a>
         <a href="/api/swagger">Swagger</a>
+        <% if (locals.currentUser && currentUser.role === 'ADMIN') { %>
+          <a href="/admin" style="background: linear-gradient(135deg, #f43f5e, #ec4899); color: white; padding: 3px 10px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);">🛡️ Admin</a>
+        <% } %>
         <% if (locals.currentUser) { %>
           <a href="/users/<%= currentUser.id %>" style="color: var(--primary-on-dark); font-weight: 700;">👤 <%= currentUser.first_name %></a>
           <a href="/logout" style="color: #fda4af; font-size: 0.85rem;">Sign Out</a>
@@ -495,11 +498,17 @@
       </div>
       <div class="sub-nav-actions">
         <% if (locals.currentUser) { %>
+          <% if (currentUser.role === 'ADMIN') { %>
+            <a href="/admin" class="btn btn-pill-primary btn-sm" style="background: linear-gradient(135deg, #f43f5e, #ec4899); padding: 4px 10px; font-size: 0.78rem;">🛡️ Admin</a>
+          <% } else { %>
+            <a href="/admin/claim" class="btn btn-utility btn-sm" style="color: var(--primary-on-dark); font-size: 0.78rem;" title="Elevate to Admin">⚡ Claim Admin</a>
+          <% } %>
           <span class="badge badge-<%= (currentUser.role || 'alumni').toLowerCase() %>"><%= currentUser.role %></span>
           <a href="/jobs/new" class="btn btn-utility btn-sm">+ Job</a>
           <a href="/applications/new" class="btn btn-utility btn-sm">+ Apply</a>
           <a href="/logout" class="btn btn-utility btn-sm" style="color: #fda4af;">Sign Out</a>
         <% } else { %>
+          <a href="/admin/claim" class="btn btn-utility btn-sm" style="color: var(--primary-on-dark); font-size: 0.78rem;" title="Access Admin">🛡️ Admin</a>
           <a href="/login" class="btn btn-utility btn-sm">Sign In</a>
           <a href="/register" class="btn btn-pill-primary btn-sm">✨ Register</a>
           <a href="/jobs/new" class="btn btn-utility btn-sm">+ Job</a>

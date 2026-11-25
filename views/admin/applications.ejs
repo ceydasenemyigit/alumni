@@ -1,0 +1,84 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/admin" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Admin Dashboard</a>
+    </div>
+    <h1 class="page-title">Candidate Pipeline Management</h1>
+    <p class="page-subtitle">Inspect student & alumni job applications, advance pipeline stages, and manage recruitment decisions.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/applications/new" class="btn btn-pill-primary btn-sm">+ Submit Application</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<div class="card" style="padding: 24px;">
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+          <th style="padding: 12px 14px;">App ID</th>
+          <th style="padding: 12px 14px;">Applicant Candidate</th>
+          <th style="padding: 12px 14px;">Target Job Vacancy</th>
+          <th style="padding: 12px 14px;">Pipeline Stage</th>
+          <th style="padding: 12px 14px;">Submission Date</th>
+          <th style="padding: 12px 14px; text-align: right;">Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% applications.forEach(a => { %>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+            <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+              #<%= a.id %>
+            </td>
+            <td style="padding: 14px;">
+              <div style="font-weight: 700; color: white;"><%= a.applicant_name %></div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);"><%= a.applicant_email %></div>
+              <a href="/users/<%= a.user_id %>" style="font-size: 0.74rem; color: var(--primary-on-dark); text-decoration: none;">View Candidate Profile &rarr;</a>
+            </td>
+            <td style="padding: 14px;">
+              <div style="font-weight: 600; color: white;"><%= a.job_title %></div>
+              <div style="font-size: 0.78rem; color: var(--text-soft);"><%= a.company %></div>
+              <a href="/jobs/<%= a.job_posting_id %>" style="font-size: 0.74rem; color: var(--primary-on-dark); text-decoration: none;">View Job Posting &rarr;</a>
+            </td>
+            <td style="padding: 14px;">
+              <form action="/admin/applications/<%= a.id %>/status" method="POST" style="display: inline-flex; align-items: center; gap: 6px;">
+                <select name="status" onchange="this.form.submit()" style="background: rgba(20, 12, 23, 0.8); border: 1px solid rgba(244, 63, 94, 0.25); color: white; border-radius: 8px; padding: 4px 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                  <option value="PENDING" <%= a.status === 'PENDING' ? 'selected' : '' %>>PENDING</option>
+                  <option value="REVIEWING" <%= a.status === 'REVIEWING' ? 'selected' : '' %>>REVIEWING</option>
+                  <option value="ACCEPTED" <%= a.status === 'ACCEPTED' ? 'selected' : '' %>>ACCEPTED</option>
+                  <option value="REJECTED" <%= a.status === 'REJECTED' ? 'selected' : '' %>>REJECTED</option>
+                  <option value="WITHDRAWN" <%= a.status === 'WITHDRAWN' ? 'selected' : '' %>>WITHDRAWN</option>
+                </select>
+                <button type="submit" class="btn btn-utility btn-sm" style="padding: 3px 6px; font-size: 0.72rem;">Update</button>
+              </form>
+            </td>
+            <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+              <%= new Date(a.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            </td>
+            <td style="padding: 14px; text-align: right;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <a href="/applications/<%= a.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
+                <form action="/admin/applications/<%= a.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Permanently remove application record #<%= a.id %>?')">
+                  <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);" title="Delete Application">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

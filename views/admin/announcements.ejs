@@ -1,0 +1,117 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/admin" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Admin Dashboard</a>
+    </div>
+    <h1 class="page-title">Announcements & Broadcast Management</h1>
+    <p class="page-subtitle">Publish administrative campus broadcasts, manage announcements, and moderate community notices.</p>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<!-- Broadcast Creation Form -->
+<div class="card" style="padding: 24px; margin-bottom: 30px;">
+  <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+    <span>📢</span> Broadcast New Administrative Announcement
+  </h3>
+
+  <form action="/admin/announcements" method="POST">
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Announcement Title</label>
+        <input type="text" name="title" required placeholder="e.g. Official Alumni Gala 2026 Registration" class="form-control">
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-control">
+          <option value="General">General</option>
+          <option value="Event">Event</option>
+          <option value="Career">Career</option>
+          <option value="Academic">Academic</option>
+          <option value="Important">Important</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Broadcast Author</label>
+        <input type="text" name="author" value="Platform Administration" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 18px;">
+      <label class="form-label">Content / Body</label>
+      <textarea name="content" rows="3" required placeholder="Write the announcement message details here..." class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-pill-primary btn-sm" style="padding: 10px 20px; font-weight: 700;">
+      🚀 Publish Broadcast
+    </button>
+  </form>
+</div>
+
+<!-- Announcements Table Card -->
+<div class="card" style="padding: 24px;">
+  <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 16px;">
+    Existing Published Broadcasts (<%= announcements.length %>)
+  </h3>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+          <th style="padding: 12px 14px;">ID</th>
+          <th style="padding: 12px 14px;">Title & Content Preview</th>
+          <th style="padding: 12px 14px;">Category</th>
+          <th style="padding: 12px 14px;">Author</th>
+          <th style="padding: 12px 14px;">Published Date</th>
+          <th style="padding: 12px 14px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% announcements.forEach(a => { %>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+            <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+              #<%= a.id %>
+            </td>
+            <td style="padding: 14px;">
+              <div style="font-weight: 700; color: white;"><%= a.title %></div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <%= a.content %>
+              </div>
+            </td>
+            <td style="padding: 14px;">
+              <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.74rem;">
+                <%= a.category %>
+              </span>
+            </td>
+            <td style="padding: 14px; font-size: 0.82rem; color: var(--text-soft);">
+              <%= a.author %>
+            </td>
+            <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+              <%= new Date(a.created_at || a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            </td>
+            <td style="padding: 14px; text-align: right;">
+              <div style="display: inline-flex; gap: 8px; align-items: center;">
+                <a href="/announcements/<%= a.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">View</a>
+                <form action="/admin/announcements/<%= a.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete announcement #<%= a.id %>?')">
+                  <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);" title="Delete Announcement">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

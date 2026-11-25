@@ -671,3 +671,31 @@ npm run db:seed
 npm run db:setup
 ```
 
+---
+
+## 🛡️ 11. Administrative Subsystem & Role Governance (Admin Panel)
+
+### 11.1. Overview & Security Architecture
+The **Executive Admin Panel** ([`/admin`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/admin/index.ejs)) is a high-clearance administrative control surface reserved strictly for the `ADMIN` role. It is shielded by `authMiddleware` and `requireRole('ADMIN')`:
+- **Unauthenticated access**: Web requests are redirected to `/login?redirect=/admin`; API requests return structured `401 Unauthorized` with explicit diagnostic reason.
+- **Unauthorized role access** (e.g. `STUDENT` or `ALUMNI`): Terminated with structured `403 Forbidden` (`Access denied. Your role 'ALUMNI' does not possess required clearance. Allowed role(s): ADMIN`).
+
+### 11.2. Role Assignment & Elevation Mechanism
+1. **Pre-configured Antigravity Superuser Admin**:
+   - Identity: `admin@alumni.istanbul.edu.tr` (or `antigravity@alumni.istanbul.edu.tr`)
+   - Password: `adminpassword`
+   - Superuser ID: `99`, Role: `ADMIN`
+2. **One-Click Role Elevation & Claim**:
+   - Web: [`/admin/claim`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/admin/claim.ejs) allows any user or developer to immediately elevate their active session to `ADMIN` or authenticate as Antigravity Admin with refreshed cryptographic session tokens.
+   - API: `POST /api/admin/claim` provides zero-friction admin token provisioning for automated CI/CD and CLI workflows.
+
+### 11.3. Cross-Domain Data Manipulation
+| Target Domain Entity | Administrative Capabilities | Web Form Route | Programmatic REST API |
+|---|---|---|---|
+| **Users** | Role Elevation (`STUDENT` / `ALUMNI` / `ADMIN`), Toggle `is_verified`, Delete User | `POST /admin/users/:id/role`<br>`POST /admin/users/:id/toggle-verify`<br>`POST /admin/users/:id/delete` | `PATCH /api/admin/users/:id/role`<br>`PATCH /api/admin/users/:id/verify`<br>`DELETE /api/admin/users/:id` |
+| **Job Postings** | Toggle Active Status (`is_active` true/false), Delete Listing | `POST /admin/jobs/:id/toggle-status`<br>`POST /admin/jobs/:id/delete` | `PATCH /api/admin/jobs/:id/status`<br>`DELETE /api/admin/jobs/:id` |
+| **Applications** | Recruitment Pipeline Transition (`PENDING`, `REVIEWING`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`), Delete Submission | `POST /admin/applications/:id/status`<br>`POST /admin/applications/:id/delete` | `PATCH /api/admin/applications/:id/status`<br>`DELETE /api/admin/applications/:id` |
+| **Announcements** | Publish Campus Broadcast, Delete Announcement | `POST /admin/announcements`<br>`POST /admin/announcements/:id/delete` | `POST /api/announcements`<br>`DELETE /api/announcements/:id` |
+| **Telemetry** | Cross-Entity Telemetry Aggregation & Real-time Metrics | `GET /admin` | `GET /api/admin/stats` |
+
+

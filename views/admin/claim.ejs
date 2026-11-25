@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 680px; margin: 30px auto; padding-bottom: 50px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <span class="badge badge-admin" style="font-size: 0.82rem; padding: 6px 16px; margin-bottom: 12px; letter-spacing: 0.05em;">
+      🛡️ SUPERUSER AUTHORIZATION
+    </span>
+    <h1 style="font-size: 2.3rem; font-weight: 800; letter-spacing: -0.03em; color: white; margin-bottom: 10px;">
+      Claim Administrator Role
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1rem; max-width: 520px; margin: 0 auto;">
+      Elevate your current user account to <strong>ADMIN</strong> clearance or assume the pre-configured <strong>Antigravity Admin</strong> identity instantly.
+    </p>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert-error" style="margin-bottom: 24px;">
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div><%= error %></div>
+    </div>
+  <% } %>
+
+  <div class="card" style="box-shadow: var(--shadow-apple); padding: 36px 32px; margin-bottom: 24px; border: 1px solid rgba(244, 63, 94, 0.35);">
+    <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px;">
+      <div style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(236, 72, 153, 0.25)); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 1px solid rgba(244, 63, 94, 0.4); flex-shrink: 0;">
+        ⚡
+      </div>
+      <div>
+        <h3 style="color: white; font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">One-Click Role Assignment</h3>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.5;">
+          <% if (currentUser) { %>
+            You are signed in as <strong><%= currentUser.first_name %> <%= currentUser.last_name %></strong> (<%= currentUser.email %>) with current role <span class="badge badge-<%= (currentUser.role || 'alumni').toLowerCase() %>"><%= currentUser.role %></span>. Clicking below will elevate your database role to <strong>ADMIN</strong> and issue a refreshed cryptographic session token.
+          <% } else { %>
+            No active session detected. Clicking below will authenticate you immediately as the pre-configured root <strong>Antigravity Admin</strong> (<span style="color: var(--primary-on-dark); font-family: 'JetBrains Mono', monospace;">admin@alumni.istanbul.edu.tr</span>) with full database access.
+          <% } %>
+        </p>
+      </div>
+    </div>
+
+    <form action="/admin/claim" method="POST">
+      <button type="submit" class="btn btn-pill-primary" style="width: 100%; padding: 15px; font-size: 1.05rem; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 4px 20px rgba(244, 63, 94, 0.4);">
+        <span>🛡️ Elevate & Access Admin Panel</span>
+        <span>&rarr;</span>
+      </button>
+    </form>
+  </div>
+
+  <div class="card" style="padding: 24px; background: rgba(26, 16, 30, 0.55); border: 1px solid rgba(255, 255, 255, 0.08);">
+    <h4 style="color: white; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+      <span>🔑</span> Programmatic & Terminal Access (CLI / Swagger)
+    </h4>
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 12px;">
+      You can also obtain an Admin JWT Bearer token programmatically via API:
+    </p>
+    <div style="background: rgba(10, 5, 12, 0.85); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 8px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #fdf5f7; overflow-x: auto;">
+      curl -X POST http://localhost:3000/api/admin/claim \<br>
+      &nbsp;&nbsp;-H "Content-Type: application/json"
+    </div>
+    <div style="margin-top: 14px; font-size: 0.84rem; color: var(--text-soft);">
+      Pre-configured Superuser: <code style="color: var(--primary-on-dark);">admin@alumni.istanbul.edu.tr</code> / <code style="color: var(--primary-on-dark);">adminpassword</code>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

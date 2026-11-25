@@ -74,7 +74,7 @@ async function seed(client = null) {
     // In-memory fallback
     for (const u of allUsers) {
       try {
-        userModel.create(u);
+        await userModel.create(u);
       } catch (e) {
         // Ignore duplicate if already exists
       }

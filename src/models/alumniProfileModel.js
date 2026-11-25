@@ -224,6 +224,14 @@ class AlumniProfileModel {
     }
   }
 
+  async upsert(userId, data) {
+    const existing = await this.findByUserId(userId);
+    if (existing) {
+      return await this.update(userId, data);
+    }
+    return await this.create({ ...data, user_id: userId });
+  }
+
   // --- CRUD: DELETE ---
 
   async delete(userId) {

@@ -1,0 +1,127 @@
+<%- include('../partials/header') %>
+
+<div style="max-width: 760px; margin: 30px auto; padding-bottom: 50px;">
+  <div class="page-header" style="margin-bottom: 24px;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span class="badge badge-<%= (user.role || 'alumni').toLowerCase() %>"><%= user.role %></span>
+        <span style="color: var(--text-soft); font-size: 0.85rem;">Account Configuration</span>
+      </div>
+      <h1 class="page-title">Profile & Account Settings</h1>
+      <p class="page-subtitle">Update your personal credentials, academic affiliations, and professional alumni portfolio.</p>
+    </div>
+  </div>
+
+  <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+      <span>✓</span>
+      <span><%= successMessage %></span>
+    </div>
+  <% } %>
+
+  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    <div class="alert-error" style="margin-bottom: 24px;">
+      <span>⚠️</span>
+      <span><%= errorMessage %></span>
+    </div>
+  <% } %>
+
+  <div class="card" style="box-shadow: var(--shadow-apple); padding: 32px 28px;">
+    <form action="/profile" method="POST">
+      <!-- Section 1: Core Identity -->
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span>👤</span> Personal & Academic Identity
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="firstName">First Name (Ad)</label>
+          <input type="text" id="firstName" name="first_name" required value="<%= user.first_name %>" class="form-control">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="lastName">Last Name (Soyad)</label>
+          <input type="text" id="lastName" name="last_name" required value="<%= user.last_name %>" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address (Read-only)</label>
+        <input type="email" value="<%= user.email %>" readonly class="form-control" style="opacity: 0.7; cursor: not-allowed; background: rgba(0, 0, 0, 0.3);">
+        <span style="font-size: 0.76rem; color: var(--text-soft); margin-top: 4px; display: block;">Institutional or personal registered address.</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="department">Academic Department</label>
+          <select id="department" name="department" class="form-control">
+            <% departments.forEach(d => { %>
+              <option value="<%= d.name %>" <%= (user.department === d.name || user.department_name === d.name) ? 'selected' : '' %>>
+                <%= d.name %> (<%= d.faculty %>)
+              </option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="gradYear">Graduation Year</label>
+          <input type="number" id="gradYear" name="graduation_year" value="<%= user.graduation_year || '' %>" placeholder="2026" class="form-control">
+        </div>
+      </div>
+
+      <!-- Section 2: Professional Details (Alumni & Career) -->
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; gap: 8px;">
+        <span>💼</span> Professional Career & Portfolio
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="company">Current Company / Organization</label>
+          <input type="text" id="company" name="current_company" value="<%= profile.current_company || '' %>" placeholder="e.g. Trendyol, Google, Aselsan" class="form-control">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="title">Job Title / Current Role</label>
+          <input type="text" id="title" name="current_title" value="<%= profile.current_title || '' %>" placeholder="e.g. Senior Software Engineer" class="form-control">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Industry</label>
+          <input type="text" name="industry" value="<%= profile.industry || '' %>" placeholder="e.g. FinTech, AI" class="form-control">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">City</label>
+          <input type="text" name="city" value="<%= profile.city || '' %>" placeholder="Istanbul" class="form-control">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Country</label>
+          <input type="text" name="country" value="<%= profile.country || 'Turkey' %>" class="form-control">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">LinkedIn Profile URL</label>
+          <input type="url" name="linkedin_url" value="<%= profile.linkedin_url || '' %>" placeholder="https://linkedin.com/in/username" class="form-control">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">GitHub Profile URL</label>
+          <input type="url" name="github_url" value="<%= profile.github_url || '' %>" placeholder="https://github.com/username" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 28px;">
+        <label class="form-label">Biographical Statement & Mentorship Note</label>
+        <textarea name="bio" rows="3" class="form-control" placeholder="Tell fellow alumni and students about your career path or areas where you offer mentorship..."><%= profile.bio || '' %></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="<%= user.role === 'STUDENT' ? '/student' : '/alumni' %>" class="btn btn-utility">&larr; Return to Workspace</a>
+        <button type="submit" class="btn btn-pill-primary" style="padding: 12px 28px; font-weight: 700;">
+          Save Profile Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

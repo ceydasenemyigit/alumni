@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/dashboard" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Workspace Dashboard</a>
+    </div>
+    <h1 class="page-title">My Submitted Applications</h1>
+    <p class="page-subtitle">Track every job and internship application you've submitted across the alumni platform.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/jobs" class="btn btn-utility btn-sm">💼 Job Board</a>
+    <a href="/applications/new" class="btn btn-pill-primary btn-sm">+ Apply to New Job</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<div class="card" style="padding: 24px;">
+  <% if (applications.length === 0) { %>
+    <div style="text-align: center; padding: 40px 20px; background: rgba(20, 12, 23, 0.4); border-radius: 12px; border: 1px dashed rgba(244, 63, 94, 0.25);">
+      <div style="font-size: 2.2rem; margin-bottom: 10px;">📄</div>
+      <h4 style="color: white; font-size: 1.05rem; margin-bottom: 6px;">No Applications Submitted Yet</h4>
+      <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 420px; margin: 0 auto 18px;">
+        Browse the verified alumni career vacancies and submit your first application.
+      </p>
+      <a href="/jobs" class="btn btn-pill-primary btn-sm">Explore Career Opportunities</a>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 12px 14px;">App ID</th>
+            <th style="padding: 12px 14px;">Role & Company</th>
+            <th style="padding: 12px 14px;">Location</th>
+            <th style="padding: 12px 14px;">Pipeline Status</th>
+            <th style="padding: 12px 14px;">Applied Date</th>
+            <th style="padding: 12px 14px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% applications.forEach(app => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+                #<%= app.id %>
+              </td>
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: white;"><%= app.job_title %></div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><%= app.company %></div>
+              </td>
+              <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+                <%= app.location || 'Remote' %>
+              </td>
+              <td style="padding: 14px;">
+                <% if (app.status === 'ACCEPTED') { %>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);">✓ ACCEPTED</span>
+                <% } else if (app.status === 'REVIEWING') { %>
+                  <span class="badge" style="background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);">🔍 IN REVIEW</span>
+                <% } else if (app.status === 'REJECTED') { %>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4);">✗ REJECTED</span>
+                <% } else if (app.status === 'WITHDRAWN') { %>
+                  <span class="badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);">⚪ WITHDRAWN</span>
+                <% } else { %>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.4);">⏳ PENDING</span>
+                <% } %>
+              </td>
+              <td style="padding: 14px; font-size: 0.8rem; color: var(--text-soft);">
+                <%= new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <div style="display: inline-flex; gap: 8px; align-items: center;">
+                  <a href="/applications/<%= app.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
+                  <% if (app.status !== 'WITHDRAWN') { %>
+                    <form action="/portal/applications/<%= app.id %>/withdraw" method="POST" style="display: inline;" onsubmit="return confirm('Withdraw application?')">
+                      <input type="hidden" name="redirect" value="/my/applications">
+                      <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #fda4af;">Withdraw</button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -16,18 +16,20 @@ function getNavigation(user, currentPath = '/') {
     case 'ADMIN':
       primaryLinks = [
         { label: '🛡️ Dashboard', href: '/admin', active: cleanPath === '/admin' },
+        { label: '🎓 Student Portal', href: '/student', active: cleanPath.startsWith('/student') },
+        { label: '💼 Alumni Workspace', href: '/alumni', active: cleanPath.startsWith('/alumni') },
         { label: 'Users Governance', href: '/admin/users', active: cleanPath.startsWith('/admin/users') },
         { label: 'Job Moderation', href: '/admin/jobs', active: cleanPath.startsWith('/admin/jobs') },
         { label: 'Candidate Pipeline', href: '/admin/applications', active: cleanPath.startsWith('/admin/applications') },
         { label: 'Broadcasts', href: '/admin/announcements', active: cleanPath.startsWith('/admin/announcements') },
-        { label: 'Public Portal', href: '/', active: cleanPath === '/' },
+        { label: 'My Profile', href: '/profile', active: cleanPath.startsWith('/profile') || cleanPath === '/me' },
         { label: 'Swagger', href: '/api/swagger', active: cleanPath.startsWith('/api/swagger') }
       ];
 
       actionButtons = [
         { label: '🛡️ Admin Panel', href: '/admin', variant: 'primary', icon: '🛡️' },
         { label: '+ Post Vacancy', href: '/jobs/new', variant: 'utility' },
-        { label: '+ Broadcast', href: '/admin/announcements', variant: 'utility' }
+        { label: '👤 Profile', href: '/profile', variant: 'utility' }
       ];
 
       userBadge = {
@@ -39,17 +41,19 @@ function getNavigation(user, currentPath = '/') {
 
     case 'STUDENT':
       primaryLinks = [
-        { label: 'Home', href: '/', active: cleanPath === '/' },
+        { label: '🎓 Student Portal', href: '/student', active: cleanPath.startsWith('/student') },
+        { label: 'My Applications', href: '/my/applications', active: cleanPath.startsWith('/my/applications') },
         { label: 'Alumni Directory', href: '/users', active: cleanPath.startsWith('/users') },
         { label: 'Job Board', href: '/jobs', active: cleanPath.startsWith('/jobs') },
-        { label: 'My Applications', href: '/applications', active: cleanPath.startsWith('/applications') },
         { label: 'Announcements', href: '/announcements', active: cleanPath.startsWith('/announcements') },
-        { label: 'About', href: '/about', active: cleanPath.startsWith('/about') },
+        { label: 'My Profile', href: '/profile', active: cleanPath.startsWith('/profile') || cleanPath === '/me' },
         { label: 'Swagger', href: '/api/swagger', active: cleanPath.startsWith('/api/swagger') }
       ];
 
       actionButtons = [
-        { label: '✨ + Apply to Job', href: '/applications/new', variant: 'primary' },
+        { label: '🎓 Student Portal', href: '/student', variant: 'primary' },
+        { label: '✨ + Apply to Job', href: '/applications/new', variant: 'utility' },
+        { label: '👤 Profile', href: '/profile', variant: 'utility' },
         { label: '⚡ Claim Admin', href: '/admin/claim', variant: 'utility' }
       ];
 
@@ -62,18 +66,19 @@ function getNavigation(user, currentPath = '/') {
 
     case 'ALUMNI':
       primaryLinks = [
-        { label: 'Home', href: '/', active: cleanPath === '/' },
+        { label: '💼 Alumni Workspace', href: '/alumni', active: cleanPath.startsWith('/alumni') },
+        { label: 'My Posted Vacancies', href: '/my/jobs', active: cleanPath.startsWith('/my/jobs') },
         { label: 'Alumni Network', href: '/users', active: cleanPath.startsWith('/users') },
         { label: 'Job Board', href: '/jobs', active: cleanPath.startsWith('/jobs') },
-        { label: 'Applications', href: '/applications', active: cleanPath.startsWith('/applications') },
         { label: 'Announcements', href: '/announcements', active: cleanPath.startsWith('/announcements') },
-        { label: 'About', href: '/about', active: cleanPath.startsWith('/about') },
+        { label: 'My Profile', href: '/profile', active: cleanPath.startsWith('/profile') || cleanPath === '/me' },
         { label: 'Swagger', href: '/api/swagger', active: cleanPath.startsWith('/api/swagger') }
       ];
 
       actionButtons = [
+        { label: '💼 Alumni Workspace', href: '/alumni', variant: 'primary' },
         { label: '+ Post Job', href: '/jobs/new', variant: 'utility' },
-        { label: '+ Apply', href: '/applications/new', variant: 'utility' },
+        { label: '👤 Profile', href: '/profile', variant: 'utility' },
         { label: '⚡ Claim Admin', href: '/admin/claim', variant: 'utility' }
       ];
 

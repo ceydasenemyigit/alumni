@@ -725,7 +725,81 @@ flowchart TD
 | **`GUEST`** (Unauthenticated) | Home (`/`), Directory (`/users`), Job Board (`/jobs`), Announcements (`/announcements`), Brand (`/brand`), About (`/about`), Swagger (`/api/swagger`) | `Sign In` (`/login`), `✨ Register` (`/register`), `+ Apply` (`/applications/new`), `🛡️ Admin Claim` (`/admin/claim`) | `Sign In` & `Register` links |
 | **`STUDENT`** | Home (`/`), Alumni Directory (`/users`), Job Board (`/jobs`), My Applications (`/applications`), Announcements (`/announcements`), About (`/about`), Swagger (`/api/swagger`) | `✨ + Apply to Job` (`/applications/new`), `⚡ Claim Admin` (`/admin/claim`) | `🎓 STUDENT` badge, `👤 [Name]`, `Sign Out` |
 | **`ALUMNI`** | Home (`/`), Alumni Network (`/users`), Job Board (`/jobs`), Applications (`/applications`), Announcements (`/announcements`), About (`/about`), Swagger (`/api/swagger`) | `+ Post Job` (`/jobs/new`), `+ Apply` (`/applications/new`), `⚡ Claim Admin` (`/admin/claim`) | `💼 ALUMNI` badge, `👤 [Name]`, `Sign Out` |
-| **`ADMIN`** | `🛡️ Dashboard` (`/admin`), `Users Governance` (`/admin/users`), `Job Moderation` (`/admin/jobs`), `Candidate Pipeline` (`/admin/applications`), `Broadcasts` (`/admin/announcements`), `Public Portal` (`/`), `Swagger` (`/api/swagger`) | `🛡️ Admin Panel` (`/admin`), `+ Post Vacancy` (`/jobs/new`), `+ Broadcast` (`/admin/announcements`) | `🛡️ ADMIN` badge, Glowing `🛡️ Admin` pill, `👤 [Name]`, `Sign Out` |
+| **`ADMIN`** | `🛡️ Dashboard` (`/admin`), `🎓 Student Portal` (`/student`), `💼 Alumni Workspace` (`/alumni`), `Users Governance` (`/admin/users`), `Job Moderation` (`/admin/jobs`), `Candidate Pipeline` (`/admin/applications`), `Broadcasts` (`/admin/announcements`), `My Profile` (`/profile`), `Swagger` (`/api/swagger`) | `🛡️ Admin Panel` (`/admin`), `+ Post Vacancy` (`/jobs/new`), `👤 Profile` (`/profile`) | `🛡️ ADMIN` badge, Glowing `🛡️ Admin` pill, `👤 [Name]`, `Sign Out` |
+
+---
+
+## 👥 13. User-Specific Portals & Workspaces Architecture
+
+### 13.1. Architectural Overview & Persona Workspaces
+
+The Alumni Tracking System provides persona-tailored, role-guarded workspaces designed specifically for **Students**, **Alumni**, and **Admins**, aligning directly with Domain-Driven Design principles:
+
+```mermaid
+flowchart TD
+    User([Authenticated User]) --> DashDispatcher["Universal Dispatcher (/dashboard)"]
+    DashDispatcher -->|role == STUDENT| StudentPortal["🎓 Student Workspace (/student)"]
+    DashDispatcher -->|role == ALUMNI| AlumniPortal["💼 Alumni Workspace (/alumni)"]
+    DashDispatcher -->|role == ADMIN| AdminPanel["🛡️ Admin Executive Panel (/admin)"]
+
+    subgraph StudentFeatures["Student Experience"]
+        StudentPortal --> S1["Academic Identity & Verification"]
+        StudentPortal --> S2["Live Applications Tracking Board"]
+        StudentPortal --> S3["Recommended Internships & Vacancies"]
+        StudentPortal --> S4["Application Withdrawal Trigger"]
+    end
+
+    subgraph AlumniFeatures["Alumni Experience"]
+        AlumniPortal --> A1["Professional Portfolio & Career Cards"]
+        AlumniPortal --> A2["My Posted Vacancies Manager"]
+        AlumniPortal --> A3["Candidate Talent Pipeline Reviewer"]
+        AlumniPortal --> A4["Application Status Decision Dispatcher"]
+    end
+
+    subgraph SharedFeatures["Unified Telemetry & Settings"]
+        StudentPortal & AlumniPortal --> Prof["Account Settings (/profile & /me)"]
+        StudentPortal & AlumniPortal --> Telemetry["RESTful Telemetry API (/api/me)"]
+    end
+```
+
+### 13.2. Detailed Workspace Specifications
+
+#### 1. Universal Dashboard Dispatcher ([`/dashboard`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/routes/portalRoutes.js))
+- Automatically inspects the cryptographic session identity (`req.user.role`).
+- If unauthenticated, safely redirects to `/login?redirect=/dashboard`.
+- Dispatches:
+  - `STUDENT` &rarr; [`/student`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/portal/student.ejs)
+  - `ALUMNI` &rarr; [`/alumni`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/portal/alumni.ejs)
+  - `ADMIN` &rarr; [`/admin`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/admin/index.ejs)
+
+#### 2. Student Portal & Career Tracker ([`/student`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/portal/student.ejs))
+- **Role Clearance**: `STUDENT` or `ADMIN` (guarded by `requireRole('STUDENT', 'ADMIN')`).
+- **Academic Identity Card**: Displays current student details, department, class graduation year, verified student badge, and academic contact details.
+- **KPI Metrics**: 4 dynamic metric tiles calculating Total Applications, Pending/Interview stage count, Accepted offers, and Tailored opportunities.
+- **Interactive Applications Tracking Board**: Full recruitment table showing target role, hiring company, employment type, submission date, status badge, and one-click withdrawal button (`POST /portal/applications/:id/withdraw`).
+- **Recommended Vacancies Grid**: Real-time matching vacancies matching the student's field of study that the student has not yet applied to.
+
+#### 3. Alumni Talent Workspace & Career Manager ([`/alumni`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/portal/alumni.ejs))
+- **Role Clearance**: `ALUMNI` or `ADMIN` (guarded by `requireRole('ALUMNI', 'ADMIN')`).
+- **Professional Hero Summary**: Displays current company, professional title, industry sector, city/country, graduation class, and verified LinkedIn/GitHub quick links.
+- **KPI Telemetry**: Real-time counters for Posted Jobs, Candidate Applicants, and Awaiting Decisions.
+- **Posted Vacancies Table**: Direct inventory of jobs published by this alumnus (`posted_by_user_id = req.user.id`), with visibility toggle and applicant count indicators.
+- **Candidate Talent Pipeline Board**: Direct recruitment interface to review applications submitted by students for the alumnus's postings. Allows the alumnus to advance candidates through stages (`REVIEWING`, `ACCEPTED`, `REJECTED`) via `POST /alumni/applications/:id/status`.
+
+#### 4. Unified Account & Profile Editor ([`/profile`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/views/portal/profile.ejs) & [`/me`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/routes/portalRoutes.js))
+- Single, comprehensive configuration surface to modify first name, last name, academic department, graduation year, current company, title, industry, location, LinkedIn/GitHub links, and professional bio.
+- Persists changes seamlessly into `users` and `alumni_profiles` tables via atomic `upsert(userId, data)`.
+
+### 13.3. RESTful API Telemetry Endpoints ([`/api/me`](file:///c:/Users/BusraSeyma/Documents/GitHub/alumni/src/routes/apiPortalRoutes.js))
+
+| Method | Endpoint | Clearance | Description |
+|---|---|---|---|
+| `GET` | `/api/me` | Authenticated | Comprehensive payload including user identity, alumni profile, submitted applications, and posted jobs. |
+| `GET` | `/api/me/applications` | Authenticated | List of applications submitted by the logged-in user. |
+| `GET` | `/api/me/jobs` | Authenticated | List of vacancies posted by the logged-in alumnus. |
+| `PUT` | `/api/me/profile` | Authenticated | Updates core user credentials and upserts alumni profile metadata. |
+
+---
 
 
 

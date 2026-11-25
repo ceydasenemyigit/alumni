@@ -1,0 +1,215 @@
+<%- include('../partials/header') %>
+
+<!-- Student Portal Hero Banner -->
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <span class="badge badge-student" style="font-size: 0.82rem; padding: 4px 12px; letter-spacing: 0.04em;">
+        🎓 STUDENT WORKSPACE
+      </span>
+      <span style="color: var(--text-soft); font-size: 0.85rem;">Active Learner</span>
+    </div>
+    <h1 class="page-title"><%= student.first_name %>'s Career Portal</h1>
+    <p class="page-subtitle">Track your career applications, discover internships, and manage your academic profile.</p>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="/jobs" class="btn btn-utility btn-sm">💼 Browse All Jobs</a>
+    <a href="/applications/new" class="btn btn-pill-primary btn-sm">✨ Submit New Application</a>
+    <a href="/profile" class="btn btn-utility btn-sm">⚙️ Account Settings</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+  <div class="alert-error" style="margin-bottom: 24px;">
+    <span>⚠️</span>
+    <span><%= errorMessage %></span>
+  </div>
+<% } %>
+
+<!-- Student Profile Overview Card -->
+<div class="card" style="box-shadow: var(--shadow-apple); margin-bottom: 28px; padding: 28px;">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="width: 68px; height: 68px; border-radius: 9999px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(244, 63, 94, 0.45)); border: 2px solid rgba(16, 185, 129, 0.6); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; font-weight: 800; color: white;">
+        <%= student.first_name ? student.first_name.charAt(0).toUpperCase() : 'S' %><%= student.last_name ? student.last_name.charAt(0).toUpperCase() : '' %>
+      </div>
+      <div>
+        <h2 style="font-size: 1.4rem; color: white; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px;">
+          <%= student.first_name %> <%= student.last_name %>
+        </h2>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--text-muted); flex-wrap: wrap;">
+          <span><%= student.email %></span>
+          <span>&bull;</span>
+          <span style="color: var(--primary-on-dark); font-weight: 600;"><%= student.department || student.department_name || 'Computer Engineering' %></span>
+          <span>&bull;</span>
+          <span>Class of <%= student.graduation_year || 2026 %></span>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <span class="badge" style="background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 14px; font-size: 0.8rem;">
+        <%= student.is_verified ? '✓ Verified Student' : '⏳ Verification Pending' %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Telemetry KPI Metric Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px;">
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Total Applications</span>
+    <div class="stat-value" style="margin: 6px 0;"><%= stats.totalApplications %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);">Career vacancy submissions</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">In Review / Pending</span>
+    <div class="stat-value" style="margin: 6px 0; color: #fde047;"><%= stats.pending + stats.reviewing %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);"><%= stats.reviewing %> in active interview stage</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Accepted Offers</span>
+    <div class="stat-value" style="margin: 6px 0; color: #86efac;"><%= stats.accepted %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);">Successful admissions</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Open Opportunities</span>
+    <div class="stat-value" style="margin: 6px 0; color: #93c5fd;"><%= recommendedJobs.length %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);">Tailored for your department</div>
+  </div>
+</div>
+
+<!-- My Applications Pipeline -->
+<div class="card" style="padding: 24px; margin-bottom: 32px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+    <div>
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">My Job Applications Tracking Board</h3>
+      <p style="color: var(--text-muted); font-size: 0.82rem;">Real-time status updates and recruitment pipeline tracking for your submissions.</p>
+    </div>
+    <a href="/applications/new" class="btn btn-pill-primary btn-sm">+ Apply to Another Vacancy</a>
+  </div>
+
+  <% if (applications.length === 0) { %>
+    <div style="text-align: center; padding: 40px 20px; background: rgba(20, 12, 23, 0.4); border-radius: 12px; border: 1px dashed rgba(244, 63, 94, 0.25);">
+      <div style="font-size: 2.2rem; margin-bottom: 10px;">📄</div>
+      <h4 style="color: white; font-size: 1.05rem; margin-bottom: 6px;">No Applications Submitted Yet</h4>
+      <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 420px; margin: 0 auto 18px;">
+        Browse the verified alumni career vacancies below and submit your first application.
+      </p>
+      <a href="/jobs" class="btn btn-pill-primary btn-sm">Explore Career Vacancies</a>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 12px 14px;">App ID</th>
+            <th style="padding: 12px 14px;">Target Role & Company</th>
+            <th style="padding: 12px 14px;">Type & Location</th>
+            <th style="padding: 12px 14px;">Application Status</th>
+            <th style="padding: 12px 14px;">Submission Date</th>
+            <th style="padding: 12px 14px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% applications.forEach(app => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 14px; font-family: 'JetBrains Mono', monospace; color: var(--text-soft); font-size: 0.82rem;">
+                #<%= app.id %>
+              </td>
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: white;"><%= app.job_title %></div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><%= app.company %></div>
+                <% if (app.resume_url) { %>
+                  <a href="<%= app.resume_url %>" target="_blank" style="font-size: 0.74rem; color: var(--primary-on-dark); text-decoration: none;">📎 View Attached Resume</a>
+                <% } %>
+              </td>
+              <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+                <div><%= app.location || 'Remote' %></div>
+                <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.72rem; padding: 2px 6px;">
+                  <%= app.employment_type %>
+                </span>
+              </td>
+              <td style="padding: 14px;">
+                <% if (app.status === 'ACCEPTED') { %>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);">✓ ACCEPTED</span>
+                <% } else if (app.status === 'REVIEWING') { %>
+                  <span class="badge" style="background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);">🔍 IN REVIEW</span>
+                <% } else if (app.status === 'REJECTED') { %>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4);">✗ REJECTED</span>
+                <% } else if (app.status === 'WITHDRAWN') { %>
+                  <span class="badge" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);">⚪ WITHDRAWN</span>
+                <% } else { %>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.4);">⏳ PENDING</span>
+                <% } %>
+              </td>
+              <td style="padding: 14px; font-size: 0.8rem; color: var(--text-soft);">
+                <%= new Date(app.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <div style="display: inline-flex; gap: 8px; align-items: center;">
+                  <a href="/applications/<%= app.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
+                  <% if (app.status !== 'WITHDRAWN') { %>
+                    <form action="/portal/applications/<%= app.id %>/withdraw" method="POST" style="display: inline;" onsubmit="return confirm('Withdraw application for <%= app.job_title %>?')">
+                      <input type="hidden" name="redirect" value="/student">
+                      <button type="submit" class="btn btn-utility btn-sm" style="padding: 4px 8px; font-size: 0.78rem; color: #fda4af;" title="Withdraw Application">
+                        Withdraw
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<!-- Recommended Career Opportunities for Students -->
+<div class="card" style="padding: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <div>
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">Recommended Vacancies & Internships</h3>
+      <p style="color: var(--text-muted); font-size: 0.82rem;">Opportunities open for candidate submissions.</p>
+    </div>
+    <a href="/jobs" class="btn btn-utility btn-sm">View All Job Board Listings &rarr;</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+    <% recommendedJobs.forEach(job => { %>
+      <div style="background: rgba(20, 12, 23, 0.55); border: 1px solid rgba(244, 63, 94, 0.2); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.72rem;">
+              <%= job.employment_type %>
+            </span>
+            <span style="font-size: 0.78rem; color: var(--text-soft);"><%= job.location || 'Remote' %></span>
+          </div>
+          <h4 style="color: white; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px;">
+            <a href="/jobs/<%= job.id %>" style="color: white; text-decoration: none;"><%= job.title %></a>
+          </h4>
+          <div style="color: var(--text-muted); font-size: 0.84rem; margin-bottom: 12px;"><%= job.company %></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+          <span style="font-size: 0.8rem; color: #a7f3d0; font-family: 'JetBrains Mono', monospace;"><%= job.salary_range || 'Competitive' %></span>
+          <a href="/applications/new?job_id=<%= job.id %>" class="btn btn-pill-primary btn-sm" style="padding: 5px 12px; font-size: 0.78rem;">
+            Apply Now &rarr;
+          </a>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

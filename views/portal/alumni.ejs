@@ -1,0 +1,236 @@
+<%- include('../partials/header') %>
+
+<!-- Alumni Workspace Hero Banner -->
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <span class="badge badge-alumni" style="font-size: 0.82rem; padding: 4px 12px; letter-spacing: 0.04em;">
+        💼 ALUMNI WORKSPACE
+      </span>
+      <span style="color: var(--text-soft); font-size: 0.85rem;">Professional Network</span>
+    </div>
+    <h1 class="page-title"><%= alumni.first_name %>'s Career & Talent Hub</h1>
+    <p class="page-subtitle">Manage your posted career vacancies, review student candidate applications, and maintain your professional alumni profile.</p>
+  </div>
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Post New Job</a>
+    <a href="/profile" class="btn btn-utility btn-sm">⚙️ Edit Profile</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+  <div class="alert-error" style="margin-bottom: 24px;">
+    <span>⚠️</span>
+    <span><%= errorMessage %></span>
+  </div>
+<% } %>
+
+<!-- Alumni Professional Summary Hero Card -->
+<div class="card" style="box-shadow: var(--shadow-apple); margin-bottom: 28px; padding: 28px;">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="width: 72px; height: 72px; border-radius: 9999px; background: linear-gradient(135deg, rgba(244, 63, 94, 0.4), rgba(236, 72, 153, 0.55)); border: 2px solid rgba(244, 63, 94, 0.6); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; color: white;">
+        <%= alumni.first_name ? alumni.first_name.charAt(0).toUpperCase() : 'A' %><%= alumni.last_name ? alumni.last_name.charAt(0).toUpperCase() : '' %>
+      </div>
+      <div>
+        <h2 style="font-size: 1.45rem; color: white; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px;">
+          <%= alumni.first_name %> <%= alumni.last_name %>
+        </h2>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted); flex-wrap: wrap;">
+          <strong style="color: white;"><%= profile.current_title || 'Software Professional' %></strong>
+          <span>at</span>
+          <span style="color: var(--primary-on-dark); font-weight: 700;"><%= profile.current_company || 'Global Industry' %></span>
+          <span>&bull;</span>
+          <span><%= profile.city || 'Istanbul' %>, <%= profile.country || 'Turkey' %></span>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <% if (profile.linkedin_url) { %>
+        <a href="<%= profile.linkedin_url %>" target="_blank" class="btn btn-utility btn-sm" style="color: #60a5fa;">LinkedIn &rarr;</a>
+      <% } %>
+      <% if (profile.github_url) { %>
+        <a href="<%= profile.github_url %>" target="_blank" class="btn btn-utility btn-sm">GitHub &rarr;</a>
+      <% } %>
+      <a href="/profile" class="btn btn-utility btn-sm">Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 KPI Telemetry Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px;">
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Posted Jobs</span>
+    <div class="stat-value" style="margin: 6px 0;"><%= stats.totalPostedJobs %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);"><%= stats.activeJobs %> actively accepting applicants</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Candidate Applicants</span>
+    <div class="stat-value" style="margin: 6px 0; color: #93c5fd;"><%= stats.totalCandidates %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);">Total submissions received</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Awaiting Decision</span>
+    <div class="stat-value" style="margin: 6px 0; color: #fde047;"><%= stats.pendingReview %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);">Applications needing review</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <span class="stat-label">Graduation Class</span>
+    <div class="stat-value" style="margin: 6px 0; font-family: 'JetBrains Mono', monospace;"><%= alumni.graduation_year || 2023 %></div>
+    <div style="font-size: 0.8rem; color: var(--text-soft);"><%= alumni.department || alumni.department_name || 'Engineering' %></div>
+  </div>
+</div>
+
+<!-- Section 1: My Posted Job Vacancies -->
+<div class="card" style="padding: 24px; margin-bottom: 32px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+    <div>
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">My Career Opportunities</h3>
+      <p style="color: var(--text-muted); font-size: 0.82rem;">Vacancies you published to hire Istanbul University students and fellow alumni.</p>
+    </div>
+    <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Post New Job</a>
+  </div>
+
+  <% if (myJobs.length === 0) { %>
+    <div style="text-align: center; padding: 40px 20px; background: rgba(20, 12, 23, 0.4); border-radius: 12px; border: 1px dashed rgba(244, 63, 94, 0.25);">
+      <div style="font-size: 2.2rem; margin-bottom: 10px;">💼</div>
+      <h4 style="color: white; font-size: 1.05rem; margin-bottom: 6px;">You Haven't Posted Any Jobs Yet</h4>
+      <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 420px; margin: 0 auto 18px;">
+        Share an open internship or full-time position at your company with the alumni network.
+      </p>
+      <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Publish First Vacancy</a>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 12px 14px;">Vacancy Title</th>
+            <th style="padding: 12px 14px;">Location / Type</th>
+            <th style="padding: 12px 14px;">Visibility Status</th>
+            <th style="padding: 12px 14px;">Applicants Received</th>
+            <th style="padding: 12px 14px; text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% myJobs.forEach(job => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: white;"><%= job.title %></div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><%= job.company %></div>
+              </td>
+              <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+                <div><%= job.location || 'Remote' %></div>
+                <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.72rem; padding: 2px 6px;">
+                  <%= job.employment_type %>
+                </span>
+              </td>
+              <td style="padding: 14px;">
+                <% if (job.is_active) { %>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);">● Active Listing</span>
+                <% } else { %>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4);">○ Inactive / Closed</span>
+                <% } %>
+              </td>
+              <td style="padding: 14px;">
+                <span class="badge" style="background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.35); font-size: 0.78rem;">
+                  👥 <%= job.applicant_count %> Applicants
+                </span>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <div style="display: inline-flex; gap: 8px;">
+                  <a href="/jobs/<%= job.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">View Post</a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<!-- Section 2: Received Candidate Applications Pipeline -->
+<div class="card" style="padding: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+    <div>
+      <h3 style="color: white; font-size: 1.15rem; font-weight: 700;">Candidate Talent Pipeline</h3>
+      <p style="color: var(--text-muted); font-size: 0.82rem;">Review applications received for your vacancies and manage candidate status.</p>
+    </div>
+  </div>
+
+  <% if (candidateApplications.length === 0) { %>
+    <div style="text-align: center; padding: 36px 20px; background: rgba(20, 12, 23, 0.4); border-radius: 12px; border: 1px dashed rgba(244, 63, 94, 0.25);">
+      <div style="font-size: 2rem; margin-bottom: 10px;">👥</div>
+      <h4 style="color: white; font-size: 1rem; margin-bottom: 4px;">No Candidate Applications Received Yet</h4>
+      <p style="color: var(--text-muted); font-size: 0.84rem;">When students or fellow alumni apply to your postings, their profiles and CVs will appear here.</p>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 12px 14px;">Candidate Name</th>
+            <th style="padding: 12px 14px;">Applied Vacancy</th>
+            <th style="padding: 12px 14px;">Resume & Cover Letter</th>
+            <th style="padding: 12px 14px;">Recruitment Decision</th>
+            <th style="padding: 12px 14px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% candidateApplications.forEach(app => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: white;"><%= app.candidate_name %></div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><%= app.candidate_email %></div>
+                <div style="font-size: 0.74rem; color: var(--text-soft);"><%= app.candidate_department %></div>
+              </td>
+              <td style="padding: 14px;">
+                <div style="font-weight: 600; color: white;"><%= app.job_title %></div>
+              </td>
+              <td style="padding: 14px;">
+                <% if (app.resume_url) { %>
+                  <a href="<%= app.resume_url %>" target="_blank" style="font-size: 0.8rem; color: var(--primary-on-dark); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">
+                    📎 View Resume
+                  </a>
+                <% } else { %>
+                  <span style="font-size: 0.78rem; color: var(--text-soft);">No file attached</span>
+                <% } %>
+                <% if (app.cover_letter) { %>
+                  <div style="font-size: 0.76rem; color: var(--text-muted); max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;">
+                    "<%= app.cover_letter %>"
+                  </div>
+                <% } %>
+              </td>
+              <td style="padding: 14px;">
+                <form action="/alumni/applications/<%= app.id %>/status" method="POST" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <select name="status" onchange="this.form.submit()" style="background: rgba(20, 12, 23, 0.8); border: 1px solid rgba(244, 63, 94, 0.25); color: white; border-radius: 8px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
+                    <option value="PENDING" <%= app.status === 'PENDING' ? 'selected' : '' %>>PENDING</option>
+                    <option value="REVIEWING" <%= app.status === 'REVIEWING' ? 'selected' : '' %>>REVIEWING</option>
+                    <option value="ACCEPTED" <%= app.status === 'ACCEPTED' ? 'selected' : '' %>>ACCEPTED</option>
+                    <option value="REJECTED" <%= app.status === 'REJECTED' ? 'selected' : '' %>>REJECTED</option>
+                  </select>
+                </form>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <a href="/applications/<%= app.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

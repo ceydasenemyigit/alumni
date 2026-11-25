@@ -1035,7 +1035,266 @@ async function runTests() {
       assert.ok(resAdminNav.body.includes('Sign Out'));
       console.log('✓ Dynamic Navigation (ADMIN): renders executive control links (Dashboard, Users Governance, Admin Panel)');
 
-      console.log('\n🎉 ALL 110+ TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out, Auth Middleware, Admin Panel & Dynamic Role-Based Navigation Verified.\n');
+      // 16. User-Specific Pages & Portals (Student & Alumni Workspaces)
+      console.log('\n--- 16. User-Specific Pages & Portals (Student & Alumni Workspaces) ---');
+
+      // 16.1. Register dedicated Student and Alumni identities for Portal testing
+      const resRegPortalStudent = await request({
+        path: '/api/auth/register',
+        method: 'POST'
+      }, {
+        first_name: 'Zeynep',
+        last_name: 'Demir',
+        email: 'zeynep.workspace@student.edu.tr',
+        password: 'Password123',
+        confirm_password: 'Password123',
+        role: 'STUDENT',
+        department: 'Computer Engineering',
+        graduation_year: 2026
+      });
+      assert.strictEqual(resRegPortalStudent.statusCode, 201);
+      const studentPortalUser = resRegPortalStudent.json.data.user;
+      const studentPortalToken = resRegPortalStudent.json.token;
+
+      const resRegPortalAlumni = await request({
+        path: '/api/auth/register',
+        method: 'POST'
+      }, {
+        first_name: 'Tarik',
+        last_name: 'Akin',
+        email: 'tarik.alumni@globaltech.com',
+        password: 'Password123',
+        confirm_password: 'Password123',
+        role: 'ALUMNI',
+        department: 'Software Engineering',
+        graduation_year: 2022
+      });
+      assert.strictEqual(resRegPortalAlumni.statusCode, 201);
+      const alumniPortalUser = resRegPortalAlumni.json.data.user;
+      const alumniPortalToken = resRegPortalAlumni.json.token;
+      console.log('✓ Registered dedicated Student (Zeynep) and Alumni (Tarik) test personas');
+
+      // 16.2. Universal Dashboard Dispatcher (/dashboard)
+      // Unauthenticated -> 302 to /login?redirect=/dashboard
+      const resDashGuest = await request({ path: '/dashboard' });
+      assert.strictEqual(resDashGuest.statusCode, 302);
+      assert.ok(resDashGuest.headers.location.includes('/login'));
+      console.log('✓ GET /dashboard (Unauthenticated): redirects to /login?redirect=/dashboard');
+
+      // Student -> 302 to /student
+      const resDashStudent = await request({
+        path: '/dashboard',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resDashStudent.statusCode, 302);
+      assert.strictEqual(resDashStudent.headers.location, '/student');
+      console.log('✓ GET /dashboard (STUDENT): dispatches to /student');
+
+      // Alumni -> 302 to /alumni
+      const resDashAlumni = await request({
+        path: '/dashboard',
+        headers: { Cookie: `auth_token=${alumniPortalToken}` }
+      });
+      assert.strictEqual(resDashAlumni.statusCode, 302);
+      assert.strictEqual(resDashAlumni.headers.location, '/alumni');
+      console.log('✓ GET /dashboard (ALUMNI): dispatches to /alumni');
+
+      // Admin -> 302 to /admin
+      const resDashAdmin = await request({
+        path: '/dashboard',
+        headers: { Cookie: `auth_token=${superAdminToken}` }
+      });
+      assert.strictEqual(resDashAdmin.statusCode, 302);
+      assert.strictEqual(resDashAdmin.headers.location, '/admin');
+      console.log('✓ GET /dashboard (ADMIN): dispatches to /admin');
+
+      // 16.3. Student Portal (/student)
+      const resStudentPortal = await request({
+        path: '/student',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resStudentPortal.statusCode, 200);
+      assert.ok(resStudentPortal.body.includes('STUDENT WORKSPACE'));
+      assert.ok(resStudentPortal.body.includes('Career Portal'));
+      assert.ok(resStudentPortal.body.includes('My Job Applications Tracking Board'));
+      console.log('✓ GET /student (STUDENT): renders dedicated student workspace view (200 OK)');
+
+      // Forbidden for non-student (Alumni blocked with 403)
+      const resStudentForbidden = await request({
+        path: '/student',
+        headers: { Cookie: `auth_token=${alumniPortalToken}` }
+      });
+      assert.strictEqual(resStudentForbidden.statusCode, 403);
+      console.log('✓ GET /student (ALUMNI): blocked by RBAC guard (403 Forbidden)');
+
+      // 16.4. Alumni Workspace (/alumni)
+      const resAlumniPortal = await request({
+        path: '/alumni',
+        headers: { Cookie: `auth_token=${alumniPortalToken}` }
+      });
+      assert.strictEqual(resAlumniPortal.statusCode, 200);
+      assert.ok(resAlumniPortal.body.includes('ALUMNI WORKSPACE'));
+      assert.ok(resAlumniPortal.body.includes('Talent Hub'));
+      assert.ok(resAlumniPortal.body.includes('My Career Opportunities'));
+      console.log('✓ GET /alumni (ALUMNI): renders dedicated alumni talent workspace (200 OK)');
+
+      // Forbidden for non-alumni (Student blocked with 403)
+      const resAlumniForbidden = await request({
+        path: '/alumni',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resAlumniForbidden.statusCode, 403);
+      console.log('✓ GET /alumni (STUDENT): blocked by RBAC guard (403 Forbidden)');
+
+      // 16.5. Direct User Subpages (/my/applications, /my/jobs, /profile, /me)
+      const resMyApps = await request({
+        path: '/my/applications',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resMyApps.statusCode, 200);
+      assert.ok(resMyApps.body.includes('My Submitted Applications'));
+      console.log('✓ GET /my/applications: renders student applications tracker (200 OK)');
+
+      const resMyJobs = await request({
+        path: '/my/jobs',
+        headers: { Cookie: `auth_token=${alumniPortalToken}` }
+      });
+      assert.strictEqual(resMyJobs.statusCode, 200);
+      assert.ok(resMyJobs.body.includes('My Posted Job Opportunities'));
+      console.log('✓ GET /my/jobs: renders alumni posted vacancies manager (200 OK)');
+
+      const resMyJobsStudentForbidden = await request({
+        path: '/my/jobs',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resMyJobsStudentForbidden.statusCode, 403);
+      console.log('✓ GET /my/jobs (STUDENT): blocked by RBAC guard (403 Forbidden)');
+
+      const resProfile = await request({
+        path: '/profile',
+        headers: { Cookie: `auth_token=${studentPortalToken}` }
+      });
+      assert.strictEqual(resProfile.statusCode, 200);
+      assert.ok(resProfile.body.includes('Profile & Account Settings'));
+      console.log('✓ GET /profile: renders unified account & profile editor (200 OK)');
+
+      const resMe = await request({
+        path: '/me',
+        headers: { Cookie: `auth_token=${alumniPortalToken}` }
+      });
+      assert.strictEqual(resMe.statusCode, 200);
+      assert.ok(resMe.body.includes('Profile & Account Settings'));
+      console.log('✓ GET /me: alias to /profile renders account & profile editor (200 OK)');
+
+      // 16.6. End-to-end Persona Actions (Post Job -> Apply -> Review Candidate -> Withdraw)
+      // Alumni posts a job
+      const resPostJob = await request({
+        path: '/api/jobs',
+        method: 'POST',
+        headers: { Authorization: `Bearer ${alumniPortalToken}` }
+      }, {
+        title: 'Distributed Systems Architect',
+        company: 'GlobalCloud Inc',
+        location: 'Istanbul',
+        employment_type: 'Full-Time',
+        posted_by_user_id: alumniPortalUser.id
+      });
+      assert.strictEqual(resPostJob.statusCode, 201);
+      const portalJobId = resPostJob.json.data.id;
+      console.log(`✓ Alumni posted job vacancy (ID: ${portalJobId})`);
+
+      // Student applies to the alumni's job
+      const resApply = await request({
+        path: '/api/applications',
+        method: 'POST',
+        headers: { Authorization: `Bearer ${studentPortalToken}` }
+      }, {
+        user_id: studentPortalUser.id,
+        job_posting_id: portalJobId,
+        cover_letter: 'Excited about distributed architecture!'
+      });
+      assert.strictEqual(resApply.statusCode, 201);
+      const portalAppId = resApply.json.data.id;
+      console.log(`✓ Student applied to vacancy (Application ID: ${portalAppId})`);
+
+      // Alumni reviews candidate status in talent pipeline
+      const resAlumniReview = await request({
+        path: `/alumni/applications/${portalAppId}/status`,
+        method: 'POST',
+        headers: {
+          Cookie: `auth_token=${alumniPortalToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }, 'status=REVIEWING');
+      assert.strictEqual(resAlumniReview.statusCode, 302);
+      assert.ok(resAlumniReview.headers.location.includes('/alumni'));
+      console.log('✓ POST /alumni/applications/:id/status: alumnus updates candidate status to REVIEWING');
+
+      // Student withdraws their application
+      const resStudentWithdraw = await request({
+        path: `/portal/applications/${portalAppId}/withdraw`,
+        method: 'POST',
+        headers: {
+          Cookie: `auth_token=${studentPortalToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }, 'redirect=/student');
+      assert.strictEqual(resStudentWithdraw.statusCode, 302);
+      assert.ok(resStudentWithdraw.headers.location.includes('/student'));
+      console.log('✓ POST /portal/applications/:id/withdraw: student withdraws their application');
+
+      // 16.7. Programmatic RESTful API Endpoints (/api/me)
+      const resApiMeUnauth = await request({ path: '/api/me' });
+      assert.strictEqual(resApiMeUnauth.statusCode, 401);
+      console.log('✓ GET /api/me (Unauthenticated): returns structured 401 Unauthorized');
+
+      const resApiMeStudent = await request({
+        path: '/api/me',
+        headers: { Authorization: `Bearer ${studentPortalToken}` }
+      });
+      assert.strictEqual(resApiMeStudent.statusCode, 200);
+      assert.strictEqual(resApiMeStudent.json.success, true);
+      assert.strictEqual(resApiMeStudent.json.data.user.email, 'zeynep.workspace@student.edu.tr');
+      assert.ok(Array.isArray(resApiMeStudent.json.data.applications));
+      assert.ok(resApiMeStudent.json.data.applications.some(a => a.id === portalAppId));
+      console.log('✓ GET /api/me: returns authenticated user data with telemetry and applications');
+
+      const resApiMeApps = await request({
+        path: '/api/me/applications',
+        headers: { Authorization: `Bearer ${studentPortalToken}` }
+      });
+      assert.strictEqual(resApiMeApps.statusCode, 200);
+      assert.strictEqual(resApiMeApps.json.success, true);
+      assert.ok(resApiMeApps.json.data.length >= 1);
+      console.log('✓ GET /api/me/applications: returns candidate application history');
+
+      const resApiMeJobs = await request({
+        path: '/api/me/jobs',
+        headers: { Authorization: `Bearer ${alumniPortalToken}` }
+      });
+      assert.strictEqual(resApiMeJobs.statusCode, 200);
+      assert.strictEqual(resApiMeJobs.json.success, true);
+      assert.ok(resApiMeJobs.json.data.length >= 1);
+      console.log('✓ GET /api/me/jobs: returns alumni posted job opportunities');
+
+      const resApiUpdateProfile = await request({
+        path: '/api/me/profile',
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${alumniPortalToken}` }
+      }, {
+        first_name: 'Tarik',
+        last_name: 'Akin',
+        current_company: 'GlobalCloud Inc',
+        current_title: 'Staff Architect',
+        bio: 'Building distributed cloud experiences.'
+      });
+      assert.strictEqual(resApiUpdateProfile.statusCode, 200);
+      assert.strictEqual(resApiUpdateProfile.json.success, true);
+      assert.strictEqual(resApiUpdateProfile.json.data.profile.current_company, 'GlobalCloud Inc');
+      assert.strictEqual(resApiUpdateProfile.json.data.profile.current_title, 'Staff Architect');
+      console.log('✓ PUT /api/me/profile: updates user identity and alumni profile metadata');
+
+      console.log('\n🎉 ALL 125+ TESTS PASSED SUCCESSFULLY! MVC, APIs, Relations, N:M Action Table, Migrations, Seeders, Logger, Guardians, Registration, Log In, Log Out, Auth Middleware, Admin Panel, Dynamic Role Navigation & User-Specific Workspaces Verified.\n');
       server.close(() => process.exit(0));
     } catch (err) {
       console.error('\n❌ Test Failure:', err);

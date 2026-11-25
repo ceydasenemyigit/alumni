@@ -41,6 +41,10 @@
       "description": "High-clearance administrative operations, telemetry, role assignment, and data manipulation"
     },
     {
+      "name": "User Workspaces & Portals",
+      "description": "Role-specific workspaces for Students and Alumni plus authenticated user telemetry APIs (/api/me)"
+    },
+    {
       "name": "System",
       "description": "Health checks and system diagnostics"
     },
@@ -50,6 +54,145 @@
     }
   ],
   "paths": {
+    "/dashboard": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Universal Dashboard Dispatcher",
+        "description": "Smart role-aware redirector: STUDENT -> /student, ALUMNI -> /alumni, ADMIN -> /admin. Unauthenticated requests are redirected to /login?redirect=/dashboard.",
+        "responses": {
+          "302": { "description": "Redirects to role-specific workspace" }
+        }
+      }
+    },
+    "/student": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Student Portal & Application Tracker (HTML)",
+        "description": "Dedicated student workspace displaying submitted applications with recruitment status, academic progress, and recommended job vacancies. Requires STUDENT or ADMIN role.",
+        "responses": {
+          "200": { "description": "HTML student portal page", "content": { "text/html": {} } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - requires STUDENT role" }
+        }
+      }
+    },
+    "/alumni": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Alumni Workspace & Talent Manager (HTML)",
+        "description": "Dedicated alumni workspace for managing posted job vacancies, reviewing candidate applications, and updating recruitment statuses. Requires ALUMNI or ADMIN role.",
+        "responses": {
+          "200": { "description": "HTML alumni workspace page", "content": { "text/html": {} } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - requires ALUMNI role" }
+        }
+      }
+    },
+    "/my/applications": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "My Submitted Applications (HTML)",
+        "description": "Direct application tracking list for the authenticated candidate.",
+        "responses": {
+          "200": { "description": "HTML applications list", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/my/jobs": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "My Posted Vacancies (HTML)",
+        "description": "Job posting management view for the authenticated alumnus.",
+        "responses": {
+          "200": { "description": "HTML posted jobs list", "content": { "text/html": {} } }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Account & Profile Settings View (HTML)",
+        "description": "Unified settings page to update user identity and alumni professional profile.",
+        "responses": {
+          "200": { "description": "HTML profile settings view", "content": { "text/html": {} } }
+        }
+      },
+      "post": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Update Profile Settings via Web Form",
+        "description": "Processes form submission for user identity and alumni professional profile.",
+        "responses": {
+          "302": { "description": "Redirects back to /profile with success message" }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Get Authenticated User Telemetry",
+        "description": "Returns current user identity, alumni profile, submitted applications, and posted jobs.",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "User profile telemetry and domain relations" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/me/applications": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Get Authenticated User Applications",
+        "description": "Returns submitted job applications for the logged-in candidate.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of applications" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/me/jobs": {
+      "get": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Get Authenticated User Posted Jobs",
+        "description": "Returns vacancies posted by the logged-in alumnus.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of posted jobs" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/me/profile": {
+      "put": {
+        "tags": ["User Workspaces & Portals"],
+        "summary": "Update Authenticated User Profile",
+        "description": "Updates core user details and upserts alumni profile metadata.",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": { "type": "string" },
+                  "last_name": { "type": "string" },
+                  "department": { "type": "string" },
+                  "current_company": { "type": "string" },
+                  "current_title": { "type": "string" },
+                  "bio": { "type": "string" },
+                  "linkedin_url": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
     "/api/admin/claim": {
       "post": {
         "tags": ["Admin Subsystem"],

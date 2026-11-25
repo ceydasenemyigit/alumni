@@ -19,6 +19,8 @@ const authRoutes = require('./routes/authRoutes');
 const apiAuthRoutes = require('./routes/apiAuthRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const apiAdminRoutes = require('./routes/apiAdminRoutes');
+const portalRoutes = require('./routes/portalRoutes');
+const apiPortalRoutes = require('./routes/apiPortalRoutes');
 
 const {
   loggerMiddleware,
@@ -59,9 +61,10 @@ app.use('/announcements', announcementRoutes);
 app.use('/jobs', jobRoutes);
 app.use('/applications', applicationRoutes);
 app.use('/admin', adminRoutes);
+app.use('/', portalRoutes);
 
 // RESTful JSON API Routes
-app.use('/api', apiAuthRoutes);
+app.use('/api/me', apiPortalRoutes);
 app.use('/api/auth', apiAuthRoutes);
 app.use('/api/admin', apiAdminRoutes);
 app.use('/api/users', apiUserRoutes);
@@ -70,6 +73,7 @@ app.use('/api/jobs', apiJobRoutes);
 app.use('/api/applications', apiApplicationRoutes);
 app.use('/api/departments', apiDepartmentRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api', apiAuthRoutes);
 
 // --- Basic & Introductory Routes ---
 

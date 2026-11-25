@@ -376,3 +376,93 @@ Body: {}
 Query: {}
 IP: ::1
 --------------------------------------------------------------------------------
+[2026-11-25T20:50:34.335Z] [500] GET /api/test/error-500
+Error: Simulated 500 server exception for 5xx Guardian verification
+Reason: Database transaction deadlock simulated for 5xx Guardian
+Stack: Error: Simulated 500 server exception for 5xx Guardian verification
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\src\app.js:174:21
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:295:15
+    at processParams (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:582:12)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:291:5)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:688:15
+Body: {}
+Query: {}
+IP: ::1
+--------------------------------------------------------------------------------
+[2026-11-25T20:53:57.744Z] [500] GET /api/test/error-500
+Error: Simulated 500 server exception for 5xx Guardian verification
+Reason: Database transaction deadlock simulated for 5xx Guardian
+Stack: Error: Simulated 500 server exception for 5xx Guardian verification
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\src\app.js:174:21
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:295:15
+    at processParams (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:582:12)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:291:5)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:688:15
+Body: {}
+Query: {}
+IP: ::1
+--------------------------------------------------------------------------------
+[2026-11-25T20:54:46.211Z] [500] GET /api/test/error-500
+Error: Simulated 500 server exception for 5xx Guardian verification
+Reason: Database transaction deadlock simulated for 5xx Guardian
+Stack: Error: Simulated 500 server exception for 5xx Guardian verification
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\src\app.js:174:21
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:295:15
+    at processParams (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:582:12)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:291:5)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:688:15
+Body: {}
+Query: {}
+IP: ::1
+--------------------------------------------------------------------------------
+[2026-11-25T20:55:51.620Z] [500] GET /api/test/error-500
+Error: Simulated 500 server exception for 5xx Guardian verification
+Reason: Database transaction deadlock simulated for 5xx Guardian
+Stack: Error: Simulated 500 server exception for 5xx Guardian verification
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\src\app.js:174:21
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:295:15
+    at processParams (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:582:12)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:291:5)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:688:15
+Body: {}
+Query: {}
+IP: ::1
+--------------------------------------------------------------------------------
+[2026-11-25T20:56:44.756Z] [500] GET /api/test/error-500
+Error: Simulated 500 server exception for 5xx Guardian verification
+Reason: Database transaction deadlock simulated for 5xx Guardian
+Stack: Error: Simulated 500 server exception for 5xx Guardian verification
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\src\app.js:174:21
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\route.js:117:3)
+    at handle (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\lib\layer.js:152:17)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:295:15
+    at processParams (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:582:12)
+    at next (C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:291:5)
+    at C:\Users\BusraSeyma\Documents\GitHub\alumni\node_modules\router\index.js:688:15
+Body: {}
+Query: {}
+IP: ::1
+--------------------------------------------------------------------------------

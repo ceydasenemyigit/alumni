@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <a href="/dashboard" style="color: var(--primary-on-dark); text-decoration: none; font-size: 0.85rem;">&larr; Workspace Dashboard</a>
+    </div>
+    <h1 class="page-title">My Posted Job Opportunities</h1>
+    <p class="page-subtitle">Manage vacancies you have published for students and fellow alumni in the network.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Post New Job</a>
+  </div>
+</div>
+
+<% if (typeof successMessage !== 'undefined' && successMessage) { %>
+  <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 12px 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+    <span>✓</span>
+    <span><%= successMessage %></span>
+  </div>
+<% } %>
+
+<div class="card" style="padding: 24px;">
+  <% if (jobs.length === 0) { %>
+    <div style="text-align: center; padding: 40px 20px; background: rgba(20, 12, 23, 0.4); border-radius: 12px; border: 1px dashed rgba(244, 63, 94, 0.25);">
+      <div style="font-size: 2.2rem; margin-bottom: 10px;">💼</div>
+      <h4 style="color: white; font-size: 1.05rem; margin-bottom: 6px;">No Vacancies Posted Yet</h4>
+      <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 420px; margin: 0 auto 18px;">
+        Share career openings at your organization with the alumni network.
+      </p>
+      <a href="/jobs/new" class="btn btn-pill-primary btn-sm">+ Publish First Vacancy</a>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-align: left; color: var(--text-soft);">
+            <th style="padding: 12px 14px;">Title & Company</th>
+            <th style="padding: 12px 14px;">Location / Type</th>
+            <th style="padding: 12px 14px;">Status</th>
+            <th style="padding: 12px 14px;">Candidates</th>
+            <th style="padding: 12px 14px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% jobs.forEach(job => { %>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+              <td style="padding: 14px;">
+                <div style="font-weight: 700; color: white;"><%= job.title %></div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);"><%= job.company %></div>
+              </td>
+              <td style="padding: 14px; font-size: 0.82rem; color: var(--text-muted);">
+                <div><%= job.location || 'Remote' %></div>
+                <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: var(--primary-on-dark); font-size: 0.72rem; padding: 2px 6px;">
+                  <%= job.employment_type %>
+                </span>
+              </td>
+              <td style="padding: 14px;">
+                <% if (job.is_active) { %>
+                  <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);">● Active Listing</span>
+                <% } else { %>
+                  <span class="badge" style="background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4);">○ Closed</span>
+                <% } %>
+              </td>
+              <td style="padding: 14px;">
+                <span class="badge" style="background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.35); font-size: 0.78rem;">
+                  👥 <%= job.applicant_count %> Applicants
+                </span>
+              </td>
+              <td style="padding: 14px; text-align: right;">
+                <a href="/jobs/<%= job.id %>" class="btn btn-utility btn-sm" style="padding: 4px 10px; font-size: 0.78rem;">View Listing</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
